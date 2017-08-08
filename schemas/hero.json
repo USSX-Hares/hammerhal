@@ -1,0 +1,98 @@
+{
+    "title": "hero",
+    "type": "object",
+    
+    "definitions":
+    {
+        "positiveInteger": { "type": "integer", "minimum": 1 },
+        "dice": { "type": "integer", "minimum": 1, "maximum": 6 },
+        "range": { "type": "string", "enum": [ "combat", "missile", "area" ] },
+        
+        "heroicWeapon":
+        {
+            "title": "heroicWeapon",
+            "type": "object",
+            "properties":
+            {
+                "name":     { "type": "string" },
+                "cost":     { "$ref": "#/definitions/dice" },
+                "range":    { "$ref": "#/definitions/range" },
+                "hit":      { "$ref": "#/definitions/dice" },
+                "damage":   { "type": "string" }
+            },
+            "additionalProperties": false,
+            "required": [ "name", "cost", "range", "hit", "damage" ]
+        },
+        "heroicAbility":
+        {
+            "title": "heroicAbility",
+            "type": "object",
+            "properties":
+            {
+                "name":         { "type": "string" },
+                "cost":         { "oneOf" : [ { "$ref": "#/definitions/dice" }, { "type": "null" } ] },
+                "diceSpace":    { "type": "boolean" },
+                "description":  { "type": "string" }
+            },
+            "additionalProperties": false,
+            "required": [ "name", "cost", "diceSpace", "description" ]
+        }
+    },
+    
+    "properties":
+    {
+        "name":     { "type": "string" },
+        "subtitle": { "type": [ "string", "null" ] },
+        "image":    { "type": "string" },
+        "renown":   { "type": "string" },
+        
+        "stats":
+        {
+            "type": "object",
+            "properties":
+            {
+                "move":     { "$ref": "#/definitions/positiveInteger" },
+                "save":     { "$ref": "#/definitions/dice" },
+                "agility":  { "$ref": "#/definitions/dice" }
+            },
+            "additionalProperties": false,
+            "required": [ "move", "save", "agility" ]
+        },
+        
+        "diceSpace":
+        {
+            "type": "array",
+            "items":
+            {
+                "type": "object",
+                "properties":
+                {
+                    "count": { "$ref": "#/definitions/positiveInteger" },
+                    "image": { "type": "string" }
+                }
+            }
+        },
+        
+        "weapons":
+        {
+            "type": "array",
+            "items": { "$ref": "#/definitions/heroicWeapon" }
+        },
+        
+        "abilities":
+        {
+            "type": "array",
+            "items": { "$ref": "#/definitions/heroicAbility" }
+        },
+        
+        "traits":
+        {
+            "type": "array",
+            "items": [ { "type": "string" } ],
+            "minItems": 1,
+            "uniqueItems": true
+        }
+    },
+    "additionalProperties": false,
+    "required": [ "name", "stats", "weapons", "traits", "renown" ]
+}
