@@ -61,7 +61,7 @@
         
         "diceSpace":
         {
-            "type": "array",
+            "type": [ "array", "string" ],
             "items":
             {
                 "type": "object",

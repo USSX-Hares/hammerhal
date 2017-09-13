@@ -7,6 +7,8 @@
     {
         "hero":
         {
+            "defaultDiceSpace": [ { "count": 4, "image": "dice.png" } ],
+            
             "outputDirectory": "heroes/",
             "rawDirectory": "heroes/"
         }

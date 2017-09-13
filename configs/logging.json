@@ -3,7 +3,7 @@
     "disable_existing_loggers": false,
     "formatters": {
         "simple": {
-            "format": "%(asctime)-15s \t [ %(name)-50s -> %(module)-15s -> %(funcName)-20s -> %(threadName)-20s] [ %(levelname)-8s ] \t | %(message)s"
+            "format": "%(asctime)-15s \t [ %(name)-50s -> %(module)-15s -> %(funcName)-20s ] [ %(levelname)-8s ] \t | %(message)s"
         }
     },
 

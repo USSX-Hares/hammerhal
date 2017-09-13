@@ -34,10 +34,14 @@ def start():
 
     ConfigLoader.load_configs()
     compiler = HeroCompiler()
-    result = compiler.open('wight-king') and compiler.compile() and compiler.save()
-    if (result):
-        message = "Success! File saved to {filename}".format(filename=result)
-        logger.info(message)
-        print(message)
+    heroes = [ 'wight-king', 'grey-seer' ]
+    for hero in heroes:
+        result = compiler.open(hero) and compiler.compile() and compiler.save()
+        if (result):
+            message = "Success! File saved to {filename}".format(filename=result)
+            logger.info(message)
+            print(message)
+        else:
+            logger.error("Cannot compile {hero}".format(hero=hero))
 
 start()

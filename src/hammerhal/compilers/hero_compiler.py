@@ -1,9 +1,10 @@
-import json
+import json, os
 from jsonschema import validate
 from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
 
+from hammerhal.text_drawer import TextDrawer
 from hammerhal import ConfigLoader
 from hammerhal.compilers import CompilerBase
 from logging import getLogger
@@ -21,19 +22,101 @@ class HeroCompiler(CompilerBase):
 
 
     def compile(self):
-        filename = "{directory}{name}.png".format(directory=ConfigLoader.get_from_config('sourcesDirectory', 'compilers'), name="hero_card_base")
+
+        filename = "{directory}{name}.png".format\
+        (
+            directory=ConfigLoader.get_from_config('sourcesDirectory', 'compilers'),
+            name="hero_card_base_{n}_weapons".format(n=len(self.raw['weapons'])),
+        )
+        if (not os.path.isfile(filename)):
+            logger.error("Cannot load hero card template with proper number of weapons: {n}".format(n=len(self.raw['weapons'])))
+            return None
         base = Image.open(filename)
-        draw = ImageDraw.Draw(base)
+        if (self.raw.get('image')):
+            filename = "{directory}{name}".format\
+            (
+                directory=ConfigLoader.get_from_config('rawDirectoryRoot'),
+                name=self.raw['image'],
+            )
+            if (not os.path.isfile(filename)):
+                logger.error("Cannot load hero image by path: '{path}' - no such file".format(path=self.raw['image']))
+                return None
+            base = self.insert_image_scaled(base_image=base, region=(0, 0, 1080, 1150), image_path=filename)
 
-        left = 1200
-        right = 3600
-        top = 100
-        bottom = 300
-
-        font = ImageFont.truetype("BOD_R.TTF", bottom - top, encoding="unic")
-        text = self.raw['name']
-        text_width, _ = draw.textsize(text, font=font)
-        draw.text(((left + right - text_width) / 2, top), text, (255, 255, 255), font=font)
+        self.__print_name(base)
+        self.__print_stats(base)
+        self.__print_dice_space(base)
+        self.__print_weapons(base)
+        self.__print_rules(base)
 
         self.compiled = base
         return self.compiled
+
+    def __print_name(self, base):
+        td = TextDrawer(base, font_size=285, bold=True)
+        td.set_font_direct('BOD_B.TTF')
+        td.set_font(capitalization=TextDrawer.CapitalizationModes.SmallCaps, character_separator_scale=0.2, horizontal_alignment=TextDrawer.TextAlignment.Center, vertical_alignment=TextDrawer.TextAlignment.Bottom)
+        td.print_in_region((1200, 40, 3400, 240), self.raw['name'], offset_borders=False)
+
+    def __print_stats(self, base):
+        td = TextDrawer(base, font_size=110, bold=True, font_family='Constantia', color='white')
+        td.print_line((910, 750), "{move}".format(**self.raw['stats']))
+        td.print_line((790, 950), "{save}+".format(**self.raw['stats']))
+        td.print_line((990, 950), "{agility}+".format(**self.raw['stats']))
+
+    def __print_dice_space(self, base):
+        dice_section = self.raw.get('diceSpace', "default")
+        if (dice_section == "default"):
+            dice_section = ConfigLoader.get_from_config('compilerTypeSpecific/hero/defaultDiceSpace', 'compilers')
+
+        dir = ConfigLoader.get_from_config('sourcesDirectory', 'compilers')
+        total_dices_count = sum(_dice_type['count'] for _dice_type in dice_section)
+        x1 = 1630; x2 = 3260
+        _x = x1; _y = 533
+        _dx = (x2 - x1) // (total_dices_count - 1)
+        for _dice_type in dice_section:
+            for i in range(_dice_type['count']):
+                self.insert_image_centered(base_image=base, position=(_x, _y), image_path=dir + _dice_type['image'])
+                _x += _dx
+
+    def __print_weapons(self, base):
+        td = TextDrawer(base, font_size=70, color='black', bold=True)
+        td.set_font(horizontal_alignment=TextDrawer.TextAlignment.Center, vertical_alignment=TextDrawer.TextAlignment.Center)
+
+        self.insert_table \
+        (
+            vertical_columns = [ 1340, 2420, 2860, 3070, 3455 ],
+            top = 760,
+            cell_height = 110,
+            data = self.raw['weapons'],
+
+            body_row_template = [ "{name} ({cost}+)", "{range}", "{hit}+", "{damage}" ],
+            body_text_drawer = td,
+            body_row_interval = [ None, None, 60, 40 ][len(self.raw['weapons'])],
+            body_capitalization = TextDrawer.CapitalizationModes.Capitalize,
+
+            header_row = [ "WEAPON ACTIONS", "Range", "Hit", "Damage" ],
+            header_text_drawer = td,
+            header_row_interval = 70,
+            header_capitalization = TextDrawer.CapitalizationModes.Normal,
+        )
+
+    def __print_rules(self, base):
+        td = TextDrawer(base, font_size=90, color='black')
+        td.set_font(horizontal_alignment=TextDrawer.TextAlignment.Justify, vertical_space_scale=0.15)
+        y = 1330; dy = 150
+        for ability in self.raw['abilities']:
+            if (ability.get('cost', None)):
+                text = "**{name} ({cost}+)**: {description}".format(**ability)
+            else:
+                text = "**{name}**: {description}".format(**ability)
+
+            x2 = 2933 if ability['diceSpace'] else 3233
+            _, _h = td.print_in_region((365, y, x2, 0), text, offset_borders=False)
+            y += _h + dy
+
+        text_traits = "**TRAITS:** The {name} is **{trait_1}** and **{trait_2}**.".format(name=self.raw['name'], trait_1=self.raw['traits'][0].capitalize(), trait_2=self.raw['traits'][1].capitalize())
+        text_renown = "**RENOWN:** {description}".format(description=self.raw['renown'])
+        text = text_traits + '\n' + text_renown
+        _, _h = td.print_in_region((365, y, 3233, 0), text, offset_borders=False)
+        y += _h + dy
