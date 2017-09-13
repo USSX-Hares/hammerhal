@@ -1,0 +1,14 @@
+{
+    "schemasDirectory": "schemas/",
+    "sourcesDirectory": "compiler_images/",
+    "outputDirectoryRoot": "output/",
+    
+    "compilerTypeSpecific":
+    {
+        "hero":
+        {
+            "outputDirectory": "heroes/",
+            "rawDirectory": "heroes/"
+        }
+    }
+}

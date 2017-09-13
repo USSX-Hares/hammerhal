@@ -1,0 +1,7 @@
+{
+    "configDirectory": "configs/",
+    "compilersConfig": "compilers.json",
+    
+    "rawDirectoryRoot": "raw/",
+    "compilerImagesDirectory": "compiler_images/"
+}
