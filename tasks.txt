@@ -1,7 +1,9 @@
 TODO: diff tool
-TODO: hero compiler
 TODO: adversary compiler
 TODO: rules compiler
 TODO: graphical editor
 
 TODO: rules schema
+
+Hero Compiler:
+ - Subtitle

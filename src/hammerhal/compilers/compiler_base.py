@@ -13,6 +13,7 @@ class CompilerBase():
     compiler_type = None
     schema_path = None
     raw_directory = None
+    sources_directory = None
     output_directory = None
     output_name = None
 
@@ -23,9 +24,11 @@ class CompilerBase():
         self.schema_path = "{directory}{type}.json".format(directory=ConfigLoader.get_from_config('schemasDirectory', 'compilers'), type=self.compiler_type)
         self.raw_directory = "{rawRoot}{rawOffset}".format(rawRoot=ConfigLoader.get_from_config('rawDirectoryRoot'), rawOffset=ConfigLoader.get_from_config('compilerTypeSpecific/{type}/rawDirectory'.format(type=self.compiler_type), 'compilers'))
         self.output_directory = "{rawRoot}{rawOffset}".format(rawRoot=ConfigLoader.get_from_config('outputDirectoryRoot', 'compilers'), rawOffset=ConfigLoader.get_from_config('compilerTypeSpecific/{type}/outputDirectory'.format(type=self.compiler_type), 'compilers'))
+        self.sources_directory = ConfigLoader.get_from_config('sourcesDirectory', 'compilers')
 
     def search(self, name):
         # Temporary decision
+        # TODO: Search files
         return "{directory}{name}.json".format(directory=self.raw_directory, name=name)
 
     def open(self, name):
@@ -134,12 +137,20 @@ class CompilerBase():
         result_image.paste(base_image, (0, 0), base_image)
         return result_image
 
+    def get_image_size(self, image_path):
+        image = Image.open(image_path)
+        _w = image.width
+        _h = image.height
+        return _w, _h
+
     def insert_image_centered(self, base_image, position, image_path, offset_borders=True):
         x, y = position
 
         logger.debug("Inserting image '{path}' to position {position}".format(path=image_path, position=position))
         image = Image.open(image_path)
-        w = image.width
-        h = image.height
+        _w = image.width
+        _h = image.height
 
-        base_image.paste(image, (x - w // 2, y - h // 2), image)
+        _x = x - _w // 2; _y = y - _h // 2
+        base_image.paste(image, (_x, _y), image)
+        return _x, _y, _w, _h

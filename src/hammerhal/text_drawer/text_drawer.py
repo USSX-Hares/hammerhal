@@ -104,13 +104,16 @@ class TextDrawer:
 
         self.color = color or self.color or 'white'
 
-    def get_text_size(self, text):
-        pass
-
     def print_line(self, position, text:str):
         self.__print(position, text, real_print=True)
 
     def print_in_region(self, region, text:str, offset_borders:bool=True):
+        return self.__print_in_region(region, text, offset_borders, real_print=True)
+
+    def get_text_size(self, region, text:str, offset_borders:bool=True):
+        return self.__print_in_region(region, text, offset_borders, real_print=False)
+
+    def __print_in_region(self, region, text:str, offset_borders, real_print):
         if (offset_borders):
             x, y, w, h = region
         else:
@@ -128,7 +131,7 @@ class TextDrawer:
             line = { 'words': [], 'width': 0 }
             for word in words:
                 word_width, _ = self.__print(None, word, real_print=False)
-                if (line['width'] + word_width + space_width <= w):
+                if (not w or line['width'] + word_width + space_width <= w):
                     line['width'] += word_width + space_width
                     line['words'].append(word)
                 else:
@@ -142,41 +145,42 @@ class TextDrawer:
             paragraphs.append(lines)
 
         num_lines = sum(len(paragraph) for paragraph in paragraphs)
-        total_height = (num_lines + (num_lines - 1) * (self.text_vertical_space_scale)) * line_height
+        total_height = int((num_lines + (num_lines - 1) * (self.text_vertical_space_scale)) * line_height)
 
-        if (self.__current_text_vertical_alignment == TextDrawer.TextAlignment.Bottom):
-            _y = y + h - total_height
-        elif (self.__current_text_vertical_alignment == TextDrawer.TextAlignment.Center):
-            _y = y + (h - total_height) // 2
-        else:
-            _y = y
+        if (real_print):
+            if (self.__current_text_vertical_alignment == TextDrawer.TextAlignment.Bottom):
+                _y = y + h - total_height
+            elif (self.__current_text_vertical_alignment == TextDrawer.TextAlignment.Center):
+                _y = y + (h - total_height) // 2
+            else:
+                _y = y
 
-        original_space_scale = self.text_space_scale
-        for paragraph in paragraphs:
-            for i in range(len(paragraph)):
-                line = paragraph[i]
-                last_line = (i + 1 == len(paragraph))
+            original_space_scale = self.text_space_scale
+            for paragraph in paragraphs:
+                for i in range(len(paragraph)):
+                    line = paragraph[i]
+                    last_line = (i + 1 == len(paragraph))
 
-                self.text_space_scale = original_space_scale
-                if (self.__current_text_horizontal_alignment == TextDrawer.TextAlignment.Right):
-                    _x = x + w - line['width']
-                elif (self.__current_text_horizontal_alignment == TextDrawer.TextAlignment.Center):
-                    _x = x + (w - line['width']) // 2
-                elif (self.__current_text_horizontal_alignment == TextDrawer.TextAlignment.Justify and not last_line and len(line['words']) > 0):
-                    _x = x
-                    new_space_width = (w - line['width']) / (len(line['words']) - 1)
-                    self.text_space_scale = 1 + new_space_width / space_width
-                else:
-                    _x = x
+                    self.text_space_scale = original_space_scale
+                    if (self.__current_text_horizontal_alignment == TextDrawer.TextAlignment.Right):
+                        _x = x + w - line['width']
+                    elif (self.__current_text_horizontal_alignment == TextDrawer.TextAlignment.Center):
+                        _x = x + (w - line['width']) // 2
+                    elif (self.__current_text_horizontal_alignment == TextDrawer.TextAlignment.Justify and not last_line and len(line['words']) > 0):
+                        _x = x
+                        new_space_width = (w - line['width']) / (len(line['words']) - 1)
+                        self.text_space_scale = 1 + new_space_width / space_width
+                    else:
+                        _x = x
 
-                self.__print((_x, _y), ' '.join(line['words']), real_print=True)
-                _y += (1 + self.text_vertical_space_scale) * self.__current_font_size
+                    self.__print((_x, _y), ' '.join(line['words']), real_print=True)
+                    _y += (1 + self.text_vertical_space_scale) * self.__current_font_size
 
-        self.text_space_scale = original_space_scale
+            self.text_space_scale = original_space_scale
         return max_width, total_height
 
 
-    def __print(self, position, text: str, real_print:bool):
+    def __print(self, position, text: str, real_print:bool, debug_console_print:bool=False):
         x, y = position or (0, 0)
         max_height = 0
 
@@ -219,7 +223,8 @@ class TextDrawer:
 
             w, h = self.__drawer.textsize(_char, font=_font)
             if (real_print):
-                print(text[i], end='')
+                if (debug_console_print):
+                    print(text[i], end='')
                 self.__drawer.text((_x, _y), _char, self.color, font=_font)
             if (_char == ' '):
                 x += w * self.text_space_scale
@@ -229,8 +234,9 @@ class TextDrawer:
                 max_height = h
 
         initial_x, _ = position or (0, 0)
-        if (real_print):
+        if (debug_console_print):
             print('', end='\n')
+        if (real_print):
             self.set_font(bold=original_bold, italic=original_italic)
         return (x - initial_x, max_height)
 

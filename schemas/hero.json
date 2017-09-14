@@ -41,10 +41,11 @@
     
     "properties":
     {
-        "name":     { "type": "string" },
-        "subtitle": { "type": [ "string", "null" ] },
-        "image":    { "type": "string" },
-        "renown":   { "type": "string" },
+        "name":                 { "type": "string" },
+        "titleFontSizeScale":   { "type": "number" },
+        "subtitle":             { "type": [ "string", "null" ] },
+        "image":                { "type": "string" },
+        "renown":               { "type": "string" },
         
         "stats":
         {
