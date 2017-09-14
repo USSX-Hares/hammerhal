@@ -37,6 +37,7 @@ class TextDrawer:
     character_width_scale : float = None
     text_character_separator_scale = None
     text_vertical_space_scale = None
+    text_paragraph_vertical_space = None
     text_space_scale = None
 
     color = None
@@ -56,7 +57,7 @@ class TextDrawer:
         self.__current_font_file = font_path
         self.__font_base = ImageFont.truetype(font=self.__current_font_file, size=self.__current_font_size, encoding='unic')
 
-    def set_font(self, font_family=None, font_size=None, color=None, bold=None, italic=None, horizontal_alignment=None, vertical_alignment=None, character_width_scale=None, space_scale=None, vertical_space_scale=None, character_separator_scale=None, capitalization=None):
+    def set_font(self, font_family=None, font_size=None, color=None, bold=None, italic=None, horizontal_alignment=None, vertical_alignment=None, character_width_scale=None, space_scale=None, vertical_space_scale=None, paragraph_vertical_space=None, character_separator_scale=None, capitalization=None):
         self.__current_font_size = font_size or self.__current_font_size or 10
         self.__current_font_family = font_family or self.__current_font_family or 'Times New Roman'
 
@@ -91,6 +92,11 @@ class TextDrawer:
             self.text_vertical_space_scale = vertical_space_scale
         else:
             self.text_vertical_space_scale = self.text_vertical_space_scale or 0.0
+
+        if (not paragraph_vertical_space is None):
+            self.text_paragraph_vertical_space = paragraph_vertical_space
+        else:
+            self.text_paragraph_vertical_space = self.text_paragraph_vertical_space or 0
 
         if (not character_separator_scale is None):
             self.text_character_separator_scale = character_separator_scale
@@ -145,7 +151,7 @@ class TextDrawer:
             paragraphs.append(lines)
 
         num_lines = sum(len(paragraph) for paragraph in paragraphs)
-        total_height = int((num_lines + (num_lines - 1) * (self.text_vertical_space_scale)) * line_height)
+        total_height = int(num_lines * (1 + self.text_vertical_space_scale) * line_height + self.text_paragraph_vertical_space * (len(paragraphs) - 1))
 
         if (real_print):
             if (self.__current_text_vertical_alignment == TextDrawer.TextAlignment.Bottom):
@@ -175,6 +181,7 @@ class TextDrawer:
 
                     self.__print((_x, _y), ' '.join(line['words']), real_print=True)
                     _y += (1 + self.text_vertical_space_scale) * self.__current_font_size
+                _y += self.text_paragraph_vertical_space
 
             self.text_space_scale = original_space_scale
         return max_width, total_height
@@ -242,23 +249,40 @@ class TextDrawer:
 
 def test():
 
-    im = Image.open("compiler_images/hero_card_base.png")
+    im = Image.open("compiler_images/hero_card_base_2_weapons.png")
 
     td = TextDrawer(im, font_size=285, bold=True)
     td.set_font_direct('BOD_B.TTF')
     td.set_font(capitalization=TextDrawer.CapitalizationModes.SmallCaps, character_separator_scale=0.2, horizontal_alignment=TextDrawer.TextAlignment.Center, vertical_alignment=TextDrawer.TextAlignment.Bottom)
     td.print_in_region((1200, 40, 3400, 240), 'Grey Seer', offset_borders=False)
 
-    rules = """**Swarmed:** If you roll a 6 for the attack when using Vermintide, the affected target suffers D3 wounds instead of 1.
-    
-    **Warpstone Token:** After making an action roll to generate a Gray Seer's hero dice, you can choose to re-roll one of the dice. If you do so and roll 1, suffer a wound.
-    
-    **TRAITS:** Grey Seer is **Arcane** and **Chaotic**.
-    **RENOWN:** If you roll 13 on your action roll, gain D6 renown."""
+    rules = \
+    [
+        "**Swarmed:** If you roll a 6 for the attack when using Vermintide, the affected target suffers D3 wounds instead of 1.",
+        "**Warpstone Token:** After making an action roll to generate a Gray Seer's hero dice, you can choose to re-roll one of the dice. If you do so and roll 1, suffer a wound.",
+        """**TRAITS:** Grey Seer is **Arcane** and **Chaotic**.
+        **RENOWN:** If you roll 13 on your action roll, gain D6 renown.""",
+    ]
 
-    td = TextDrawer(im, font_family='Times New Roman', font_size=90, color='black')
-    td.set_font(horizontal_alignment=TextDrawer.TextAlignment.Justify)
-    td.print_in_region((365, 1330, 3233, 2500), rules, offset_borders=False)
+    td = TextDrawer(im, font_size=90, color='black')
+    td.set_font \
+    (
+        horizontal_alignment=TextDrawer.TextAlignment.Justify,
+        vertical_alignment=TextDrawer.TextAlignment.Center,
+        vertical_space_scale=0.15,
+        paragraph_vertical_space=50,
+    )
+    y = 1330; dy = 80; light = True
+    x1 = 365; x2 = 3233
+    for rule in rules:
+        _, _h = td.get_text_size((x1, y, x2, y), rule, offset_borders=False)
+        _h += dy
+        _drawer = ImageDraw.ImageDraw(im)
+        if (light):
+            _drawer.rectangle([(x1, y), (x2, y + _h)], fill='yellow')
+        light = not light
+        td.print_in_region((x1, y - 5, x2, y + _h - 5), rule, offset_borders=False)
+        y += _h
 
     im.save('output/heroes/grey-seer.png')
 

@@ -38,7 +38,7 @@ class HeroCompiler(CompilerBase):
     def __prepare_base(self):
         filename = "{directory}{name}.png".format\
         (
-            directory=ConfigLoader.get_from_config('sourcesDirectory', 'compilers'),
+            directory=self.sources_directory,
             name="hero_card_base_{n}_weapons".format(n=len(self.raw['weapons'])),
         )
         if (not os.path.isfile(filename)):
@@ -56,6 +56,7 @@ class HeroCompiler(CompilerBase):
                 return None
             base = self.insert_image_scaled(base_image=base, region=(0, 0, 1080, 1150), image_path=filename)
         return base
+
     def __print_name(self, base):
         # TODO: subtitle
         td = TextDrawer(base, font_size=int(285 * self.raw.get('titleFontSizeScale', 1.0)), bold=True)
@@ -103,7 +104,13 @@ class HeroCompiler(CompilerBase):
         )
     def __print_rules(self, base):
         td = TextDrawer(base, font_size=90, color='black')
-        td.set_font(horizontal_alignment=TextDrawer.TextAlignment.Justify, vertical_alignment=TextDrawer.TextAlignment.Center, vertical_space_scale=0.15)
+        td.set_font \
+        (
+            horizontal_alignment=TextDrawer.TextAlignment.Justify,
+            vertical_alignment=TextDrawer.TextAlignment.Center,
+            vertical_space_scale=0.15,
+            paragraph_vertical_space=50,
+        )
         y = 1330; light = True
         gradient_base = self.__get_gradient_image()
 
@@ -148,7 +155,7 @@ class HeroCompiler(CompilerBase):
 
     def __print_rules_block(self, base:Image.Image, text_drawer, y:int, text:str, light:bool, gradient_base:Image.Image, dice_space:bool=False):
         x1 = 365; x2 = 2933 if dice_space else 3233
-        dy = 120
+        dy = self.raw.get('rulesSeparatorHeight', 100)
 
         _, _h = text_drawer.get_text_size((x1, y, x2, 0), text, offset_borders=False)
 
@@ -166,5 +173,6 @@ class HeroCompiler(CompilerBase):
             _x = 3260; _y = y + _h // 2
             self.insert_image_centered(base, (_x, _y), self.sources_directory + "dice.png")
 
-        text_drawer.print_in_region((x1, y, x2, y + _h), text, offset_borders=False)
+        # -5 because of not correct intuitive of text while on print
+        text_drawer.print_in_region((x1, y - 5, x2, y - 5 + _h), text, offset_borders=False)
         return _h

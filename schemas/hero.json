@@ -43,6 +43,7 @@
     {
         "name":                 { "type": "string" },
         "titleFontSizeScale":   { "type": "number" },
+        "rulesSeparatorHeight": { "type": "integer" },
         "subtitle":             { "type": [ "string", "null" ] },
         "image":                { "type": "string" },
         "renown":               { "type": "string" },

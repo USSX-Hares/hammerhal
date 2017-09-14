@@ -36,9 +36,13 @@ def start():
     compiler = HeroCompiler()
     heroes = \
     [
-        'wight-king',
-        'grey-seer',
+        # 'wight-king',
+        # 'grey-seer',
         # 'orruk-weirdnob-shaman',
+        # 'battlemage',
+        # 'chaos-sorcerer-lord',
+        # 'great-bray-shaman',
+        'lord-castellant',
     ]
     e_code = len(heroes)
     for hero in heroes:
