@@ -74,7 +74,7 @@ class TextDrawer:
         if not (font_family is None and bold is None and italic is None):
             self.__current_font_filepath = self.__font_finder.find_font_file_by_fontname(family_name=self.__current_font_family, bold=self.__bold, italic=self.__italic)
             if not (self.__current_font_filepath):
-                raise FileNotFoundError("Requested font ({font_family}) is not installed".format(font_family=self.__current_font_family))
+                raise FileNotFoundError("Requested font ({font_family}{bold}{italic}) is not installed".format(font_family=self.__current_font_family, bold=", Bold" if self.__bold else '', italic=", Italic" if self.__italic else ''))
         else:
             self.__current_font_filepath = self.__current_font_filepath or 'times.ttf'
         self.__font_base = ImageFont.truetype(font=self.__current_font_filepath, size=self.__current_font_size, encoding='unic')
@@ -110,6 +110,15 @@ class TextDrawer:
 
         self.color = color or self.color or 'white'
 
+    def get_font(self):
+        result_dict = dict()
+        result_dict['font_family'] = self.__current_font_family
+        result_dict['capitalization'] = self.__current_text_capitalization
+        result_dict['bold'] = self.__bold
+        result_dict['italic'] = self.__italic
+
+        return result_dict
+
     def print_line(self, position, text:str):
         self.__print(position, text, real_print=True)
 
@@ -132,17 +141,37 @@ class TextDrawer:
         _, line_height = self.__print(None, 'LINE HEIGHT', real_print=False)
         paragraphs = []
         for paragraph in text.split('\n'):
+            _horizontal_alignment = self.__current_text_horizontal_alignment
             words = paragraph.split()
             lines = []
-            line = { 'words': [], 'width': 0 }
+            line = { 'words': [], 'width': 0, 'horizontal_alignment': _horizontal_alignment }
             for word in words:
+                if (word.startswith('$$')):
+                    if (word == '$$HA_L'):
+                        _horizontal_alignment = TextDrawer.TextAlignment.Left
+                        line['horizontal_alignment'] = _horizontal_alignment
+                        continue
+                    if (word == '$$HA_C'):
+                        _horizontal_alignment = TextDrawer.TextAlignment.Center
+                        line['horizontal_alignment'] = _horizontal_alignment
+                        continue
+                    if (word == '$$HA_R'):
+                        _horizontal_alignment = TextDrawer.TextAlignment.Right
+                        line['horizontal_alignment'] = _horizontal_alignment
+                        continue
+                    if (word == '$$HA_J'):
+                        _horizontal_alignment = TextDrawer.TextAlignment.Justify
+                        line['horizontal_alignment'] = _horizontal_alignment
+                        continue
+                    raise KeyError("Unsupported operand: {word}".format(word=word))
+
                 word_width, _ = self.__print(None, word, real_print=False)
                 if (not w or line['width'] + word_width + space_width <= w):
                     line['width'] += word_width + space_width
                     line['words'].append(word)
                 else:
                     lines.append(line)
-                    line = { 'words': [ word ], 'width': word_width }
+                    line = { 'words': [ word ], 'width': word_width, 'horizontal_alignment': _horizontal_alignment }
 
                 if (max_width < line['width']):
                     max_width = line['width']
@@ -152,6 +181,7 @@ class TextDrawer:
 
         num_lines = sum(len(paragraph) for paragraph in paragraphs)
         total_height = int(num_lines * (1 + self.text_vertical_space_scale) * line_height + self.text_paragraph_vertical_space * (len(paragraphs) - 1))
+
 
         if (real_print):
             if (self.__current_text_vertical_alignment == TextDrawer.TextAlignment.Bottom):
@@ -168,11 +198,11 @@ class TextDrawer:
                     last_line = (i + 1 == len(paragraph))
 
                     self.text_space_scale = original_space_scale
-                    if (self.__current_text_horizontal_alignment == TextDrawer.TextAlignment.Right):
+                    if (line['horizontal_alignment'] == TextDrawer.TextAlignment.Right):
                         _x = x + w - line['width']
-                    elif (self.__current_text_horizontal_alignment == TextDrawer.TextAlignment.Center):
+                    elif (line['horizontal_alignment'] == TextDrawer.TextAlignment.Center):
                         _x = x + (w - line['width']) // 2
-                    elif (self.__current_text_horizontal_alignment == TextDrawer.TextAlignment.Justify and not last_line and len(line['words']) > 0):
+                    elif (line['horizontal_alignment'] == TextDrawer.TextAlignment.Justify and not last_line and len(line['words']) > 0):
                         _x = x
                         new_space_width = (w - line['width']) / (len(line['words']) - 1)
                         self.text_space_scale = 1 + new_space_width / space_width
