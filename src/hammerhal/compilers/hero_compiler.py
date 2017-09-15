@@ -33,6 +33,7 @@ class HeroCompiler(CompilerBase):
         self.__print_rules(base)
 
         self.compiled = base
+        logger.info("Hero compiled!")
         return self.compiled
 
     def __prepare_base(self):
@@ -55,6 +56,7 @@ class HeroCompiler(CompilerBase):
                 logger.error("Cannot load hero image by path: '{path}' - no such file".format(path=self.raw['image']))
                 return None
             base = self.insert_image_scaled(base_image=base, region=(0, 0, 1080, 1150), image_path=filename)
+        logger.info("Image base prepared")
         return base
 
     def __print_name(self, base):
@@ -63,11 +65,13 @@ class HeroCompiler(CompilerBase):
         td.set_font_direct('BOD_B.TTF')
         td.set_font(capitalization=TextDrawer.CapitalizationModes.SmallCaps, horizontal_alignment=TextDrawer.TextAlignment.Center, vertical_alignment=TextDrawer.TextAlignment.Center)
         td.print_in_region((2400, 0, 0, 240), self.raw['name'], offset_borders=True)
+        logger.info("Name printed")
     def __print_stats(self, base):
         td = TextDrawer(base, font_size=110, bold=True, font_family='Constantia', color='white')
         td.print_line((910, 750), "{move}".format(**self.raw['stats']))
         td.print_line((790, 950), "{save}+".format(**self.raw['stats']))
         td.print_line((990, 950), "{agility}+".format(**self.raw['stats']))
+        logger.info("Stats printed")
     def __print_dice_space(self, base):
         dice_section = self.raw.get('diceSpace', "default")
         if (dice_section == "default"):
@@ -81,6 +85,7 @@ class HeroCompiler(CompilerBase):
             for i in range(_dice_type['count']):
                 self.insert_image_centered(base_image=base, position=(_x, _y), image_path=self.sources_directory + _dice_type['image'])
                 _x += _dx
+        logger.info("Dice space printed")
     def __print_weapons(self, base):
         td = TextDrawer(base, font_size=70, color='black', bold=True)
         td.set_font(horizontal_alignment=TextDrawer.TextAlignment.Center, vertical_alignment=TextDrawer.TextAlignment.Center)
@@ -102,6 +107,7 @@ class HeroCompiler(CompilerBase):
             header_row_interval = 70,
             header_capitalization = TextDrawer.CapitalizationModes.Normal,
         )
+        logger.info("Weapon table printed")
     def __print_rules(self, base):
         td = TextDrawer(base, font_size=90, color='black')
         td.set_font \
@@ -116,9 +122,9 @@ class HeroCompiler(CompilerBase):
 
         for ability in self.raw['abilities']:
             if (ability.get('cost', None)):
-                text = "**{name} ({cost}+)**: {description}".format(**ability)
+                text = "**{name} ({cost}+):** {description}".format(**ability)
             else:
-                text = "**{name}**: {description}".format(**ability)
+                text = "**{name}:** {description}".format(**ability)
 
             _h = self.__print_rules_block(base, td, y, text, light, gradient_base, dice_space=ability['diceSpace'])
             y += _h
@@ -130,6 +136,7 @@ class HeroCompiler(CompilerBase):
         _h = self.__print_rules_block(base, td, y, text, light, gradient_base)
         y += _h
         light = not light
+        logger.info("Rules printed")
 
     def __get_gradient_image(self):
 
