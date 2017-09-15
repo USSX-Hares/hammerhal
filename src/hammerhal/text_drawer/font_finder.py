@@ -79,7 +79,7 @@ class FontFinder:
     def __verify_font(lower_font_name, bold, italic):
         return (('bold' in lower_font_name) == bold) and (('italic' in lower_font_name) == italic)
 
-    def find_font_file(self, family_name, bold=False, italic=False):
+    def find_font_file_by_fontname(self, family_name, bold=False, italic=False):
         if (family_name in self.cached):
             for lower_font_name in self.cached[family_name]:
                 if (FontFinder.__verify_font(lower_font_name, bold, italic)):
@@ -93,37 +93,55 @@ class FontFinder:
 
         return None
 
+    def find_font_file_by_filename(self, filename):
+        for font_dir in FontFinder.get_fonts_directories():
+            all_fonts = glob.glob(font_dir + '/**/' + filename, recursive=True)
+            for font_path in all_fonts:
+                test = self.__check_font(validate=False, font_path=font_path, family_name=None, bold=None, italic=None)
+                if (not test is None):
+                    return font_path
+
+        return None
+
 
     def cache_all(self):
         self.__find_and_cache(validate=False)
 
     def __find_and_cache(self, validate, family_name=None, bold=False, italic=False):
         for font_dir in FontFinder.get_fonts_directories():
-            all_fonts = glob.glob(font_dir + '/*')
+            all_fonts = glob.glob(font_dir + '/**/*', recursive=True)
             for font_path in all_fonts:
-                if not (font_path in self.__in_cache):
-                    logger.debug("Trying to open {font_path}".format(font_path=font_path))
-                    try:
-                        _name, _family_name = FontFinder.get_font_name(font_path)
-                    except:
-                        # logger.warning("Cannot parse font file: {font_path}".format(font_path=font_path))
-                        pass
-                    else:
-                        lower_font_name = _name.lower()
-                        if (not _family_name in self.cached):
-                            self.cached[_family_name] = { lower_font_name: font_path }
-                        else:
-                            self.cached[_family_name][lower_font_name] = font_path
-
-                        if (validate):
-                            if (_family_name == family_name and FontFinder.__verify_font(lower_font_name, bold, italic)):
-                                return font_path
-
-                    self.__in_cache.add(font_path)
+                test = self.__check_font(validate=validate, font_path=font_path, family_name=family_name, bold=bold, italic=italic)
+                if (test):
+                    return font_path
 
         return None
 
-# def test_fonts():
+    def __check_font(self, validate, font_path, family_name, bold, italic):
+        if not (font_path in self.__in_cache):
+            logger.debug("Trying to open {font_path}".format(font_path=font_path))
+            try:
+                _name, _family_name = FontFinder.get_font_name(font_path)
+            except:
+                # logger.warning("Cannot parse font file: {font_path}".format(font_path=font_path))
+                return None
+            else:
+                lower_font_name = _name.lower()
+                if (not _family_name in self.cached):
+                    self.cached[_family_name] = { lower_font_name: font_path }
+                else:
+                    self.cached[_family_name][lower_font_name] = font_path
+
+                if (validate):
+                    if (_family_name == family_name and FontFinder.__verify_font(lower_font_name, bold, italic)):
+                        return True
+
+            self.__in_cache.add(font_path)
+
+        return False
+
+
+            # def test_fonts():
 #     ff = FontFinder()
 #     x2 = ff.find_font_file('Times New Roman', bold=True)
 #     x = ff.find_font_file('Arial')

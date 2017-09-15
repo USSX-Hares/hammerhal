@@ -20,12 +20,12 @@ class TextDrawer:
         Bottom = 3
         Justify = 4
 
-    __drawer : ImageDraw = None
-    __font_finder : FontFinder = None
+    __drawer = None
+    __font_finder = None
 
     __current_font_size = None
     __current_font_family = None
-    __current_font_file = None
+    __current_font_filepath = None
     __bold = None
     __italic = None
 
@@ -34,7 +34,7 @@ class TextDrawer:
     __current_text_capitalization = None
     __font_base = None
 
-    character_width_scale : float = None
+    character_width_scale  = None
     text_character_separator_scale = None
     text_vertical_space_scale = None
     text_paragraph_vertical_space = None
@@ -53,9 +53,9 @@ class TextDrawer:
         self.set_font(font_family=font_family, font_size=font_size, color=color, bold=bold, italic=italic)
         self.__drawer = ImageDraw.ImageDraw(im)
 
-    def set_font_direct(self, font_path):
-        self.__current_font_file = font_path
-        self.__font_base = ImageFont.truetype(font=self.__current_font_file, size=self.__current_font_size, encoding='unic')
+    def set_font_direct(self, font_filename):
+        self.__current_font_filepath = self.__font_finder.find_font_file_by_filename(font_filename) or self.__current_font_filepath
+        self.__font_base = ImageFont.truetype(font=self.__current_font_filepath, size=self.__current_font_size, encoding='unic')
 
     def set_font(self, font_family=None, font_size=None, color=None, bold=None, italic=None, horizontal_alignment=None, vertical_alignment=None, character_width_scale=None, space_scale=None, vertical_space_scale=None, paragraph_vertical_space=None, character_separator_scale=None, capitalization=None):
         self.__current_font_size = font_size or self.__current_font_size or 10
@@ -72,12 +72,12 @@ class TextDrawer:
             self.__italic = self.__italic or False
 
         if not (font_family is None and bold is None and italic is None):
-            self.__current_font_file = self.__font_finder.find_font_file(family_name=self.__current_font_family, bold=self.__bold, italic=self.__italic)
-            if not (self.__current_font_file):
-                raise FileNotFoundError
+            self.__current_font_filepath = self.__font_finder.find_font_file_by_fontname(family_name=self.__current_font_family, bold=self.__bold, italic=self.__italic)
+            if not (self.__current_font_filepath):
+                raise FileNotFoundError("Requested font ({font_family}) is not installed".format(font_family=self.__current_font_family))
         else:
-            self.__current_font_file = self.__current_font_file or 'times.ttf'
-        self.__font_base = ImageFont.truetype(font=self.__current_font_file, size=self.__current_font_size, encoding='unic')
+            self.__current_font_filepath = self.__current_font_filepath or 'times.ttf'
+        self.__font_base = ImageFont.truetype(font=self.__current_font_filepath, size=self.__current_font_size, encoding='unic')
 
         self.__current_text_vertical_alignment = vertical_alignment or self.__current_text_vertical_alignment or TextDrawer.TextAlignment.Top
         self.__current_text_horizontal_alignment = horizontal_alignment or self.__current_text_horizontal_alignment or TextDrawer.TextAlignment.Left
@@ -226,7 +226,7 @@ class TextDrawer:
                 _new_size = int(self.__current_font_size * 0.75)
                 _char = _char.upper()
                 _y += self.__current_font_size - _new_size
-                _font = ImageFont.truetype(font=self.__current_font_file, size=_new_size, encoding='unic')
+                _font = ImageFont.truetype(font=self.__current_font_filepath, size=_new_size, encoding='unic')
 
             w, h = self.__drawer.textsize(_char, font=_font)
             if (real_print):
