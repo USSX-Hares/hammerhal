@@ -8,6 +8,9 @@ from hammerhal.text_drawer import TextDrawer
 from logging import getLogger
 logger = getLogger('hammerhal.compilers.compiler_base')
 
+class CompilerException(Exception):
+    pass
+
 class CompilerBase():
 
     compiler_type = None
@@ -47,8 +50,8 @@ class CompilerBase():
         try:
             logger.debug("Validating {name}...".format(name=name))
             validate(raw, schema)
-        except jsonschema.exceptions.ValidationError:
-            logger.error("Raw file is not valid")
+        except jsonschema.exceptions.ValidationError as e:
+            logger.error("Raw file is not valid: {msg}".format(msg=e.message))
             self.raw = None
         else:
             logger.debug("Raw file is valid")
@@ -71,7 +74,7 @@ class CompilerBase():
 
         filename = "{directory}{name}.png".format(directory=self.output_directory, name=name)
         try:
-            logger.debug("Saving compiled file: '{filename}'".format(filename=filename))
+            logger.info("Saving compiled file: '{filename}'".format(filename=filename))
             self.compiled.save(filename)
         except:
             logger.exception("Error while saving file '{filename}'".format(filename=filename))
@@ -79,35 +82,101 @@ class CompilerBase():
         else:
             return filename
 
-    def insert_table(self, vertical_columns, top, cell_height, data, body_row_template, body_text_drawer, body_row_interval, body_capitalization=None, header_row=None, header_text_drawer=None, header_row_interval=None, header_capitalization=None):
+    def insert_table \
+    (
+        self, vertical_columns, top, cell_height, data,
+        body_row_template, body_text_drawer, body_row_interval, body_capitalization=None, body_bold=None, body_italic=None,
+        header_row=None, header_text_drawer=None, header_row_interval=None, header_capitalization=None,header_bold=None, header_italic=None,
+    ):
+        if (top < 0):
+            direction = -1
+            indirect = True
+        else:
+            direction = 1
+            indirect = False
+
+        total_height = 0
         y1 = top
-        y2 = top + cell_height
+        y2 = cell_height and (top + cell_height)
 
-        if (header_row):
-            text_drawer = header_text_drawer or body_text_drawer
-            text_drawer.set_font(capitalization=header_capitalization)
-            dy = header_row_interval or body_row_interval
-            data_row = {}
-            table_row = header_row
-            _h = self.__print_table_row(y1=y1, y2=y2, text_drawer=text_drawer, vertical_columns=vertical_columns, table_row=table_row, data_row=data_row)
-            y1 += _h + dy
-            y2 += _h + dy
-
+        if (header_row and not indirect):
+            y1, y2, total_height = self.__print_header_row \
+            (
+                vertical_columns=vertical_columns, y1=y1, y2=y2, total_height=total_height,
+                body_row_template=body_row_template, body_text_drawer=body_text_drawer, body_row_interval=body_row_interval, body_capitalization=body_capitalization, body_bold=body_bold, body_italic=body_italic,
+                header_row=header_row, header_text_drawer=header_text_drawer, header_row_interval=header_row_interval, header_capitalization=header_capitalization, header_bold=header_bold, header_italic=header_italic,
+            )
+            
         text_drawer = body_text_drawer
-        text_drawer.set_font(capitalization=body_capitalization)
+        _font = text_drawer.get_font()
+        text_drawer.set_font(capitalization=body_capitalization, bold=body_bold, italic=body_italic)
+
         dy = body_row_interval
-        for data_row in data:
+        _data = reversed(data) if (indirect) else data
+        for data_row in _data:
             table_row = body_row_template
             _h = self.__print_table_row(y1=y1, y2=y2, text_drawer=text_drawer, vertical_columns=vertical_columns, table_row=table_row, data_row=data_row)
             y1 += _h + dy
+            total_height += _h + dy
+            if (y2):
+                y2 += _h + dy
+
+        logger.debug("Restoring font {font}".format(font=_font))
+        text_drawer.set_font(**_font)
+
+        if (header_row and indirect):
+            y1, y2, total_height = self.__print_header_row \
+            (
+                vertical_columns=vertical_columns, y1=y1, y2=y2, total_height=total_height,
+                body_row_template=body_row_template, body_text_drawer=body_text_drawer, body_row_interval=body_row_interval, body_capitalization=body_capitalization, body_bold=body_bold, body_italic=body_italic,
+                header_row=header_row, header_text_drawer=header_text_drawer, header_row_interval=header_row_interval, header_capitalization=header_capitalization, header_bold=header_bold, header_italic=header_italic,
+            )
+
+        return total_height
+
+    def __print_header_row \
+    (
+        self, vertical_columns, y1, y2, total_height,
+        body_row_template, body_text_drawer, body_row_interval, body_capitalization=None, body_bold=None, body_italic=None,
+        header_row=None, header_text_drawer=None, header_row_interval=None, header_capitalization=None,header_bold=None, header_italic=None,
+    ):
+        text_drawer = header_text_drawer or body_text_drawer
+
+        _font = text_drawer.get_font()
+        text_drawer.set_font(capitalization=header_capitalization, bold=header_bold, italic=header_italic)
+
+        dy = header_row_interval or body_row_interval
+        data_row = { }
+        table_row = header_row
+        _h = self.__print_table_row(y1=y1, y2=y2, text_drawer=text_drawer, vertical_columns=vertical_columns, table_row=table_row, data_row=data_row)
+        y1 += _h + dy
+        total_height += _h + dy
+        if (y2):
             y2 += _h + dy
 
+        logger.debug("Restoring font {font}".format(font=_font))
+        text_drawer.set_font(**_font)
+        return y1, y2, total_height
+
     def __print_table_row(self, y1, y2, text_drawer, vertical_columns, table_row, data_row):
+        max_h = 0
         for i, _cell in enumerate(table_row):
             x1 = vertical_columns[i]
             x2 = vertical_columns[i + 1]
-            _, _h = text_drawer.print_in_region((x1, y1, x2, y2), _cell.format(**data_row), offset_borders=False)
-        return _h
+            _, _h = text_drawer.get_text_size((x1, y1, x2, y2), _cell.format(**data_row), offset_borders=False)
+            if (max_h < _h):
+                max_h = _h
+
+        _y1 = -y1 - max_h if (y1 < 0) else y1
+        _y2 = (-y2 - max_h if (y2 < 0) else y2) if y2 else _y1 + max_h
+
+        for i, _cell in enumerate(table_row):
+            x1 = vertical_columns[i]
+            x2 = vertical_columns[i + 1]
+
+            text_drawer.print_in_region((x1, _y1, x2, _y2), _cell.format(**data_row), offset_borders=False)
+
+        return max_h
 
     def insert_image_scaled(self, base_image, region, image_path, offset_borders=True):
         if (offset_borders):

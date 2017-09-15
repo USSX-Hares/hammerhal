@@ -12,5 +12,11 @@
             "outputDirectory": "heroes/",
             "rawDirectory": "heroes/"
         }
+        ,
+        "adversary":
+        {
+            "outputDirectory": "adversaries/",
+            "rawDirectory": "adversaries/"
+        }
     }
 }
