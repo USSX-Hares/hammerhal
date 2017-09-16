@@ -2,23 +2,26 @@
     "version": 1,
     "disable_existing_loggers": false,
     "formatters": {
-        "simple": {
-            "format": "%(asctime)-15s \t [ %(name)-40s -> %(module)-18s -> %(funcName)-25s ] [ %(levelname)-8s ] \t | %(message)s"
-        }
+        "simple_console":
+        { "format": "%(levelname)s: %(message)s"}
+        ,
+        "simple_log":
+        { "format": "%(asctime)-15s \t [ %(name)-40s -> %(module)-18s -> %(funcName)-25s ] [ %(levelname)-8s ] \t | %(message)s" }
+
     },
 
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
             "level": "INFO",
-            "formatter": "simple",
+            "formatter": "simple_console",
             "stream": "ext://sys.stdout"
         },
 
         "info_file_handler": {
             "class": "logging.handlers.RotatingFileHandler",
             "level": "INFO",
-            "formatter": "simple",
+            "formatter": "simple_log",
             "filename": "logs/info.log",
             "maxBytes": 10485760,
             "backupCount": 20,
@@ -28,7 +31,7 @@
         "debug_file_handler": {
             "class": "logging.handlers.RotatingFileHandler",
             "level": "DEBUG",
-            "formatter": "simple",
+            "formatter": "simple_log",
             "filename": "logs/debug.log",
             "maxBytes": 10485760,
             "backupCount": 20,
@@ -38,7 +41,7 @@
         "error_file_handler": {
             "class": "logging.handlers.RotatingFileHandler",
             "level": "ERROR",
-            "formatter": "simple",
+            "formatter": "simple_log",
             "filename": "logs/errors.log",
             "maxBytes": 10485760,
             "backupCount": 20,

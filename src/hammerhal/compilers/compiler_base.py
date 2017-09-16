@@ -49,9 +49,10 @@ class CompilerBase():
 
                 _name = _json.get('name', None)
                 if (_name and isinstance(_name, str) and _name.lower() in name.lower()):
-                    message = "{type} found - {name}{subtitle}".format \
+                    message = "{type} found - {filename}:\n  {name}{subtitle}".format \
                     (
                         type = self.compiler_type.capitalize(),
+                        filename = filename,
                         name = _name,
                         subtitle = " ({subtitle})".format(**_json) if ('subtitle' in _json) else '',
                     )
@@ -66,6 +67,9 @@ class CompilerBase():
 
     def open(self, name):
         filename = self.find(name)
+        if (not filename):
+            logger.error("Cannot find {type}: '{name}'".format(type=self.compiler_type, name=name))
+            return None
         logger.info("Reading '{filename}'...".format(filename=filename))
         file = open(filename)
         raw = json.load(file)
