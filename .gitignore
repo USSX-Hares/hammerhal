@@ -5,3 +5,4 @@ logs
 output
 *.psd
 compile_debug.py
+*.egg-info

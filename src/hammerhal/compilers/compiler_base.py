@@ -1,10 +1,10 @@
-import json
+import json, os.path, glob
 import jsonschema.exceptions
 from jsonschema import validate
 from PIL import Image
 
+from shared_funcs import yn_input
 from hammerhal import ConfigLoader
-from hammerhal.text_drawer import TextDrawer
 from logging import getLogger
 logger = getLogger('hammerhal.compilers.compiler_base')
 
@@ -29,18 +29,48 @@ class CompilerBase():
         self.output_directory = "{rawRoot}{rawOffset}".format(rawRoot=ConfigLoader.get_from_config('outputDirectoryRoot', 'compilers'), rawOffset=ConfigLoader.get_from_config('compilerTypeSpecific/{type}/outputDirectory'.format(type=self.compiler_type), 'compilers'))
         self.sources_directory = ConfigLoader.get_from_config('sourcesDirectory', 'compilers')
 
-    def search(self, name):
-        # Temporary decision
-        # TODO: Search files
-        return "{directory}{name}.json".format(directory=self.raw_directory, name=name)
+    def search(self):
+        return glob.glob(self.raw_directory + "*.json")
+
+    def find(self, name):
+        filename = name
+        if (os.path.isfile(filename)):
+            return filename
+
+        filename = "{directory}{name}.json".format(directory=self.raw_directory, name=name)
+        if (os.path.isfile(filename)):
+            return filename
+
+        for filename in self.search():
+            try:
+                _file = open(filename)
+                _json = json.load(_file)
+                _file.close()
+
+                _name = _json.get('name', None)
+                if (_name and isinstance(_name, str) and _name.lower() in name.lower()):
+                    message = "{type} found - {name}{subtitle}".format \
+                    (
+                        type = self.compiler_type.capitalize(),
+                        name = _name,
+                        subtitle = " ({subtitle})".format(**_json) if ('subtitle' in _json) else '',
+                    )
+                    print(message)
+                    if (yn_input('Is it what you need?')):
+                        return filename
+
+            except (OSError, FileNotFoundError, json.JSONDecodeError):
+                pass
+
+        return None
 
     def open(self, name):
-        filename = self.search(name)
+        filename = self.find(name)
         logger.info("Reading '{filename}'...".format(filename=filename))
         file = open(filename)
         raw = json.load(file)
         file.close()
-        
+
         filename = self.schema_path
         logger.debug("Reading '{filename}'...".format(filename=filename))
         file = open(filename)
@@ -91,11 +121,11 @@ class CompilerBase():
             return filename
 
     def insert_table \
-    (
-        self, vertical_columns, top, cell_height, data,
-        body_row_template, body_text_drawer, body_row_interval, body_capitalization=None, body_bold=None, body_italic=None,
-        header_row=None, header_text_drawer=None, header_row_interval=None, header_capitalization=None,header_bold=None, header_italic=None,
-    ):
+                    (
+                    self, vertical_columns, top, cell_height, data,
+                    body_row_template, body_text_drawer, body_row_interval, body_capitalization=None, body_bold=None, body_italic=None,
+                    header_row=None, header_text_drawer=None, header_row_interval=None, header_capitalization=None,header_bold=None, header_italic=None,
+            ):
         if (top < 0):
             direction = -1
             indirect = True
@@ -109,12 +139,12 @@ class CompilerBase():
 
         if (header_row and not indirect):
             y1, y2, total_height = self.__print_header_row \
-            (
-                vertical_columns=vertical_columns, y1=y1, y2=y2, total_height=total_height,
-                body_row_template=body_row_template, body_text_drawer=body_text_drawer, body_row_interval=body_row_interval, body_capitalization=body_capitalization, body_bold=body_bold, body_italic=body_italic,
-                header_row=header_row, header_text_drawer=header_text_drawer, header_row_interval=header_row_interval, header_capitalization=header_capitalization, header_bold=header_bold, header_italic=header_italic,
-            )
-            
+                    (
+                    vertical_columns=vertical_columns, y1=y1, y2=y2, total_height=total_height,
+                    body_row_template=body_row_template, body_text_drawer=body_text_drawer, body_row_interval=body_row_interval, body_capitalization=body_capitalization, body_bold=body_bold, body_italic=body_italic,
+                    header_row=header_row, header_text_drawer=header_text_drawer, header_row_interval=header_row_interval, header_capitalization=header_capitalization, header_bold=header_bold, header_italic=header_italic,
+                )
+
         text_drawer = body_text_drawer
         _font = text_drawer.get_font()
         text_drawer.set_font(capitalization=body_capitalization, bold=body_bold, italic=body_italic)
@@ -134,20 +164,20 @@ class CompilerBase():
 
         if (header_row and indirect):
             y1, y2, total_height = self.__print_header_row \
-            (
-                vertical_columns=vertical_columns, y1=y1, y2=y2, total_height=total_height,
-                body_row_template=body_row_template, body_text_drawer=body_text_drawer, body_row_interval=body_row_interval, body_capitalization=body_capitalization, body_bold=body_bold, body_italic=body_italic,
-                header_row=header_row, header_text_drawer=header_text_drawer, header_row_interval=header_row_interval, header_capitalization=header_capitalization, header_bold=header_bold, header_italic=header_italic,
-            )
+                    (
+                    vertical_columns=vertical_columns, y1=y1, y2=y2, total_height=total_height,
+                    body_row_template=body_row_template, body_text_drawer=body_text_drawer, body_row_interval=body_row_interval, body_capitalization=body_capitalization, body_bold=body_bold, body_italic=body_italic,
+                    header_row=header_row, header_text_drawer=header_text_drawer, header_row_interval=header_row_interval, header_capitalization=header_capitalization, header_bold=header_bold, header_italic=header_italic,
+                )
 
         return total_height
 
     def __print_header_row \
-    (
-        self, vertical_columns, y1, y2, total_height,
-        body_row_template, body_text_drawer, body_row_interval, body_capitalization=None, body_bold=None, body_italic=None,
-        header_row=None, header_text_drawer=None, header_row_interval=None, header_capitalization=None,header_bold=None, header_italic=None,
-    ):
+                    (
+                    self, vertical_columns, y1, y2, total_height,
+                    body_row_template, body_text_drawer, body_row_interval, body_capitalization=None, body_bold=None, body_italic=None,
+                    header_row=None, header_text_drawer=None, header_row_interval=None, header_capitalization=None,header_bold=None, header_italic=None,
+            ):
         text_drawer = header_text_drawer or body_text_drawer
 
         _font = text_drawer.get_font()
