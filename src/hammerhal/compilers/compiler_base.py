@@ -54,7 +54,7 @@ class CompilerBase():
                         type = self.compiler_type.capitalize(),
                         filename = filename,
                         name = _name,
-                        subtitle = " ({subtitle})".format(**_json) if ('subtitle' in _json) else '',
+                        subtitle = " ({subtitle})".format(**_json) if (_json.get('subtitle', None)) else '',
                     )
                     print(message)
                     if (yn_input('Is it what you need?')):
