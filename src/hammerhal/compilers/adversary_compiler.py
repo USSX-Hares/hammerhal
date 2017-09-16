@@ -94,7 +94,7 @@ class AdversaryCompiler(CompilerBase):
 
             body_row_template = [ "{name}", "{dices}", "{range}", "{hit}+", "{damage}" ],
             body_text_drawer = td,
-            body_row_interval = [ None, None, None, 40, None ][len(self.raw['weapons'])],
+            body_row_interval = [ None, None, 60, 40, None ][len(self.raw['weapons'])],
             body_capitalization = TextDrawer.CapitalizationModes.Capitalize,
 
             header_row = [ "WEAPON ACTIONS", "Dice", "Range", "Hit", "Damage" ],
@@ -166,11 +166,14 @@ class AdversaryCompiler(CompilerBase):
             text = "**{name}:** {description}".format(**ability)
             y, right = self.__print_rules_block(text_drawer=td, y=y, y_min=y_min, y_max=y_max, right=ability.get('right', right), text=text)
 
-        # for ability in self.raw.get('difficultyBonuses', []):
-        #     text = "**Difficulty Bonus {name}:** {description}".format(**ability)
-        #     y, right = self.__print_rules_block(text_drawer=td, y=y, y_min=y_min, y_max=y_max, right=ability.get('right', right), text=text)
-
-        logger.info("Rules printed")
+        try:
+            for ability in self.raw.get('difficultyBonuses', []):
+                text = "**Difficulty Bonus {name}:** {description}".format(**ability)
+                y, right = self.__print_rules_block(text_drawer=td, y=y, y_min=y_min, y_max=y_max, right=ability.get('right', right), text=text)
+        except AdversaryCompiler.OutOfSpaceException as e:
+            logger.warning("No space left on sheet for the difficulty bonus, it will be ignored")
+        else:
+            logger.info("Rules printed")
 
 
     class OutOfSpaceException(CompilerException):

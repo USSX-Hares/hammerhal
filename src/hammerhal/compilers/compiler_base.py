@@ -62,7 +62,7 @@ class CompilerBase():
     def compile(self):
         raise NotImplementedError
 
-    def save(self):
+    def save(self, forced_width=None):
         if (not self.compiled):
             logger.error("Could not save not compiled result")
             return None
@@ -72,10 +72,18 @@ class CompilerBase():
             logger.error("Could find proper name")
             return None
 
+        _image = self.compiled
+        if (forced_width):
+            _estimated_width = forced_width
+
+            _actual_width = _image.width
+            _actual_height = _image.height
+            _image = _image.resize((int(_estimated_width), int(_estimated_width / _actual_width * _actual_height)), Image.ANTIALIAS)
+
         filename = "{directory}{name}.png".format(directory=self.output_directory, name=name)
         try:
             logger.info("Saving compiled file: '{filename}'".format(filename=filename))
-            self.compiled.save(filename)
+            _image.save(filename)
         except:
             logger.exception("Error while saving file '{filename}'".format(filename=filename))
             return None

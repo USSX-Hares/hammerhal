@@ -52,7 +52,7 @@ def compile_heroes(logger):
     ]
     e_code = len(heroes)
     for hero in heroes:
-        result = compiler.open(hero) and compiler.compile() and compiler.save()
+        result = compiler.open(hero) and compiler.compile() and compiler.save(forced_width=720)
         if (result):
             message = "Success! File saved to '{filename}'".format(filename=result)
             logger.info(message)
@@ -71,7 +71,7 @@ def compile_adversaries(logger):
     ]
     e_code = len(adversaries)
     for adversary in adversaries:
-        result = compiler.open(adversary) and compiler.compile() and compiler.save()
+        result = compiler.open(adversary) and compiler.compile() and compiler.save(forced_width=720)
         if (result):
             message = "Success! File saved to '{filename}'".format(filename=result)
             logger.info(message)
