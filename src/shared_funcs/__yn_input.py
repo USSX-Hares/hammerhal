@@ -13,6 +13,6 @@ def yn_input(message="Confirm:"):
             return True
         if (test in __negative):
             return False
-        mask = "Please, type {yn}"
+        mask = "Please, type {yn}: "
 
 
