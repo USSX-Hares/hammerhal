@@ -1,33 +1,34 @@
-Hammerhal Sheet Generator by USSX.Hares
+# Hammerhal datasheet compiler tool
+Allows to generate hero cards and adversary datasheets and to compile them into .png images.
 
-I. Installation
+## I. Installation
 1. Download python3 from the official site: https://www.python.org/downloads/
 2. Open a console terminal as in the tartget directory, and execute command:
 `python -m pip install -e .`
 
-Notes:
+**Notes:**
  - python should be 3.5+. Could be checked by executing `python --version` and `python -m pip --version`
- - For Windows: you should run cmd.exe as an administrator
+ - For Windows: you should run _cmd.exe_ as an administrator
  - For *nix: you should run this with the `sudo -H` command
 
-II. Creating a data source:
-1. Go to the 'raw' submodule.
-2. Copy a .json file from a directory of required type and edit it by analog. If you dare, you can see appropriate json schema from schemas directory of project root.
+## II. Creating a data source:
+1. Go to the _'raw'_ submodule.
+2. Copy a .json file from a directory of required type and edit it by analog. If you dare, you can see appropriate [JSON Schema](http://json-schema.org/) from _'schemas'_ directory of project root.
 3. You will be notified during the compilation if your input is invalid.
 
-III. Run compiler
-Compile ALL available raw. Could take a while:
+## III. Run compiler
+ - Compile ALL available raw. Could take a while:
 `python compile.py all`
-Compile specific Hero:
+ - Compile specific Hero:
 `python compile.py hero my hero name`
-Compile specific Adversary:
+ - Compile specific Adversary:
 `python compile.py hero epic-adversary-group`
-Run in interactive mode, where all commands from above can be used from terminal:
+ - Run in interactive mode, where all commands from above can be used from terminal:
 `python compile.py interactive`
 
 Compiled files are stored in the output directory. By default, all output files are scaled to 720px width. You can change this setting in configs/
 
 
-DEVELOPER WARNING:
+## DEVELOPER WARNING:
 It IS guaranteed that this tool IS working with correct installation, configuration and data. It is your responsibility for correctness of installation, reconfiguration and all data sources program is receiving.
-If any questions and/or suggestions take place, you can contact me via the vk (vk.com/zaitcev_pter) or email (ussx.hares@yandex.ru)
+If any questions and/or suggestions take place, you can contact me via the [vk.com](vk.com/zaitcev_pter) or [email](ussx.hares@yandex.ru)
