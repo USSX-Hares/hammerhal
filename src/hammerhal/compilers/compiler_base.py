@@ -48,7 +48,7 @@ class CompilerBase():
                 _file.close()
 
                 _name = _json.get('name', None)
-                if (_name and isinstance(_name, str) and _name.lower() in name.lower()):
+                if (_name and isinstance(_name, str) and name.lower() in _name.lower()):
                     message = "{type} found - {filename}:\n  {name}{subtitle}".format \
                     (
                         type = self.compiler_type.capitalize(),
