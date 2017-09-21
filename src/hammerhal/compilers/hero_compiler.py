@@ -174,7 +174,9 @@ class HeroCompiler(CompilerBase):
         if (light):
             _w = gradient_base.width
             gradient = gradient_base.resize((_w, _h))
-            base.paste(gradient, (0, y), gradient)
+            _gradient = gradient.convert('RGB')
+
+            base.paste(_gradient, (0, y), gradient)
 
         if (dice_space):
             _x = 3260; _y = y + _h // 2
