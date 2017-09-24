@@ -45,7 +45,7 @@ class CompilerModuleBase:
         return ConfigLoader.get_from_config(path, 'compilers')
 
     def get_text_drawer(self, base:Image, font_prefix='font') -> TextDrawer:
-        td = TextDrawer(base, font_nane=self.get_from_module_config(font_prefix + '/fontName'))
+        td = TextDrawer(base)
         font = self.get_from_module_config(font_prefix) or dict()
         font = dict_keys_camel_case_to_underscope(font)
         td.set_font(**font)

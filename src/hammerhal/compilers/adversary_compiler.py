@@ -63,7 +63,7 @@ class AdversaryCompiler(CompilerBase):
 
     def __print_name(self, base):
         td = TextDrawer(base, font_size=int(285 * self.raw.get('titleFontSizeScale', 1.0)), bold=True)
-        td.set_font_direct('BOD_B.TTF')
+        td.set_font(font_name='BOD_B.TTF')
         td.set_font(capitalization=TextDrawer.CapitalizationModes.SmallCaps, horizontal_alignment=TextDrawer.TextAlignment.Center, vertical_alignment=TextDrawer.TextAlignment.Center)
         td.print_in_region((1596, 810, 2655, 350), self.raw['name'], offset_borders=True)
         logger.info("Name printed")

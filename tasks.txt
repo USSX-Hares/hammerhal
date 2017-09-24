@@ -5,9 +5,9 @@ TODO: rules schema
 
 Release 0.2:
 TODO: Add scale to the config
-TODO: Move all numbers (coordinates, spaces, font size etc.) to the config
-TODO: Trailing text operand (**/__) bug
-TODO: Compile each block on a separate image
+TODO: Move all numbers (coordinates, spaces, font size etc.) to the config - Done for the heroes
+Done: Trailing text operand (**/__) bug
+TODO: Compile each block on a separate image - Done for the heroes, except the hero image
 
 Release 0.3:
 TODO: Minion card type

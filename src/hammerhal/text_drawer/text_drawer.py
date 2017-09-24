@@ -283,7 +283,7 @@ class TextDrawer:
             if (_continue):
                 _continue = False
                 continue
-            if (i + 2 < len(_text)):
+            if (i + 2 <= len(_text)):
                 if(_text[i:i+2] == '__'):
                     self.set_font(italic=not self.__italic)
                     _continue = True
