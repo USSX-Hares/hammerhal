@@ -1,8 +1,18 @@
 TODO: diff tool
 TODO: rules compiler
 TODO: graphical editor
-
 TODO: rules schema
+
+Release 0.2:
+TODO: Add scale to the config
+TODO: Move all numbers (coordinates, spaces, font size etc.) to the config
+TODO: Trailing text operand (**/__) bug
+TODO: Compile each block on a separate image
+
+Release 0.3:
+TODO: Minion card type
+TODO: Advanced adversary rules positioning
+TODO: Two-paged adversaries
 
 Hero Compiler:
  - Subtitle

@@ -3,7 +3,7 @@ import jsonschema.exceptions
 from jsonschema import validate
 from PIL import Image
 
-from shared_funcs import yn_input
+from yn_input import yn_input
 from hammerhal import ConfigLoader
 from logging import getLogger
 logger = getLogger('hammerhal.compilers.compiler_base')

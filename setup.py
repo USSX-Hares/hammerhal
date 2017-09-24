@@ -17,12 +17,14 @@ for _dir in _dirs:
 setup \
 (
     name='hammerhal',
-    version='0.1',
+    version='0.2',
     install_requires =
     [
         'jsonschema',
         'Pillow',
         'fontTools',
+        'camel-case-switcher>=1.2',
+        'yn-input',
     ],
     packages =
     [
@@ -31,7 +33,6 @@ setup \
         'hammerhal.compilers',
         'hammerhal.generator',
         'hammerhal.text_drawer',
-        'shared_funcs',
     ],
     package_dir={ '': 'src' },
     url='https://github.com/USSX-Hares/hammerhal',
