@@ -1,9 +1,28 @@
 from PIL import Image, ImageDraw, ImageFont
 from hammerhal.text_drawer import FontFinder
+import inspect
+
+
+class Enum:
+    @classmethod
+    def find_value(cls, key):
+        if (isinstance(key, str)):
+            _members = inspect.getmembers(cls)
+            for _member in _members:
+                if (_member[0] == key):
+                    # print("{0} is {1}!".format(*_member))
+                    return _member[1]
+
+            # print("{0} not found".format(key))
+            return None
+
+        else:
+            # print("{0} is not a string; returning it")
+            return key
 
 class TextDrawer:
 
-    class CapitalizationModes:
+    class CapitalizationModes(Enum):
         Normal = 1
         UpperCase = 2
         AllCaps = 2
@@ -12,7 +31,7 @@ class TextDrawer:
         Capitalize = 4
         SmallCaps = 5
 
-    class TextAlignment:
+    class TextAlignment(Enum):
         Left = 1
         Top = 1
         Center = 2
@@ -42,7 +61,7 @@ class TextDrawer:
 
     color = None
 
-    def __init__(self, im:Image.Image, font_family=None, font_size=None, color=None, bold=None, italic=None, font_finder=None):
+    def __init__(self, im:Image.Image, font_nane=None, font_size=None, color=None, bold=None, italic=None, font_finder=None):
         if (font_finder):
             self.__font_finder = font_finder
         else:
@@ -50,16 +69,12 @@ class TextDrawer:
                 TextDrawer.__font_finder = FontFinder()
             self.__font_finder = TextDrawer.__font_finder
 
-        self.set_font(font_family=font_family, font_size=font_size, color=color, bold=bold, italic=italic)
+        self.set_font(font_name=font_nane, font_size=font_size, color=color, bold=bold, italic=italic)
         self.__drawer = ImageDraw.ImageDraw(im)
 
-    def set_font_direct(self, font_filename):
-        self.__current_font_filepath = self.__font_finder.find_font_file_by_filename(font_filename) or self.__current_font_filepath
-        self.__font_base = ImageFont.truetype(font=self.__current_font_filepath, size=self.__current_font_size, encoding='unic')
-
-    def set_font(self, font_family=None, font_size=None, color=None, bold=None, italic=None, horizontal_alignment=None, vertical_alignment=None, character_width_scale=None, space_scale=None, vertical_space_scale=None, paragraph_vertical_space=None, character_separator_scale=None, capitalization=None):
-        self.__current_font_size = font_size or self.__current_font_size or 10
-        self.__current_font_family = font_family or self.__current_font_family or 'Times New Roman'
+    def set_font(self, font_name=None, font_size=None, color=None, bold=None, italic=None, horizontal_alignment=None, vertical_alignment=None, character_width_scale=None, space_scale=None, vertical_space_scale=None, paragraph_vertical_space=None, character_separator_scale=None, capitalization=None):
+        self.__current_font_size = int(font_size or self.__current_font_size or 10)
+        self.__current_font_family = font_name or self.__current_font_family or 'Times New Roman'
 
         if (not bold is None):
             self.__bold = bold
@@ -71,17 +86,29 @@ class TextDrawer:
         else:
             self.__italic = self.__italic or False
 
-        if not (font_family is None and bold is None and italic is None):
-            self.__current_font_filepath = self.__font_finder.find_font_file_by_fontname(family_name=self.__current_font_family, bold=self.__bold, italic=self.__italic)
-            if not (self.__current_font_filepath):
+        if not (font_name is None and bold is None and italic is None):
+            _test_font = None
+            if (font_name or self.__current_font_family is None):
+                _test_font = self.__font_finder.find_font_file_by_filename(font_name)
+                if (_test_font):
+                    self.__current_font_family = None
+
+            if not (_test_font):
+                _test_font = self.__font_finder.find_font_file_by_fontname(family_name=self.__current_font_family, bold=self.__bold, italic=self.__italic)
+                if (_test_font):                    
+                    self.__current_font_family = font_name
+                    
+            if not (_test_font):
                 raise FileNotFoundError("Requested font ({font_family}{bold}{italic}) is not installed".format(font_family=self.__current_font_family, bold=", Bold" if self.__bold else '', italic=", Italic" if self.__italic else ''))
+
+            self.__current_font_filepath = _test_font
         else:
             self.__current_font_filepath = self.__current_font_filepath or 'times.ttf'
         self.__font_base = ImageFont.truetype(font=self.__current_font_filepath, size=self.__current_font_size, encoding='unic')
 
-        self.__current_text_vertical_alignment = vertical_alignment or self.__current_text_vertical_alignment or TextDrawer.TextAlignment.Top
-        self.__current_text_horizontal_alignment = horizontal_alignment or self.__current_text_horizontal_alignment or TextDrawer.TextAlignment.Left
-        self.__current_text_capitalization = capitalization or self.__current_text_capitalization or TextDrawer.CapitalizationModes.Normal
+        self.__current_text_vertical_alignment = TextDrawer.TextAlignment.find_value(vertical_alignment) or self.__current_text_vertical_alignment or TextDrawer.TextAlignment.Top
+        self.__current_text_horizontal_alignment = TextDrawer.TextAlignment.find_value(horizontal_alignment) or self.__current_text_horizontal_alignment or TextDrawer.TextAlignment.Left
+        self.__current_text_capitalization = TextDrawer.CapitalizationModes.find_value(capitalization) or self.__current_text_capitalization or TextDrawer.CapitalizationModes.Normal
 
         if (not space_scale is None):
             self.text_space_scale = space_scale
@@ -111,11 +138,22 @@ class TextDrawer:
         self.color = color or self.color or 'white'
 
     def get_font(self):
-        result_dict = dict()
-        result_dict['font_family'] = self.__current_font_family
-        result_dict['capitalization'] = self.__current_text_capitalization
-        result_dict['bold'] = self.__bold
-        result_dict['italic'] = self.__italic
+        result_dict = \
+        {
+            'font_name': self.__current_font_family,
+            'font_size': self.__current_font_size,
+            'color': self.color,
+            'bold': self.__bold,
+            'italic': self.__italic,
+            'horizontal_alignment': self.__current_text_horizontal_alignment,
+            'vertical_alignment': self.__current_text_vertical_alignment,
+            'character_width_scale': self.character_width_scale,
+            'space_scale': self.text_space_scale,
+            'vertical_space_scale': self.text_paragraph_vertical_space,
+            'paragraph_vertical_space': self.text_paragraph_vertical_space,
+            'character_separator_scale': self.text_character_separator_scale,
+            'capitalization': self.__current_text_capitalization,
+        }
 
         return result_dict
 

@@ -96,10 +96,8 @@ class FontFinder:
     def find_font_file_by_filename(self, filename):
         for font_dir in FontFinder.get_fonts_directories():
             all_fonts = glob.glob(font_dir + '/**/' + filename, recursive=True)
-            for font_path in all_fonts:
-                test = self.__check_font(validate=False, font_path=font_path, family_name=None, bold=None, italic=None)
-                if (not test is None):
-                    return font_path
+            if (len(all_fonts) > 0):
+                return all_fonts[0]
 
         return None
 

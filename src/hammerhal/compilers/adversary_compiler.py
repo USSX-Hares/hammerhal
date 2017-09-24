@@ -13,9 +13,6 @@ logger = getLogger('hammerhal.compilers.adversary_compiler')
 class AdversaryCompiler(CompilerBase):
     compiler_type = "adversary"
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
     @staticmethod
     def __get_font(fontfamily, size):
         return ImageFont.truetype("fonts/" + fontfamily + ".ttf", size)
@@ -76,7 +73,7 @@ class AdversaryCompiler(CompilerBase):
         td.print_in_region((1930, 1200, 4400, 1600), self.raw['description'], offset_borders=False)
         logger.info("Description printed")
     def __print_stats(self, base):
-        td = TextDrawer(base, font_size=110, bold=True, font_family='Constantia', color='white')
+        td = TextDrawer(base, font_size=110, bold=True, font_nane='Constantia', color='white')
         td.print_line((1700, 1830), "{move}".format(**self.raw['stats']))
         td.print_line((1575, 2030), "{vigour}".format(**self.raw['stats']))
         td.print_line((1770, 2030), "{agility}+".format(**self.raw['stats']))
@@ -94,7 +91,7 @@ class AdversaryCompiler(CompilerBase):
 
             body_row_template = [ "{name}", "{dices}", "{range}", "{hit}+", "{damage}" ],
             body_text_drawer = td,
-            body_row_interval = [ None, None, 60, 40, None ][len(self.raw['weapons'])],
+            body_row_interval = [ None, 80, 60, 40, None ][len(self.raw['weapons'])],
             body_capitalization = TextDrawer.CapitalizationModes.Capitalize,
 
             header_row = [ "WEAPON ACTIONS", "Dice", "Range", "Hit", "Damage" ],

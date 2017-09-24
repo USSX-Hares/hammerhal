@@ -14,6 +14,9 @@ class CompilerException(Exception):
 class CompilerBase():
 
     compiler_type = None
+    modules = None
+
+    module_args = None
     schema_path = None
     raw_directory = None
     sources_directory = None
@@ -22,12 +25,27 @@ class CompilerBase():
 
     raw = None
     compiled = None
+    compiled_modules = None
 
     def __init__(self):
         self.schema_path = "{directory}{type}.json".format(directory=ConfigLoader.get_from_config('schemasDirectory', 'compilers'), type=self.compiler_type)
         self.raw_directory = "{rawRoot}{rawOffset}".format(rawRoot=ConfigLoader.get_from_config('rawDirectoryRoot'), rawOffset=ConfigLoader.get_from_config('compilerTypeSpecific/{type}/rawDirectory'.format(type=self.compiler_type), 'compilers'))
         self.output_directory = "{rawRoot}{rawOffset}".format(rawRoot=ConfigLoader.get_from_config('outputDirectoryRoot', 'compilers'), rawOffset=ConfigLoader.get_from_config('compilerTypeSpecific/{type}/outputDirectory'.format(type=self.compiler_type), 'compilers'))
         self.sources_directory = ConfigLoader.get_from_config('sourcesDirectory', 'compilers')
+
+        self.module_args = dict()
+        self.compiled_modules = dict()
+        if (self.modules):
+            for _iter in self.modules:
+                _module_type = None
+                if (isinstance(_iter, type)):
+                    _module_type = _iter
+                elif (isinstance(_iter, tuple)):
+                    _module_type = _iter[0]
+                    if (len(_iter) > 1):
+                        self.module_args[_module_type.module_name] = _iter[1:]
+                else:
+                    raise TypeError("Module should be either type or tuple")
 
     def search(self):
         return glob.glob(self.raw_directory + "*.json")
@@ -96,6 +114,27 @@ class CompilerBase():
     def compile(self):
         raise NotImplementedError
 
+    def compile_modules(self, base):
+        self.compiled_modules = dict()
+
+        for _iter in self.modules:
+            _module_type = None
+            if (isinstance(_iter, type)):
+                _module_type = _iter
+            elif (isinstance(_iter, tuple)):
+                _module_type = _iter[0]
+            else:
+                raise TypeError("Module should be either type or tuple")
+
+            self.compile_module(_module_type).insert(base)
+
+
+    def compile_module(self, module_type):
+        _args = self.module_args.get(module_type.module_name, dict())
+        module_object = module_type(self, **_args)
+        self.compiled_modules[module_type] = module_object.compile()
+        return module_object
+
     def save(self, forced_width=None):
         if (not self.compiled):
             logger.error("Could not save not compiled result")
@@ -125,11 +164,11 @@ class CompilerBase():
             return filename
 
     def insert_table \
-                    (
-                    self, vertical_columns, top, cell_height, data,
-                    body_row_template, body_text_drawer, body_row_interval, body_capitalization=None, body_bold=None, body_italic=None,
-                    header_row=None, header_text_drawer=None, header_row_interval=None, header_capitalization=None,header_bold=None, header_italic=None,
-            ):
+    (
+        self, vertical_columns, top, cell_height, data,
+        body_row_template, body_text_drawer, body_row_interval, body_capitalization=None, body_bold=None, body_italic=None,
+        header_row=None, header_text_drawer=None, header_row_interval=None, header_capitalization=None,header_bold=None, header_italic=None,
+    ):
         if (top < 0):
             direction = -1
             indirect = True
@@ -143,11 +182,11 @@ class CompilerBase():
 
         if (header_row and not indirect):
             y1, y2, total_height = self.__print_header_row \
-                    (
-                    vertical_columns=vertical_columns, y1=y1, y2=y2, total_height=total_height,
-                    body_row_template=body_row_template, body_text_drawer=body_text_drawer, body_row_interval=body_row_interval, body_capitalization=body_capitalization, body_bold=body_bold, body_italic=body_italic,
-                    header_row=header_row, header_text_drawer=header_text_drawer, header_row_interval=header_row_interval, header_capitalization=header_capitalization, header_bold=header_bold, header_italic=header_italic,
-                )
+            (
+                vertical_columns=vertical_columns, y1=y1, y2=y2, total_height=total_height,
+                body_row_template=body_row_template, body_text_drawer=body_text_drawer, body_row_interval=body_row_interval, body_capitalization=body_capitalization, body_bold=body_bold, body_italic=body_italic,
+                header_row=header_row, header_text_drawer=header_text_drawer, header_row_interval=header_row_interval, header_capitalization=header_capitalization, header_bold=header_bold, header_italic=header_italic,
+            )
 
         text_drawer = body_text_drawer
         _font = text_drawer.get_font()
@@ -177,11 +216,11 @@ class CompilerBase():
         return total_height
 
     def __print_header_row \
-                    (
-                    self, vertical_columns, y1, y2, total_height,
-                    body_row_template, body_text_drawer, body_row_interval, body_capitalization=None, body_bold=None, body_italic=None,
-                    header_row=None, header_text_drawer=None, header_row_interval=None, header_capitalization=None,header_bold=None, header_italic=None,
-            ):
+    (
+        self, vertical_columns, y1, y2, total_height,
+        body_row_template, body_text_drawer, body_row_interval, body_capitalization=None, body_bold=None, body_italic=None,
+        header_row=None, header_text_drawer=None, header_row_interval=None, header_capitalization=None,header_bold=None, header_italic=None,
+    ):
         text_drawer = header_text_drawer or body_text_drawer
 
         _font = text_drawer.get_font()
@@ -263,5 +302,8 @@ class CompilerBase():
         _h = image.height
 
         _x = x - _w // 2; _y = y - _h // 2
-        base_image.paste(image, (_x, _y), image)
+        _image = image
+        if (image.mode.endswith('A')):
+            _image = image.convert(image.mode[:-1])
+        base_image.paste(_image, (_x, _y), image)
         return _x, _y, _w, _h
