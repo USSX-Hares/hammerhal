@@ -108,7 +108,7 @@ def compile_adversary(logger, adversary, compiler=None):
     if (not compiler):
         compiler = AdversaryCompiler()
 
-    result = compiler.open(adversary) and compiler.compile() and compiler.save(forced_width=720)
+    result = compiler.open(adversary) and compiler.compile() and compiler.save(forced_width=1080)
     if (result):
         logger.info("Success! File saved to '{filename}'".format(filename=result))
         return 0

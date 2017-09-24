@@ -7,7 +7,122 @@
     {
         "hero":
         {
-            "defaultDiceSpace": [ { "count": 4, "image": "dice.png" } ],
+            "modules":
+            {
+                "name":
+                {
+                    "positionX": 1200,
+                    "positionY": 0,
+                    "width": 2400,
+                    "height": 240,
+                    
+                    "font":
+                    {
+                        "fontName": "BOD_B.TTF",
+                        "fontSize": 285,
+                        "bold": true,
+                        "color": "white",
+                        
+                        "capitalization": "SmallCaps",
+                        "horizontalAlignment": "Center",
+                        "verticalAlignment": "Center"
+                    }
+                }
+                ,
+                "stats":
+                {
+                    "positionX": 600,
+                    "positionY": 600,
+                    "width": 700,
+                    "height": 700,
+                    
+                    "moveX": 310,
+                    "moveY": 150,
+                    "saveX": 190,
+                    "saveY": 350,
+                    "agilityX": 390,
+                    "agilityY": 350,
+                    
+                    "font":
+                    {
+                        "fontSize": 110,
+                        "fontName": "Constantia",
+                        "color": "white",
+                        "bold": true
+                    }
+                }
+                ,
+                "dice_space":
+                {
+                    "positionX": 1480,
+                    "positionY": 383,
+                    "width": 1930,
+                    "height": 300,
+                    
+                    "diceMaxWidth": 300,
+                    "defaultDiceSpace": [ { "count": 4, "image": "dice.png" } ]
+                }
+                ,
+                "weapons":
+                {
+                    "positionX": 1340,
+                    "positionY": 760,
+                    "width": 2115,
+                    
+                    "verticalColumns": [ 0, 1080, 1520, 1730, 2115 ],
+                    "headerRowInterval": 70,
+                    "rowIntervalByCount": [ null, null, 60, 40 ],
+                    "cellHeight": 110,
+                    
+                    "font":
+                    {
+                        "fontSize": 70,
+                        "fontName": "Times New Roman",
+                        "color": "black",
+                        "bold": true,
+                        "horizontalAlignment": "Center",
+                        "verticalAlignment": "Center"
+                    }
+                }
+               ,
+                "rules":
+                {
+                    "positionX": 0,
+                    "positionY": 1330,
+                    "width": 3600,
+                    "height": 1250,
+                    
+                    "gradient":
+                    [
+                        { "position": 0, "color": "0x00ffffff" },
+                        { "position": 250, "color": "0x00ffffff" },
+                        { "position": 1200, "color": "0x50ffffff" },
+                        { "position": 2400, "color": "0x50ffffff" },
+                        { "position": 3400, "color": "0x00ffffff" },
+                        { "position": 3600, "color": "0x00ffffff" }
+                    ],
+                    
+                    "textLeft": 365,
+                    "textWidthNoDice": 3233,
+                    "textWidthWithDice": 2933,
+                    "defaultRulesSeparatorHeight": 100,
+                    "dicePosition": 3260,
+                    "diceImage": "dice.png",
+                    
+                    "font":
+                    {
+                        "fontSize": 90,
+                        "fontName": "Times New Roman",
+                        "color": "black",
+                        
+                        "paragraphVerticalSpace": 50,
+                        "verticalSpaceScale": 0.15,
+                        "horizontalAlignment": "Justify",
+                        "verticalAlignment": "Center"
+                    }
+                }
+            },
+            
             
             "outputDirectory": "heroes/",
             "rawDirectory": "heroes/"
