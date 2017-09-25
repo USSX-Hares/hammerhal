@@ -1,5 +1,6 @@
 from PIL import Image, ImageDraw, ImageColor
 
+from hammerhal import get_color
 from hammerhal.compilers.compiler_module_base import CompilerModuleBase
 
 
@@ -43,8 +44,8 @@ class HeroRulesModule(CompilerModuleBase):
             x1 = _gradient_section[i]['position']
             x2 = _gradient_section[i+1]['position']
 
-            _color1 = self.__get_color(_gradient_section[i]['color'])
-            _color2 = self.__get_color(_gradient_section[i+1]['color'])
+            _color1 = get_color(_gradient_section[i]['color'])
+            _color2 = get_color(_gradient_section[i+1]['color'])
 
             r1, g1, b1, a1 = _color1
             r2, g2, b2, a2 = _color2
@@ -83,17 +84,3 @@ class HeroRulesModule(CompilerModuleBase):
         # -5 because of not correct intuitive of text while on print
         text_drawer.print_in_region((x1, y - 5, x2, y - 5 + _h), text, offset_borders=False)
         return _h
-
-
-    def __get_color(self, color):
-        _color = color
-        if (isinstance(_color, int)):
-            _color = "0x" + "{0:8x}".format(_color)
-        if (isinstance(_color, str)):
-            if (_color.startswith("0x")):
-                s = _color
-                _color = (int(s[4:6], 16), int(s[6:8], 16), int(s[8:10], 16), int(s[2:4], 16))
-            else:
-                _color = ImageColor.getcolor(_color, "RGBA")
-
-        return _color

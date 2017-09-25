@@ -29,8 +29,8 @@ class CompilerBase():
         self.output_directory = "{rawRoot}{rawOffset}".format(rawRoot=ConfigLoader.get_from_config('outputDirectoryRoot', 'compilers'), rawOffset=ConfigLoader.get_from_config('compilerTypeSpecific/{type}/outputDirectory'.format(type=self.compiler_type), 'compilers'))
         self.sources_directory = ConfigLoader.get_from_config('sourcesDirectory', 'compilers')
 
-        self.compiled_modules = dict()
         if (self.modules):
+            self.compiled_modules = [] * len(self.modules)
             for _iter in self.modules:
                 _module_type = None
                 if (isinstance(_iter, type)):
@@ -121,7 +121,7 @@ class CompilerBase():
             return None
 
         base = Image.open(filepath)
-        logger.info("Image base prepared")
+        logger.info("Base prepared")
         return base
 
     def compile(self):
@@ -138,11 +138,13 @@ class CompilerBase():
     def compile_modules(self, base):
         self.compiled_modules = dict()
 
-        for _module in self.modules:
-            self.compile_module(_module).insert(base)
+        for i, _ in enumerate(self.modules):
+            self.compile_module(i).insert(base)
 
 
-    def compile_module(self, module):
+    def compile_module(self, index):
+        module = self.modules[index]
+
         _module_type = None
         _module_args = None
         if (isinstance(module, type)):
@@ -158,8 +160,8 @@ class CompilerBase():
             raise TypeError("Module should be either type or tuple")
 
         _args = _module_args or dict()
-        module_object = _module_type(self, **_args)
-        self.compiled_modules[_module_type] = module_object.compile()
+        module_object = _module_type(self, index, **_args)
+        self.compiled_modules[index] = module_object.compile()
         return module_object
 
     def save(self, forced_width=None):

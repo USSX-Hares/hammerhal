@@ -13,6 +13,7 @@ class CompilerModuleBase:
     module_name = None
 
     # These ones MUST NOT be overwritten
+    index = None
     parent = None
     parent_type = None
     logger = None
@@ -21,9 +22,10 @@ class CompilerModuleBase:
     height = None
     compiled = None
 
-    def __init__(self, parent:CompilerBase, **kwargs):
+    def __init__(self, parent:CompilerBase, index:int, **kwargs):
         self.parent = parent
         self.parent_type = parent.compiler_type
+        self.index = index
         self.initialize(**kwargs)
 
         _logger_name = "hammerhal.compilers.{parentType}_compiler/{moduleName}_module".format \
@@ -95,7 +97,9 @@ class CompilerModuleBase:
         raise NotImplementedError
 
     def insert(self, parent_base:Image.Image):
-        _position = self.get_position()
+        _x, _y = self.get_position()
+        if (_y < 0):
+            _y = parent_base.height + _y - self.compiled.height
         _image = self.compiled.convert('RGB')
         _mask = self.compiled
-        parent_base.paste(_image, _position, _mask)
+        parent_base.paste(_image, (_x, _y), _mask)
