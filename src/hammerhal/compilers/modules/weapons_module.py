@@ -1,8 +1,9 @@
 from hammerhal.compilers.compiler_module_base import CompilerModuleBase
 from hammerhal.text_drawer import TextDrawer
+from PIL import Image
 
 
-class HeroWeaponsModule(CompilerModuleBase):
+class WeaponsModule(CompilerModuleBase):
     module_name = "weapons"
 
     def get_size(self):
@@ -16,7 +17,6 @@ class HeroWeaponsModule(CompilerModuleBase):
 
         return width, height
 
-
     def _compile(self, base):
         td = self.get_text_drawer(base)
 
@@ -27,12 +27,12 @@ class HeroWeaponsModule(CompilerModuleBase):
             cell_height = self.get_from_module_config("cellHeight"),
             data = self.parent.raw['weapons'],
 
-            body_row_template = [ "{name} ({cost}+)", "{range}", "{hit}+", "{damage}" ],
+            body_row_template = self.get_from_module_config("bodyRowTemplate"),
             body_text_drawer = td,
             body_row_interval = self.get_from_module_config("rowIntervalByCount")[len(self.parent.raw['weapons'])],
             body_capitalization = TextDrawer.CapitalizationModes.Capitalize,
 
-            header_row = [ "WEAPON ACTIONS", "Range", "Hit", "Damage" ],
+            header_row = self.get_from_module_config("headerRow"),
             header_text_drawer = td,
             header_row_interval = self.get_from_module_config("headerRowInterval"),
             header_capitalization = TextDrawer.CapitalizationModes.Normal,

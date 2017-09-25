@@ -5,12 +5,15 @@ TODO: rules schema
 
 Release 0.2:
 TODO: Add scale to the config
-TODO: Move all numbers (coordinates, spaces, font size etc.) to the config - Done for the heroes
+Done: Move all numbers (coordinates, spaces, font size etc.) to the config
 Done: Trailing text operand (**/__) bug
-TODO: Compile each block on a separate image - Done for the heroes
+Done: Compile each block on a separate image
+TODO: Catch errors during compilation
 
 Release 0.3:
-TODO: Preload functions for the text finder
+TODO: Cache enums
+TODO: Cache get_from_module_config
+TODO: Preload function for the font finder
 TODO: Minion card type
 TODO: Add paging to the text drawer
 TODO: Advanced adversary rules positioning
