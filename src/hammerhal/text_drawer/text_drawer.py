@@ -279,9 +279,34 @@ class TextDrawer:
         original_italic = self.__italic
         _continue = False
 
+        if (self.__current_text_capitalization == TextDrawer.CapitalizationModes.SmallCaps):
+            # _, _new_size = self._drawer.textsize(_char, font=_font)
+            _new_size = int(self.__current_font_size * 0.75)
+            _char = 'ixz'
+            _char = _char.upper()
+
+            _font = self.__font_base
+            _small_caps_font = ImageFont.truetype(font=self.__current_font_filepath, size=_new_size, encoding='unic')
+            _, _y1 = self.__drawer.textsize(_char, font=_small_caps_font)
+            _, _y2 = self.__drawer.textsize(_char, font=_font)
+            _small_caps_dy = _y2 - _y1
+
         for i in range(len(_text)):
             if (_continue):
                 _continue = False
+
+                if (self.__current_text_capitalization == TextDrawer.CapitalizationModes.SmallCaps):
+                    # _, _new_size = self._drawer.textsize(_char, font=_font)
+                    _new_size = int(self.__current_font_size * 0.75)
+                    _char = 'ixz'
+                    _char = _char.upper()
+
+                    _font = self.__font_base
+                    _small_caps_font = ImageFont.truetype(font=self.__current_font_filepath, size=_new_size, encoding='unic')
+                    _, _y1 = self.__drawer.textsize(_char, font=_font)
+                    _, _y2 = self.__drawer.textsize(_char, font=_small_caps_font)
+                    _small_caps_dy = _y2 - _y1
+
                 continue
             if (i + 2 <= len(_text)):
                 if(_text[i:i+2] == '__'):
@@ -296,12 +321,9 @@ class TextDrawer:
             _char = _text[i]; _x = int(x); _y = int(y); _font = self.__font_base
 
             if (self.__current_text_capitalization == TextDrawer.CapitalizationModes.SmallCaps and _char != _char.upper()):
-                # _, _new_size = self._drawer.textsize(_char, font=_font)
-                _new_size = int(self.__current_font_size * 0.75)
                 _char = _char.upper()
-                _y += self.__current_font_size - _new_size
-                _font = ImageFont.truetype(font=self.__current_font_filepath, size=_new_size, encoding='unic')
-
+                _y += _small_caps_dy
+                _font = _small_caps_font
             w, h = self.__drawer.textsize(_char, font=_font)
             if (real_print):
                 if (debug_console_print):
@@ -322,47 +344,3 @@ class TextDrawer:
             print('', end='\n')
         self.set_font(bold=original_bold, italic=original_italic)
         return (x - initial_x, max_height)
-
-def test():
-
-    im = Image.open("compiler_images/hero_card_base_2_weapons.png")
-
-    td = TextDrawer(im, font_size=285, bold=True)
-    td.set_font_direct('BOD_B.TTF')
-    td.set_font(capitalization=TextDrawer.CapitalizationModes.SmallCaps, character_separator_scale=0.2, horizontal_alignment=TextDrawer.TextAlignment.Center, vertical_alignment=TextDrawer.TextAlignment.Bottom)
-    td.print_in_region((1200, 40, 3400, 240), 'Grey Seer', offset_borders=False)
-
-    rules = \
-    [
-        "**Swarmed:** If you roll a 6 for the attack when using Vermintide, the affected target suffers D3 wounds instead of 1.",
-        "**Warpstone Token:** After making an action roll to generate a Gray Seer's hero dice, you can choose to re-roll one of the dice. If you do so and roll 1, suffer a wound.",
-        """**TRAITS:** Grey Seer is **Arcane** and **Chaotic**.
-        **RENOWN:** If you roll 13 on your action roll, gain D6 renown.""",
-    ]
-
-    td = TextDrawer(im, font_size=90, color='black')
-    td.set_font \
-    (
-        horizontal_alignment=TextDrawer.TextAlignment.Justify,
-        vertical_alignment=TextDrawer.TextAlignment.Center,
-        vertical_space_scale=0.15,
-        paragraph_vertical_space=50,
-    )
-    y = 1330; dy = 80; light = True
-    x1 = 365; x2 = 3233
-    for rule in rules:
-        _, _h = td.get_text_size((x1, y, x2, y), rule, offset_borders=False)
-        _h += dy
-        _drawer = ImageDraw.ImageDraw(im)
-        if (light):
-            _drawer.rectangle([(x1, y), (x2, y + _h)], fill='yellow')
-        light = not light
-        td.print_in_region((x1, y - 5, x2, y + _h - 5), rule, offset_borders=False)
-        y += _h
-
-    im.save('output/heroes/grey-seer.png')
-
-
-if (__name__ == '__main__'):
-    test()
-
