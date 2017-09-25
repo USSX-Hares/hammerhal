@@ -43,8 +43,7 @@
             "properties":
             {
                 "name":         { "type": "string" },
-                "roll":         { "$ref": "#/definitions/positiveInteger" },
-                "roll2":        { "$ref": "#/definitions/positiveInteger" },
+                "roll":         { "type": [ "string", "integer" ] },
                 "description":  { "type": "string" }
             },
             "additionalProperties": false,
