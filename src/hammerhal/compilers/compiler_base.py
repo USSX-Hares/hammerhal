@@ -129,7 +129,8 @@ class CompilerBase():
         if (not base):
             return None
 
-        self.compile_modules(base)
+        if not (self.compile_modules(base)):
+            return None
 
         self.compiled = base
         logger.info("{type} compiled!".format(type=self.compiler_type.capitalize()))
@@ -139,8 +140,15 @@ class CompilerBase():
         self.compiled_modules = dict()
 
         for i, _ in enumerate(self.modules):
-            self.compile_module(i).insert(base)
+            try:
+                _module = self.compile_module(i)
+            except:
+                logger.error("Error while compiling the module #{i}: {module}".format(i=i, module=self.modules[i]))
+                return False
+            else:
+                _module.insert(base)
 
+        return True
 
     def compile_module(self, index):
         module = self.modules[index]

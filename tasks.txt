@@ -4,14 +4,14 @@ TODO: graphical editor
 TODO: rules schema
 
 Release 0.2:
-TODO: Add scale to the config
 Done: Move all numbers (coordinates, spaces, font size etc.) to the config
 Done: Trailing text operand (**/__) bug
 Done: Compile each block on a separate image
-TODO: Catch errors during compilation
+Done: Catch errors during compilation
 Done: Small Caps bug
 
 Release 0.3:
+TODO: Add scale to the config
 TODO: Cache enums
 TODO: Cache get_from_module_config
 TODO: Preload function for the font finder
