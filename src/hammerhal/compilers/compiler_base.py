@@ -8,15 +8,11 @@ from hammerhal import ConfigLoader
 from logging import getLogger
 logger = getLogger('hammerhal.compilers.compiler_base')
 
-class CompilerException(Exception):
-    pass
-
 class CompilerBase():
 
     compiler_type = None
     modules = None
 
-    module_args = None
     schema_path = None
     raw_directory = None
     sources_directory = None
@@ -33,17 +29,16 @@ class CompilerBase():
         self.output_directory = "{rawRoot}{rawOffset}".format(rawRoot=ConfigLoader.get_from_config('outputDirectoryRoot', 'compilers'), rawOffset=ConfigLoader.get_from_config('compilerTypeSpecific/{type}/outputDirectory'.format(type=self.compiler_type), 'compilers'))
         self.sources_directory = ConfigLoader.get_from_config('sourcesDirectory', 'compilers')
 
-        self.module_args = dict()
         self.compiled_modules = dict()
         if (self.modules):
             for _iter in self.modules:
                 _module_type = None
                 if (isinstance(_iter, type)):
                     _module_type = _iter
+                    pass
                 elif (isinstance(_iter, tuple)):
                     _module_type = _iter[0]
-                    if (len(_iter) > 1):
-                        self.module_args[_module_type.module_name] = _iter[1:]
+                    pass
                 else:
                     raise TypeError("Module should be either type or tuple")
 
@@ -143,22 +138,28 @@ class CompilerBase():
     def compile_modules(self, base):
         self.compiled_modules = dict()
 
-        for _iter in self.modules:
-            _module_type = None
-            if (isinstance(_iter, type)):
-                _module_type = _iter
-            elif (isinstance(_iter, tuple)):
-                _module_type = _iter[0]
-            else:
-                raise TypeError("Module should be either type or tuple")
-
-            self.compile_module(_module_type).insert(base)
+        for _module in self.modules:
+            self.compile_module(_module).insert(base)
 
 
-    def compile_module(self, module_type):
-        _args = self.module_args.get(module_type.module_name, dict())
-        module_object = module_type(self, **_args)
-        self.compiled_modules[module_type] = module_object.compile()
+    def compile_module(self, module):
+        _module_type = None
+        _module_args = None
+        if (isinstance(module, type)):
+            _module_type = module
+        elif (isinstance(module, tuple)):
+            _module_type = module[0]
+            if (len(module) > 1):
+                if (len(module) == 2 and isinstance(module[1], dict)):
+                    _module_args = module[1]
+                else:
+                    _module_args = module[1:]
+        else:
+            raise TypeError("Module should be either type or tuple")
+
+        _args = _module_args or dict()
+        module_object = _module_type(self, **_args)
+        self.compiled_modules[_module_type] = module_object.compile()
         return module_object
 
     def save(self, forced_width=None):

@@ -4,6 +4,7 @@ from camel_case_switcher import dict_keys_camel_case_to_underscope
 
 from hammerhal.config_loader import ConfigLoader
 from hammerhal.text_drawer import TextDrawer
+from hammerhal.compilers.compiler_error import CompilerError
 from hammerhal.compilers.compiler_base import CompilerBase
 
 class CompilerModuleBase:
@@ -31,6 +32,23 @@ class CompilerModuleBase:
         self.logger = getLogger(_logger_name)
 
         self.initialize(**kwargs)
+
+        # Try config:
+        path = 'compilerTypeSpecific/{parentType}/modules/{moduleName}'.format \
+        (
+            parentType = self.parent_type,
+            moduleName = self.module_name,
+        )
+        if not (ConfigLoader.get_from_config(path, 'compilers')):
+            message = "Module config not found: {parentType}/{moduleName}".format \
+            (
+                parentType = self.parent_type,
+                moduleName = self.module_name,
+            )
+
+            self.logger.error(message)
+            raise CompilerError(message)
+
 
     def initialize(self, **kwargs):
         pass
