@@ -2,7 +2,7 @@ from hammerhal.compilers.compiler_module_base import CompilerModuleBase
 from hammerhal.text_drawer import TextDrawer
 
 
-class HeroNameModule(CompilerModuleBase):
+class NameModule(CompilerModuleBase):
     module_name = "name"
 
     def _compile(self, base):

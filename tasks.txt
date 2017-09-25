@@ -10,10 +10,21 @@ Done: Trailing text operand (**/__) bug
 TODO: Compile each block on a separate image - Done for the heroes
 
 Release 0.3:
+TODO: Preload functions for the text finder
 TODO: Minion card type
 TODO: Add paging to the text drawer
 TODO: Advanced adversary rules positioning
 TODO: Two-paged adversaries
+
+Release 0.4:
+TODO: Font finder - support local fonts
+TODO: Add fonts to the repo
+TODO: Text drawer to the separate repo
+TODO: Font finder to the separate repo
+TODO: Config loader to the separate repo
+
+Release 0.5:
+TODO: Parallel compilation
 
 Hero Compiler:
  - Subtitle

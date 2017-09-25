@@ -5,7 +5,8 @@ from PIL import ImageFont
 from PIL import ImageDraw
 
 from hammerhal.text_drawer import TextDrawer
-from hammerhal.compilers import CompilerBase, CompilerException, ImageModule
+from hammerhal.compilers.compiler_base import CompilerBase, CompilerException
+from hammerhal.compilers.modules import ImageModule, NameModule, StatsModule
 from logging import getLogger
 logger = getLogger('hammerhal.compilers.adversary_compiler')
 

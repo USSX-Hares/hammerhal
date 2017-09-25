@@ -20,9 +20,9 @@
                 "name":
                 {
                     "positionX": 1200,
-                    "positionY": 0,
+                    "positionY": -30,
                     "width": 2400,
-                    "height": 240,
+                    "height": 300,
                     
                     "font":
                     {
@@ -44,12 +44,12 @@
                     "width": 700,
                     "height": 700,
                     
-                    "moveX": 310,
-                    "moveY": 150,
-                    "saveX": 190,
-                    "saveY": 350,
-                    "agilityX": 390,
-                    "agilityY": 350,
+                    "stats":
+                    {
+                        "move": { "x": 310, "y": 150, "+": false },
+                        "save": { "x": 190, "y": 350, "+": true },
+                        "agility": { "x": 390, "y": 350, "+": true }
+                    },
                     
                     "font":
                     {
