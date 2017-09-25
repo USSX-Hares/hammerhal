@@ -24,14 +24,14 @@ class CompilerModuleBase:
     def __init__(self, parent:CompilerBase, **kwargs):
         self.parent = parent
         self.parent_type = parent.compiler_type
+        self.initialize(**kwargs)
+
         _logger_name = "hammerhal.compilers.{parentType}_compiler/{moduleName}_module".format \
         (
             parentType = self.parent_type,
             moduleName = self.module_name,
         )
         self.logger = getLogger(_logger_name)
-
-        self.initialize(**kwargs)
 
         # Try config:
         path = 'compilerTypeSpecific/{parentType}/modules/{moduleName}'.format \
