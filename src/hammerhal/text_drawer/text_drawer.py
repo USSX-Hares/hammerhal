@@ -1,9 +1,28 @@
 from PIL import Image, ImageDraw, ImageFont
 from hammerhal.text_drawer import FontFinder
+import inspect
+
+
+class Enum:
+    @classmethod
+    def find_value(cls, key):
+        if (isinstance(key, str)):
+            _members = inspect.getmembers(cls)
+            for _member in _members:
+                if (_member[0] == key):
+                    # print("{0} is {1}!".format(*_member))
+                    return _member[1]
+
+            # print("{0} not found".format(key))
+            return None
+
+        else:
+            # print("{0} is not a string; returning it")
+            return key
 
 class TextDrawer:
 
-    class CapitalizationModes:
+    class CapitalizationModes(Enum):
         Normal = 1
         UpperCase = 2
         AllCaps = 2
@@ -12,7 +31,7 @@ class TextDrawer:
         Capitalize = 4
         SmallCaps = 5
 
-    class TextAlignment:
+    class TextAlignment(Enum):
         Left = 1
         Top = 1
         Center = 2
@@ -42,7 +61,7 @@ class TextDrawer:
 
     color = None
 
-    def __init__(self, im:Image.Image, font_family=None, font_size=None, color=None, bold=None, italic=None, font_finder=None):
+    def __init__(self, im:Image.Image, font_nane=None, font_size=None, color=None, bold=None, italic=None, font_finder=None):
         if (font_finder):
             self.__font_finder = font_finder
         else:
@@ -50,16 +69,12 @@ class TextDrawer:
                 TextDrawer.__font_finder = FontFinder()
             self.__font_finder = TextDrawer.__font_finder
 
-        self.set_font(font_family=font_family, font_size=font_size, color=color, bold=bold, italic=italic)
+        self.set_font(font_name=font_nane, font_size=font_size, color=color, bold=bold, italic=italic)
         self.__drawer = ImageDraw.ImageDraw(im)
 
-    def set_font_direct(self, font_filename):
-        self.__current_font_filepath = self.__font_finder.find_font_file_by_filename(font_filename) or self.__current_font_filepath
-        self.__font_base = ImageFont.truetype(font=self.__current_font_filepath, size=self.__current_font_size, encoding='unic')
-
-    def set_font(self, font_family=None, font_size=None, color=None, bold=None, italic=None, horizontal_alignment=None, vertical_alignment=None, character_width_scale=None, space_scale=None, vertical_space_scale=None, paragraph_vertical_space=None, character_separator_scale=None, capitalization=None):
-        self.__current_font_size = font_size or self.__current_font_size or 10
-        self.__current_font_family = font_family or self.__current_font_family or 'Times New Roman'
+    def set_font(self, font_name=None, font_size=None, color=None, bold=None, italic=None, horizontal_alignment=None, vertical_alignment=None, character_width_scale=None, space_scale=None, vertical_space_scale=None, paragraph_vertical_space=None, character_separator_scale=None, capitalization=None):
+        self.__current_font_size = int(font_size or self.__current_font_size or 10)
+        self.__current_font_family = font_name or self.__current_font_family or 'Times New Roman'
 
         if (not bold is None):
             self.__bold = bold
@@ -71,17 +86,29 @@ class TextDrawer:
         else:
             self.__italic = self.__italic or False
 
-        if not (font_family is None and bold is None and italic is None):
-            self.__current_font_filepath = self.__font_finder.find_font_file_by_fontname(family_name=self.__current_font_family, bold=self.__bold, italic=self.__italic)
-            if not (self.__current_font_filepath):
-                raise FileNotFoundError("Requested font ({font_family}) is not installed".format(font_family=self.__current_font_family))
+        if not (font_name is None and bold is None and italic is None):
+            _test_font = None
+            if (font_name or self.__current_font_family is None):
+                _test_font = self.__font_finder.find_font_file_by_filename(font_name)
+                if (_test_font):
+                    self.__current_font_family = None
+
+            if not (_test_font):
+                _test_font = self.__font_finder.find_font_file_by_fontname(family_name=self.__current_font_family, bold=self.__bold, italic=self.__italic)
+                if (_test_font):                    
+                    self.__current_font_family = font_name
+                    
+            if not (_test_font):
+                raise FileNotFoundError("Requested font ({font_family}{bold}{italic}) is not installed".format(font_family=self.__current_font_family, bold=", Bold" if self.__bold else '', italic=", Italic" if self.__italic else ''))
+
+            self.__current_font_filepath = _test_font
         else:
             self.__current_font_filepath = self.__current_font_filepath or 'times.ttf'
         self.__font_base = ImageFont.truetype(font=self.__current_font_filepath, size=self.__current_font_size, encoding='unic')
 
-        self.__current_text_vertical_alignment = vertical_alignment or self.__current_text_vertical_alignment or TextDrawer.TextAlignment.Top
-        self.__current_text_horizontal_alignment = horizontal_alignment or self.__current_text_horizontal_alignment or TextDrawer.TextAlignment.Left
-        self.__current_text_capitalization = capitalization or self.__current_text_capitalization or TextDrawer.CapitalizationModes.Normal
+        self.__current_text_vertical_alignment = TextDrawer.TextAlignment.find_value(vertical_alignment) or self.__current_text_vertical_alignment or TextDrawer.TextAlignment.Top
+        self.__current_text_horizontal_alignment = TextDrawer.TextAlignment.find_value(horizontal_alignment) or self.__current_text_horizontal_alignment or TextDrawer.TextAlignment.Left
+        self.__current_text_capitalization = TextDrawer.CapitalizationModes.find_value(capitalization) or self.__current_text_capitalization or TextDrawer.CapitalizationModes.Normal
 
         if (not space_scale is None):
             self.text_space_scale = space_scale
@@ -110,6 +137,26 @@ class TextDrawer:
 
         self.color = color or self.color or 'white'
 
+    def get_font(self):
+        result_dict = \
+        {
+            'font_name': self.__current_font_family,
+            'font_size': self.__current_font_size,
+            'color': self.color,
+            'bold': self.__bold,
+            'italic': self.__italic,
+            'horizontal_alignment': self.__current_text_horizontal_alignment,
+            'vertical_alignment': self.__current_text_vertical_alignment,
+            'character_width_scale': self.character_width_scale,
+            'space_scale': self.text_space_scale,
+            'vertical_space_scale': self.text_paragraph_vertical_space,
+            'paragraph_vertical_space': self.text_paragraph_vertical_space,
+            'character_separator_scale': self.text_character_separator_scale,
+            'capitalization': self.__current_text_capitalization,
+        }
+
+        return result_dict
+
     def print_line(self, position, text:str):
         self.__print(position, text, real_print=True)
 
@@ -132,17 +179,45 @@ class TextDrawer:
         _, line_height = self.__print(None, 'LINE HEIGHT', real_print=False)
         paragraphs = []
         for paragraph in text.split('\n'):
+            _horizontal_alignment = self.__current_text_horizontal_alignment
+            paragraph_words = []
+            paragraph_lines_width = 0
             words = paragraph.split()
             lines = []
-            line = { 'words': [], 'width': 0 }
+            line = { 'words': [], 'width': 0, 'horizontal_alignment': _horizontal_alignment }
             for word in words:
-                word_width, _ = self.__print(None, word, real_print=False)
-                if (not w or line['width'] + word_width + space_width <= w):
-                    line['width'] += word_width + space_width
+                if (word.startswith('$$')):
+                    if (word == '$$HA_L'):
+                        _horizontal_alignment = TextDrawer.TextAlignment.Left
+                        line['horizontal_alignment'] = _horizontal_alignment
+                        continue
+                    if (word == '$$HA_C'):
+                        _horizontal_alignment = TextDrawer.TextAlignment.Center
+                        line['horizontal_alignment'] = _horizontal_alignment
+                        continue
+                    if (word == '$$HA_R'):
+                        _horizontal_alignment = TextDrawer.TextAlignment.Right
+                        line['horizontal_alignment'] = _horizontal_alignment
+                        continue
+                    if (word == '$$HA_J'):
+                        _horizontal_alignment = TextDrawer.TextAlignment.Justify
+                        line['horizontal_alignment'] = _horizontal_alignment
+                        continue
+                    raise KeyError("Unsupported operand: {word}".format(word=word))
+
+                paragraph_words.append(word)
+                paragraph_total_width, _ = self.__print(None, ' '.join(paragraph_words), real_print=False)
+                paragraph_total_width -= len(lines) * space_width
+                test_width = paragraph_total_width - paragraph_lines_width
+
+                if (not w or test_width <= w):
+                    line['width'] = test_width
                     line['words'].append(word)
                 else:
                     lines.append(line)
-                    line = { 'words': [ word ], 'width': word_width }
+                    word_width, _ = self.__print(None, word, real_print=False)
+                    paragraph_lines_width = paragraph_total_width - word_width - space_width
+                    line = { 'words': [ word ], 'width': word_width, 'horizontal_alignment': _horizontal_alignment }
 
                 if (max_width < line['width']):
                     max_width = line['width']
@@ -161,35 +236,36 @@ class TextDrawer:
             else:
                 _y = y
 
-            original_space_scale = self.text_space_scale
             for paragraph in paragraphs:
                 for i in range(len(paragraph)):
                     line = paragraph[i]
                     last_line = (i + 1 == len(paragraph))
 
-                    self.text_space_scale = original_space_scale
-                    if (self.__current_text_horizontal_alignment == TextDrawer.TextAlignment.Right):
+                    new_space_width = space_width
+                    if (line['horizontal_alignment'] == TextDrawer.TextAlignment.Right):
                         _x = x + w - line['width']
-                    elif (self.__current_text_horizontal_alignment == TextDrawer.TextAlignment.Center):
+                    elif (line['horizontal_alignment'] == TextDrawer.TextAlignment.Center):
                         _x = x + (w - line['width']) // 2
-                    elif (self.__current_text_horizontal_alignment == TextDrawer.TextAlignment.Justify and not last_line and len(line['words']) > 0):
+                    elif (line['horizontal_alignment'] == TextDrawer.TextAlignment.Justify and not last_line and len(line['words']) > 0):
                         _x = x
-                        new_space_width = (w - line['width']) / (len(line['words']) - 1)
-                        self.text_space_scale = 1 + new_space_width / space_width
+                        num_spaces = len(line['words']) - 1
+                        if (num_spaces > 0):
+                            new_space_width = space_width + (w - line['width']) / num_spaces
                     else:
                         _x = x
 
-                    self.__print((_x, _y), ' '.join(line['words']), real_print=True)
+                    self.__print((_x, _y), ' '.join(line['words']), real_print=True, restricted_space_width=new_space_width)
                     _y += (1 + self.text_vertical_space_scale) * self.__current_font_size
                 _y += self.text_paragraph_vertical_space
 
-            self.text_space_scale = original_space_scale
         return max_width, total_height
 
 
-    def __print(self, position, text: str, real_print:bool, debug_console_print:bool=False):
+    def __print(self, position, text: str, real_print:bool, restricted_space_width=None, debug_console_print:bool=False):
         x, y = position or (0, 0)
         max_height = 0
+
+
 
         _text = text
         if (self.__current_text_capitalization == TextDrawer.CapitalizationModes.UpperCase):
@@ -203,38 +279,61 @@ class TextDrawer:
         original_italic = self.__italic
         _continue = False
 
+        if (self.__current_text_capitalization == TextDrawer.CapitalizationModes.SmallCaps):
+            # _, _new_size = self._drawer.textsize(_char, font=_font)
+            _new_size = int(self.__current_font_size * 0.75)
+            _char = 'ixz'
+            _char = _char.upper()
+
+            _font = self.__font_base
+            _small_caps_font = ImageFont.truetype(font=self.__current_font_filepath, size=_new_size, encoding='unic')
+            _, _y1 = self.__drawer.textsize(_char, font=_small_caps_font)
+            _, _y2 = self.__drawer.textsize(_char, font=_font)
+            _small_caps_dy = _y2 - _y1
+
         for i in range(len(_text)):
             if (_continue):
                 _continue = False
+
+                if (self.__current_text_capitalization == TextDrawer.CapitalizationModes.SmallCaps):
+                    # _, _new_size = self._drawer.textsize(_char, font=_font)
+                    _new_size = int(self.__current_font_size * 0.75)
+                    _char = 'ixz'
+                    _char = _char.upper()
+
+                    _font = self.__font_base
+                    _small_caps_font = ImageFont.truetype(font=self.__current_font_filepath, size=_new_size, encoding='unic')
+                    _, _y1 = self.__drawer.textsize(_char, font=_font)
+                    _, _y2 = self.__drawer.textsize(_char, font=_small_caps_font)
+                    _small_caps_dy = _y2 - _y1
+
                 continue
-            if (i + 2 < len(_text)):
+            if (i + 2 <= len(_text)):
                 if(_text[i:i+2] == '__'):
-                    if (real_print):
-                        self.set_font(italic=not self.__italic)
+                    self.set_font(italic=not self.__italic)
                     _continue = True
                     continue
                 if (_text[i:i + 2] == '**'):
-                    if (real_print):
-                        self.set_font(bold=not self.__bold)
+                    self.set_font(bold=not self.__bold)
                     _continue = True
                     continue
 
             _char = _text[i]; _x = int(x); _y = int(y); _font = self.__font_base
 
             if (self.__current_text_capitalization == TextDrawer.CapitalizationModes.SmallCaps and _char != _char.upper()):
-                # _, _new_size = self._drawer.textsize(_char, font=_font)
-                _new_size = int(self.__current_font_size * 0.75)
                 _char = _char.upper()
-                _y += self.__current_font_size - _new_size
-                _font = ImageFont.truetype(font=self.__current_font_filepath, size=_new_size, encoding='unic')
-
+                _y += _small_caps_dy
+                _font = _small_caps_font
             w, h = self.__drawer.textsize(_char, font=_font)
             if (real_print):
                 if (debug_console_print):
                     print(text[i], end='')
                 self.__drawer.text((_x, _y), _char, self.color, font=_font)
             if (_char == ' '):
-                x += w * self.text_space_scale
+                if (restricted_space_width):
+                    x += restricted_space_width
+                else:
+                    x += w * self.text_space_scale
             else:
                 x += w + self.text_character_separator_scale * self.__current_font_size
             if (max_height < h):
@@ -243,50 +342,5 @@ class TextDrawer:
         initial_x, _ = position or (0, 0)
         if (debug_console_print):
             print('', end='\n')
-        if (real_print):
-            self.set_font(bold=original_bold, italic=original_italic)
+        self.set_font(bold=original_bold, italic=original_italic)
         return (x - initial_x, max_height)
-
-def test():
-
-    im = Image.open("compiler_images/hero_card_base_2_weapons.png")
-
-    td = TextDrawer(im, font_size=285, bold=True)
-    td.set_font_direct('BOD_B.TTF')
-    td.set_font(capitalization=TextDrawer.CapitalizationModes.SmallCaps, character_separator_scale=0.2, horizontal_alignment=TextDrawer.TextAlignment.Center, vertical_alignment=TextDrawer.TextAlignment.Bottom)
-    td.print_in_region((1200, 40, 3400, 240), 'Grey Seer', offset_borders=False)
-
-    rules = \
-    [
-        "**Swarmed:** If you roll a 6 for the attack when using Vermintide, the affected target suffers D3 wounds instead of 1.",
-        "**Warpstone Token:** After making an action roll to generate a Gray Seer's hero dice, you can choose to re-roll one of the dice. If you do so and roll 1, suffer a wound.",
-        """**TRAITS:** Grey Seer is **Arcane** and **Chaotic**.
-        **RENOWN:** If you roll 13 on your action roll, gain D6 renown.""",
-    ]
-
-    td = TextDrawer(im, font_size=90, color='black')
-    td.set_font \
-    (
-        horizontal_alignment=TextDrawer.TextAlignment.Justify,
-        vertical_alignment=TextDrawer.TextAlignment.Center,
-        vertical_space_scale=0.15,
-        paragraph_vertical_space=50,
-    )
-    y = 1330; dy = 80; light = True
-    x1 = 365; x2 = 3233
-    for rule in rules:
-        _, _h = td.get_text_size((x1, y, x2, y), rule, offset_borders=False)
-        _h += dy
-        _drawer = ImageDraw.ImageDraw(im)
-        if (light):
-            _drawer.rectangle([(x1, y), (x2, y + _h)], fill='yellow')
-        light = not light
-        td.print_in_region((x1, y - 5, x2, y + _h - 5), rule, offset_borders=False)
-        y += _h
-
-    im.save('output/heroes/grey-seer.png')
-
-
-if (__name__ == '__main__'):
-    test()
-

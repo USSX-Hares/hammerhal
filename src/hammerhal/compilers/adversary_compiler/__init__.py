@@ -1,0 +1,1 @@
+from hammerhal.compilers.adversary_compiler.adversary_compiler import AdversaryCompiler

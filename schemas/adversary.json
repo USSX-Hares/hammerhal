@@ -15,7 +15,7 @@
             "properties":
             {
                 "name":     { "type": "string" },
-                "dices":    { "$ref": "#/definitions/positiveInteger" },
+                "dices":    { "type": "string" },
                 "range":    { "$ref": "#/definitions/range" },
                 "hit":      { "$ref": "#/definitions/dice" },
                 "damage":   { "type": "string" }
@@ -30,6 +30,7 @@
             "properties":
             {
                 "name":         { "type": "string" },
+                "right":        { "type": "boolean" },
                 "description":  { "type": "string" }
             },
             "additionalProperties": false,
@@ -42,8 +43,7 @@
             "properties":
             {
                 "name":         { "type": "string" },
-                "roll":         { "$ref": "#/definitions/positiveInteger" },
-                "roll2":        { "$ref": "#/definitions/positiveInteger" },
+                "roll":         { "type": [ "string", "integer" ] },
                 "description":  { "type": "string" }
             },
             "additionalProperties": false,
@@ -53,9 +53,11 @@
     
     "properties":
     {
-        "name":        { "type": "string" },
-        "description": { "type": "string" },
-        "image":       { "type": "string" },
+        "name":                 { "type": "string" },
+        "titleFontSizeScale":   { "type": "number" },
+        "rulesSeparatorHeight": { "type": "integer" },
+        "description":          { "type": "string" },
+        "image":                { "type": "string" },
         
         "stats":
         {
@@ -63,7 +65,7 @@
             "properties":
             {
                 "move":     { "$ref": "#/definitions/positiveInteger" },
-                "vigour":   { "$ref": "#/definitions/dice" },
+                "vigour":   { "$ref": "#/definitions/positiveInteger" },
                 "agility":  { "$ref": "#/definitions/dice" }
             },
             "additionalProperties": false,
