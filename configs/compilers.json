@@ -147,6 +147,69 @@
                     "width": 1470,
                     "height": 1470
                 }
+                ,
+                "name":
+                {
+                    "positionX": 1596,
+                    "positionY": 810,
+                    "width": 2655,
+                    "height": 350,
+                    
+                    "font":
+                    {
+                        "fontName": "BOD_B.TTF",
+                        "fontSize": 285,
+                        "bold": true,
+                        "color": "white",
+                        
+                        "capitalization": "SmallCaps",
+                        "horizontalAlignment": "Center",
+                        "verticalAlignment": "Center"
+                    }
+                }
+                ,
+                "stats":
+                {
+                    "positionX": 1400,
+                    "positionY": 1650,
+                    "width": 700,
+                    "height": 700,
+                    
+                    "stats":
+                    {
+                        "move": { "x": 300, "y": 180, "+": false },
+                        "vigour": { "x": 175, "y": 380, "+": false },
+                        "agility": { "x": 379, "y": 380, "+": true }
+                    },
+                    
+                    "font":
+                    {
+                        "fontSize": 110,
+                        "fontName": "Constantia",
+                        "color": "white",
+                        "bold": true
+                    }
+                }
+                ,
+                "description":
+                {
+                    "positionX": 1930,
+                    "positionY": 1200,
+                    "width": 2470,
+                    "height": 400,
+                    
+                    "font":
+                    {
+                        "fontName": "Times New Roman",
+                        "fontSize": 104,
+                        "bold": true,
+                        "color": "black",
+                        
+                        "horizontalAlignment": "Justify",
+                        "verticalAlignment": "Center"
+                    }
+                }
+
             },
             
             "baseNameTemplate": "adversary_sheet_base_{weaponsCount}_weapons.png",

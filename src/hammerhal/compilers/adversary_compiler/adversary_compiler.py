@@ -15,11 +15,10 @@ class AdversaryCompiler(CompilerBase):
     modules = \
     [
         ImageModule,
+        (TextModule, { 'name': "name", 'scale_field': "titleFontSizeScale" } ),
+        StatsModule,
+        (TextModule, { 'name': "description" } ),
     ]
-
-    @staticmethod
-    def __get_font(fontfamily, size):
-        return ImageFont.truetype("fonts/" + fontfamily + ".ttf", size)
 
     def compile(self):
 
@@ -29,9 +28,6 @@ class AdversaryCompiler(CompilerBase):
 
         self.compile_modules(base)
 
-        self.__print_name(base)
-        self.__print_description(base)
-        self.__print_stats(base)
         self.__print_weapons(base)
         behaviour_height = self.__print_behaviour_table(base)
         try:
@@ -43,23 +39,6 @@ class AdversaryCompiler(CompilerBase):
         logger.info("Adversary compiled!")
         return self.compiled
 
-    def __print_name(self, base):
-        td = TextDrawer(base, font_size=int(285 * self.raw.get('titleFontSizeScale', 1.0)), bold=True)
-        td.set_font(font_name='BOD_B.TTF')
-        td.set_font(capitalization=TextDrawer.CapitalizationModes.SmallCaps, horizontal_alignment=TextDrawer.TextAlignment.Center, vertical_alignment=TextDrawer.TextAlignment.Center)
-        td.print_in_region((1596, 810, 2655, 350), self.raw['name'], offset_borders=True)
-        logger.info("Name printed")
-    def __print_description(self, base):
-        td = TextDrawer(base, font_size=104, bold=True, color='black')
-        td.set_font(horizontal_alignment=TextDrawer.TextAlignment.Justify, vertical_alignment=TextDrawer.TextAlignment.Center)
-        td.print_in_region((1930, 1200, 4400, 1600), self.raw['description'], offset_borders=False)
-        logger.info("Description printed")
-    def __print_stats(self, base):
-        td = TextDrawer(base, font_size=110, bold=True, font_nane='Constantia', color='white')
-        td.print_line((1700, 1830), "{move}".format(**self.raw['stats']))
-        td.print_line((1575, 2030), "{vigour}".format(**self.raw['stats']))
-        td.print_line((1770, 2030), "{agility}+".format(**self.raw['stats']))
-        logger.info("Stats printed")
     def __print_weapons(self, base):
         td = TextDrawer(base, font_size=80, color='black', bold=True)
         td.set_font(horizontal_alignment=TextDrawer.TextAlignment.Center, vertical_alignment=TextDrawer.TextAlignment.Center)
@@ -155,7 +134,7 @@ class AdversaryCompiler(CompilerBase):
             logger.info("Rules printed")
 
 
-    class OutOfSpaceException(CompilerException):
+    class OutOfSpaceException(CompilerError):
         pass
 
     def __print_rules_block(self, text_drawer, right, y:int, y_min:int, y_max:int, text:str):
