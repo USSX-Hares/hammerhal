@@ -7,10 +7,11 @@ Release 0.2:
 TODO: Add scale to the config
 TODO: Move all numbers (coordinates, spaces, font size etc.) to the config - Done for the heroes
 Done: Trailing text operand (**/__) bug
-TODO: Compile each block on a separate image - Done for the heroes, except the hero image
+TODO: Compile each block on a separate image - Done for the heroes
 
 Release 0.3:
 TODO: Minion card type
+TODO: Add paging to the text drawer
 TODO: Advanced adversary rules positioning
 TODO: Two-paged adversaries
 

@@ -9,6 +9,14 @@
         {
             "modules":
             {
+                "image":
+                {
+                    "positionX": 0,
+                    "positionY": 0,
+                    "width": 1080,
+                    "height": 1150
+                }
+                ,
                 "name":
                 {
                     "positionX": 1200,
@@ -123,13 +131,25 @@
                 }
             },
             
-            
+            "baseNameTemplate": "hero_card_base_{weaponsCount}_weapons.png",
             "outputDirectory": "heroes/",
             "rawDirectory": "heroes/"
         }
         ,
         "adversary":
         {
+            "modules":
+            {
+                "image":
+                {
+                    "positionX": 204,
+                    "positionY": 871,
+                    "width": 1470,
+                    "height": 1470
+                }
+            },
+            
+            "baseNameTemplate": "adversary_sheet_base_{weaponsCount}_weapons.png",
             "outputDirectory": "adversaries/",
             "rawDirectory": "adversaries/"
         }

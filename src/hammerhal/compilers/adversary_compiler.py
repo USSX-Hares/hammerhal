@@ -5,13 +5,16 @@ from PIL import ImageFont
 from PIL import ImageDraw
 
 from hammerhal.text_drawer import TextDrawer
-from hammerhal import ConfigLoader
-from hammerhal.compilers import CompilerBase, CompilerException
+from hammerhal.compilers import CompilerBase, CompilerException, ImageModule
 from logging import getLogger
 logger = getLogger('hammerhal.compilers.adversary_compiler')
 
 class AdversaryCompiler(CompilerBase):
     compiler_type = "adversary"
+    modules = \
+    [
+        ImageModule,
+    ]
 
     @staticmethod
     def __get_font(fontfamily, size):
@@ -19,9 +22,11 @@ class AdversaryCompiler(CompilerBase):
 
     def compile(self):
 
-        base = self.__prepare_base()
+        base = self.prepare_base()
         if (not base):
             return None
+
+        self.compile_modules(base)
 
         self.__print_name(base)
         self.__print_description(base)
@@ -36,30 +41,6 @@ class AdversaryCompiler(CompilerBase):
         self.compiled = base
         logger.info("Adversary compiled!")
         return self.compiled
-
-    def __prepare_base(self):
-        filename = "{directory}{name}.png".format\
-        (
-            directory=self.sources_directory,
-            name="adversary_sheet_base_{n}_weapons".format(n=len(self.raw['weapons'])),
-        )
-        if (not os.path.isfile(filename)):
-            logger.error("Cannot load adversary card template with proper number of weapons: {n}".format(n=len(self.raw['weapons'])))
-            return None
-        base = Image.open(filename)
-        if (self.raw.get('image')):
-            filename = "{directory}{name}".format\
-            (
-                directory=ConfigLoader.get_from_config('rawDirectoryRoot'),
-                name=self.raw['image'],
-            )
-            if (not os.path.isfile(filename)):
-                logger.error("Cannot load adversary image by path: '{path}' - no such file".format(path=self.raw['image']))
-                return None
-            base = self.insert_image_scaled(base_image=base, region=(204, 871, 1470, 1470), image_path=filename)
-
-        logger.info("Image base prepared")
-        return base
 
     def __print_name(self, base):
         td = TextDrawer(base, font_size=int(285 * self.raw.get('titleFontSizeScale', 1.0)), bold=True)

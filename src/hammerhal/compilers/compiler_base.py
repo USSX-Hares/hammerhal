@@ -111,8 +111,34 @@ class CompilerBase():
 
         return self.raw
 
+    def prepare_base(self):
+        name_template = ConfigLoader.get_from_config('compilerTypeSpecific/{type}/baseNameTemplate'.format(type=self.compiler_type), 'compilers')
+        name = name_template
+        if ("{weaponsCount}" in name):
+            name = name.replace('{weaponsCount}', str(len(self.raw['weapons'])))
+
+        filepath = "{directory}{name}".format(directory=self.sources_directory, name=name)
+        if (not os.path.isfile(filepath)):
+            additional = ""
+            if ("{weaponsCount}" in name_template):
+                additional += " with proper number of weapons - {weaponsCount}".format(weaponsCount=len(self.raw['weapons']))
+            logger.error("Cannot load {type} card template{additional}: '{filepath}'".format(type=self.compiler_type, filepath=filepath, additional=additional))
+            return None
+
+        base = Image.open(filepath)
+        logger.info("Image base prepared")
+        return base
+
     def compile(self):
-        raise NotImplementedError
+        base = self.prepare_base()
+        if (not base):
+            return None
+
+        self.compile_modules(base)
+
+        self.compiled = base
+        logger.info("{type} compiled!".format(type=self.compiler_type.capitalize()))
+        return self.compiled
 
     def compile_modules(self, base):
         self.compiled_modules = dict()
@@ -282,10 +308,10 @@ class CompilerBase():
         _new_scale = max(_width_scale, _height_scale)
         _image = image.resize((int(_new_scale * _actual_width), int(_new_scale * _actual_height)), Image.ANTIALIAS)
 
-        result_image = base_image.copy()
-        result_image.paste(_image, (x, y))
-        result_image.paste(base_image, (0, 0), base_image)
-        return result_image
+        _im_copy = base_image.copy()
+        base_image.paste(_image, (x, y))
+        base_image.paste(_im_copy, (0, 0), _im_copy)
+        return base_image
 
     def get_image_size(self, image_path):
         image = Image.open(image_path)
