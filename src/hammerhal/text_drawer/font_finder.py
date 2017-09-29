@@ -101,6 +101,19 @@ class FontFinder:
 
         return None
 
+    def preload_font(self, filename, family_name=None, bold=False, italic=False):
+        for font_dir in FontFinder.get_fonts_directories():
+            all_fonts = glob.glob(font_dir + '/**/' + filename, recursive=True)
+
+            for font_path in all_fonts:
+                test = self.__check_font(validate=True, font_path=font_path, family_name=family_name, bold=bold, italic=italic, force=True)
+                if (test):
+                    return font_path
+
+
+        return None
+
+
 
     def cache_all(self):
         self.__find_and_cache(validate=False)
@@ -115,11 +128,21 @@ class FontFinder:
 
         return None
 
-    def __check_font(self, validate, font_path, family_name, bold, italic):
+    def __check_font(self, validate, font_path, family_name, bold, italic, force=False):
         if not (font_path in self.__in_cache):
             logger.debug("Trying to open {font_path}".format(font_path=font_path))
             try:
-                _name, _family_name = FontFinder.get_font_name(font_path)
+                try:
+                    _name, _family_name = FontFinder.get_font_name(font_path)
+                except:
+                    if (force):
+                        logger.debug("Force preloading font")
+                    else:
+                        raise
+
+                if (force):
+                    _family_name = family_name
+                    _name = "{family}{bold}{italic}".format(family=family_name, bold=" Bold" if bold else "", italic=" Italic" if italic else "")
             except:
                 # logger.warning("Cannot parse font file: {font_path}".format(font_path=font_path))
                 return None
