@@ -32,7 +32,7 @@ class TextModule(CompilerModuleBase):
 
 
     ### =======================================
-    ###   Tkinter module generator
+    ###   WinForms module generator
     ### =======================================
 
     textPanel = None
@@ -103,7 +103,7 @@ class TextModule(CompilerModuleBase):
         else:
             self.textFieldTextbox.Size = System.Drawing.Size(213, 20);
         self.textFieldTextbox.TextChanged += System.EventHandler(self.textFieldTextbox_TextChanged);
-        _y += self.textFieldLabel.Height + _top
+        _y += self.textFieldTextbox.Height + _top
         _tab_index += 1
 
         #
@@ -116,7 +116,7 @@ class TextModule(CompilerModuleBase):
         self.textScaleLabel.Size = System.Drawing.Size(84, 13);
         self.textScaleLabel.TabIndex = 3;
         self.textScaleLabel.Text = "Font Size Scale:";
-        _y += self.textFieldLabel.Height + _top
+        _y += self.textScaleLabel.Height + _top
         _tab_index += 1
 
         #
@@ -139,7 +139,7 @@ class TextModule(CompilerModuleBase):
         self.textScalebar.TickStyle = System.Enum.Parse(System.Windows.Forms.TickStyle, "None");
         self.textScalebar.Value = int(self.parent.raw.get(self.raw_font_size_scale_field, 1.0) * 100);
         self.textScalebar.Scroll += System.EventHandler(self.textScalebar_Scroll);
-        # _y += self.nameFieldLabel.Height + _top
+        # _y += self.textScalebar.Height + _top
         _tab_index += 1
 
         #
@@ -158,7 +158,7 @@ class TextModule(CompilerModuleBase):
         self.textScaleUpDown.TabIndex = 5;
         self.textScaleUpDown.Value = decimal(self.parent.raw.get(self.raw_font_size_scale_field, 1.0) * 100);
         self.textScaleUpDown.ValueChanged += System.EventHandler(self.textScaleUpDown_ValueChanged);
-        _y += self.textFieldLabel.Height + _top
+        _y += self.textScaleUpDown.Height + _top
         _tab_index += 1
 
         return self.textPanel;
