@@ -17,7 +17,7 @@ for _dir in _dirs:
 setup \
 (
     name='hammerhal',
-    version='0.2',
+    version='0.3',
     install_requires =
     [
         'jsonschema',
@@ -26,6 +26,10 @@ setup \
         'camel-case-switcher>=1.2',
         'yn-input',
     ],
+    extra_requires =
+    {
+        'GeneratorFeature': [ 'pythonnet' ],
+    },
     packages =
     [
         'hammerhal',

@@ -5,6 +5,7 @@ from PIL import Image
 
 from yn_input import yn_input
 from hammerhal import ConfigLoader
+from hammerhal.compilers import CompilerError
 from logging import getLogger
 logger = getLogger('hammerhal.compilers.compiler_base')
 
@@ -20,27 +21,16 @@ class CompilerBase():
     output_name = None
 
     raw = None
+    base = None
     compiled = None
     compiled_modules = None
+    initialized_modules = None
 
     def __init__(self):
         self.schema_path = "{directory}{type}.json".format(directory=ConfigLoader.get_from_config('schemasDirectory', 'compilers'), type=self.compiler_type)
         self.raw_directory = "{rawRoot}{rawOffset}".format(rawRoot=ConfigLoader.get_from_config('rawDirectoryRoot'), rawOffset=ConfigLoader.get_from_config('compilerTypeSpecific/{type}/rawDirectory'.format(type=self.compiler_type), 'compilers'))
         self.output_directory = "{rawRoot}{rawOffset}".format(rawRoot=ConfigLoader.get_from_config('outputDirectoryRoot', 'compilers'), rawOffset=ConfigLoader.get_from_config('compilerTypeSpecific/{type}/outputDirectory'.format(type=self.compiler_type), 'compilers'))
         self.sources_directory = ConfigLoader.get_from_config('sourcesDirectory', 'compilers')
-
-        if (self.modules):
-            self.compiled_modules = [] * len(self.modules)
-            for _iter in self.modules:
-                _module_type = None
-                if (isinstance(_iter, type)):
-                    _module_type = _iter
-                    pass
-                elif (isinstance(_iter, tuple)):
-                    _module_type = _iter[0]
-                    pass
-                else:
-                    raise TypeError("Module should be either type or tuple")
 
     def search(self):
         return glob.glob(self.raw_directory + "*.json")
@@ -106,7 +96,7 @@ class CompilerBase():
 
         return self.raw
 
-    def prepare_base(self):
+    def prepare_base(self) -> Image:
         name_template = ConfigLoader.get_from_config('compilerTypeSpecific/{type}/baseNameTemplate'.format(type=self.compiler_type), 'compilers')
         name = name_template
         if ("{weaponsCount}" in name):
@@ -125,32 +115,43 @@ class CompilerBase():
         return base
 
     def compile(self):
-        base = self.prepare_base()
-        if (not base):
+        self.init_modules()
+
+        self.base = self.prepare_base()
+        if (not self.base):
+            return None
+        _base = self.base.copy()
+
+        if not (self.compile_modules(_base)):
             return None
 
-        if not (self.compile_modules(base)):
+        if not (self.join(_base)):
             return None
 
-        self.compiled = base
+        self.compiled = _base
         logger.info("{type} compiled!".format(type=self.compiler_type.capitalize()))
         return self.compiled
 
-    def compile_modules(self, base):
-        self.compiled_modules = dict()
+    def update(self):
+        if (not self.base):
+            return None
+        _base = self.base.copy()
 
+        if not (self.join(_base)):
+            return None
+
+        self.compiled = _base
+        logger.info("{type} updated!".format(type=self.compiler_type.capitalize()))
+        return self.compiled
+
+    def init_modules(self):
+        self.initialized_modules = dict()
         for i, _ in enumerate(self.modules):
-            try:
-                _module = self.compile_module(i)
-            except:
-                logger.error("Error while compiling the module #{i}: {module}".format(i=i, module=self.modules[i]))
-                return False
-            else:
-                _module.insert(base)
+            self.init_module(i)
 
         return True
 
-    def compile_module(self, index):
+    def init_module(self, index):
         module = self.modules[index]
 
         _module_type = None
@@ -169,8 +170,38 @@ class CompilerBase():
 
         _args = _module_args or dict()
         module_object = _module_type(self, index, **_args)
-        self.compiled_modules[index] = module_object.compile()
+        self.initialized_modules[index] = module_object
         return module_object
+
+    def compile_modules(self, base):
+        self.compiled_modules = dict()
+
+        for i, _module in enumerate(self.modules):
+            if (not self.compile_module(i)):
+                return False
+
+        return True
+
+    def compile_module(self, index):
+        try:
+            module_object = self.initialized_modules.get(index)
+            self.compiled_modules[index] = module_object.compile()
+        except (FileNotFoundError, CompilerError) as e:
+            logger.exception("Error while compiling the module #{i}: {module}".format(i=index, module=self.modules[index]), exc_info=False)
+            logger.exception(e, exc_info=False)
+            return False
+        except:
+            logger.exception("Critical error while compiling the module #{i}: {module}".format(i=index, module=self.modules[index]), exc_info=True)
+            return False
+        else:
+            return module_object
+
+    def join(self, base):
+        for _index, _ in enumerate(self.modules):
+            _module = self.initialized_modules.get(_index)
+            _module.insert(base)
+        return True
+
 
     def save(self, forced_width=None):
         if (not self.compiled):

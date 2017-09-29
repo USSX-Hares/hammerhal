@@ -7,8 +7,9 @@ class AdversaryRulesModule(CompilerModuleBase):
     module_name = "rules"
     behaviour_height = None
 
-    def initialize(self, behaviour_height=None, **kwargs):
-        self.behaviour_height = behaviour_height or hasattr(self.parent, 'behaviour_table_height') and self.parent.behaviour_table_height or 0
+    def prepare(self):
+        self.behaviour_height = hasattr(self.parent, 'behaviour_table_height') and self.parent.behaviour_table_height or 0
+        return super().prepare()
 
     def get_size(self):
         _width = self.get_from_module_config('width')

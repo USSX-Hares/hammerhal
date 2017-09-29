@@ -1,7 +1,7 @@
 from PIL import Image, ImageDraw, ImageColor
 
 from hammerhal import get_color
-from hammerhal.compilers.compiler_module_base import CompilerModuleBase
+from hammerhal.compilers import CompilerModuleBase, InvalidConfigError
 
 
 class HeroRulesModule(CompilerModuleBase):
@@ -34,9 +34,9 @@ class HeroRulesModule(CompilerModuleBase):
 
         _gradient_section = self.get_from_module_config('gradient')
         if (not isinstance(_gradient_section, list)):
-            raise TypeError("Gradient section should be a list.")
+            raise InvalidConfigError("Gradient section should be a list.")
         if (len(_gradient_section) < 2):
-            raise IndexError("Gradient section should have at least 2 points.")
+            raise InvalidConfigError("Gradient section should have at least 2 points.")
 
         im = Image.new("RGBA", size=(_gradient_section[-1]['position'], 1))
 

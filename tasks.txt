@@ -14,7 +14,7 @@ Release 0.3:
 TODO: Add scale to the config
 TODO: Cache enums
 TODO: Cache get_from_module_config
-TODO: Preload function for the font finder
+Done: Preload function for the font finder
 TODO: Minion card type
 TODO: Add paging to the text drawer
 TODO: Advanced adversary rules positioning

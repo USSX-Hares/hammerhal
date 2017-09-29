@@ -1,7 +1,9 @@
 from PIL import Image, ImageDraw, ImageFont
 from hammerhal.text_drawer import FontFinder
 import inspect
-
+from logging import getLogger
+logger = getLogger("text_drawer")
+import datetime
 
 class Enum:
     @classmethod
@@ -61,20 +63,24 @@ class TextDrawer:
 
     color = None
 
-    def __init__(self, im:Image.Image, font_nane=None, font_size=None, color=None, bold=None, italic=None, font_finder=None):
+    def __init__(self, im:Image.Image, font_family='Times New Roman', font_size=None, color=None, bold=None, italic=None, font_finder=None):
         if (font_finder):
             self.__font_finder = font_finder
         else:
-            if (not TextDrawer.__font_finder):
-                TextDrawer.__font_finder = FontFinder()
-            self.__font_finder = TextDrawer.__font_finder
+            self.__font_finder = TextDrawer.get_default_text_finder()
 
-        self.set_font(font_name=font_nane, font_size=font_size, color=color, bold=bold, italic=italic)
+        self.set_font(font_family=font_family, font_size=font_size, color=color, bold=bold, italic=italic)
         self.__drawer = ImageDraw.ImageDraw(im)
 
-    def set_font(self, font_name=None, font_size=None, color=None, bold=None, italic=None, horizontal_alignment=None, vertical_alignment=None, character_width_scale=None, space_scale=None, vertical_space_scale=None, paragraph_vertical_space=None, character_separator_scale=None, capitalization=None):
+    @staticmethod
+    def get_default_text_finder() -> FontFinder:
+        if (not TextDrawer.__font_finder):
+            TextDrawer.__font_finder = FontFinder()
+        return TextDrawer.__font_finder
+
+    def set_font(self, font_file=None, font_family=None, font_size=None, color=None, bold=None, italic=None, horizontal_alignment=None, vertical_alignment=None, character_width_scale=None, space_scale=None, vertical_space_scale=None, paragraph_vertical_space=None, character_separator_scale=None, capitalization=None):
+        logger.debug("Requested font style change")
         self.__current_font_size = int(font_size or self.__current_font_size or 10)
-        self.__current_font_family = font_name or self.__current_font_family or 'Times New Roman'
 
         if (not bold is None):
             self.__bold = bold
@@ -86,24 +92,28 @@ class TextDrawer:
         else:
             self.__italic = self.__italic or False
 
-        if not (font_name is None and bold is None and italic is None):
-            _test_font = None
-            if (font_name or self.__current_font_family is None):
-                _test_font = self.__font_finder.find_font_file_by_filename(font_name)
-                if (_test_font):
-                    self.__current_font_family = None
+        if ((not font_family is None) or (not bold is None) or (not italic is None)):
+            _test_family = font_family or self.__current_font_family
+            logger.debug("Changing current font file by family name ({font_family}{bold}{italic}) is not installed".format(font_family=_test_family, bold=", Bold" if self.__bold else '', italic=", Italic" if self.__italic else ''))
+            _test_font = self.__font_finder.find_font_file_by_fontname(family_name=_test_family, bold=self.__bold, italic=self.__italic)
+            if (_test_font):
+                self.__current_font_family = _test_family
+                self.__current_font_filepath = _test_font
+            else:
+                raise FileNotFoundError("Requested font ({font_family}{bold}{italic}) is not installed".format(font_family=_test_family, bold=", Bold" if self.__bold else '', italic=", Italic" if self.__italic else ''))
 
-            if not (_test_font):
-                _test_font = self.__font_finder.find_font_file_by_fontname(family_name=self.__current_font_family, bold=self.__bold, italic=self.__italic)
-                if (_test_font):                    
-                    self.__current_font_family = font_name
-                    
-            if not (_test_font):
-                raise FileNotFoundError("Requested font ({font_family}{bold}{italic}) is not installed".format(font_family=self.__current_font_family, bold=", Bold" if self.__bold else '', italic=", Italic" if self.__italic else ''))
+        elif (not font_file is None):
+            logger.debug("Changing current font file (direct): '{font_file}'".format(font_file=font_file))
+            _test_font = self.__font_finder.find_font_file_by_filename(font_file)
+            if (_test_font):
+                self.__current_font_family = None
+                self.__current_font_filepath = _test_font
+            else:
+                raise FileNotFoundError("Requested font ('{font_file}') is not installed".format(font_file=font_file))
 
-            self.__current_font_filepath = _test_font
         else:
-            self.__current_font_filepath = self.__current_font_filepath or 'times.ttf'
+            logger.debug("Font should not be changed: '{font_file}'".format(font_file=self.__current_font_filepath))
+
         self.__font_base = ImageFont.truetype(font=self.__current_font_filepath, size=self.__current_font_size, encoding='unic')
 
         self.__current_text_vertical_alignment = TextDrawer.TextAlignment.find_value(vertical_alignment) or self.__current_text_vertical_alignment or TextDrawer.TextAlignment.Top
@@ -137,10 +147,13 @@ class TextDrawer:
 
         self.color = color or self.color or 'white'
 
+        logger.debug("Current font: {0}".format(self.get_font()))
+
     def get_font(self):
         result_dict = \
         {
-            'font_name': self.__current_font_family,
+            'font_file': self.__current_font_filepath,
+            'font_family': self.__current_font_family,
             'font_size': self.__current_font_size,
             'color': self.color,
             'bold': self.__bold,
@@ -158,13 +171,24 @@ class TextDrawer:
         return result_dict
 
     def print_line(self, position, text:str):
+        _now = datetime.datetime.now()
+        logger.debug("Printing text line: '{text}'".format(text=text))
         self.__print(position, text, real_print=True)
+        logger.debug("Text line printed. Time spent: {0}ms".format((datetime.datetime.now() - _now).total_seconds() * 1000))
 
     def print_in_region(self, region, text:str, offset_borders:bool=True):
-        return self.__print_in_region(region, text, offset_borders, real_print=True)
+        _now = datetime.datetime.now()
+        logger.debug("Printing text region: '{text}'".format(text=text))
+        result = self.__print_in_region(region, text, offset_borders, real_print=True)
+        logger.debug("Text region printed. Time spent: {0}ms".format((datetime.datetime.now() - _now).total_seconds() * 1000))
+        return result
 
     def get_text_size(self, region, text:str, offset_borders:bool=True):
-        return self.__print_in_region(region, text, offset_borders, real_print=False)
+        _now = datetime.datetime.now()
+        logger.debug("Requested region text size: '{text}'".format(text=text))
+        result = self.__print_in_region(region, text, offset_borders, real_print=False)
+        logger.debug("Text region size responded. Time spent: {0}ms".format((datetime.datetime.now() - _now).total_seconds() * 1000))
+        return result
 
     def __print_in_region(self, region, text:str, offset_borders, real_print):
         if (offset_borders):

@@ -1,7 +1,7 @@
 import os, glob, sys
 from fontTools import ttLib
 from logging import getLogger
-logger = getLogger('hammerhal.text_drawer.fond_finder')
+logger = getLogger('text_drawer.fond_finder')
 
 # From
 # https://github.com/gddc/ttfquery/blob/master/ttfquery/describe.py
@@ -144,7 +144,7 @@ class FontFinder:
                     _family_name = family_name
                     _name = "{family}{bold}{italic}".format(family=family_name, bold=" Bold" if bold else "", italic=" Italic" if italic else "")
             except:
-                # logger.warning("Cannot parse font file: {font_path}".format(font_path=font_path))
+                logger.warning("Cannot parse font file: {font_path}".format(font_path=font_path))
                 return None
             else:
                 lower_font_name = _name.lower()
