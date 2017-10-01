@@ -63,7 +63,7 @@ class StatsModule(CompilerModuleBase):
             #
             _top = 8
             statsStatLabel.AutoSize = True;
-            statsStatLabel.Location = System.Drawing.Point(70, _y + _top);
+            statsStatLabel.Location = System.Drawing.Point(6, _y + _top);
             statsStatLabel.Name = "stats{stat}Label".format(stat=stat_name.capitalize());
             statsStatLabel.Size = System.Drawing.Size(35, 13);
             statsStatLabel.TabIndex = _tab_index;
@@ -74,12 +74,9 @@ class StatsModule(CompilerModuleBase):
             # statsStatValueUpDown
             #
             _top = 6
-            statsStatValueUpDown.Anchor = \
-                System.Windows.Forms.AnchorStyles.Right \
-                | System.Windows.Forms.AnchorStyles.Top;
-            statsStatValueUpDown.Location = System.Drawing.Point(162, _y + _top);
+            statsStatValueUpDown.Location = System.Drawing.Point(64, _y + _top);
             statsStatValueUpDown.Name = "stats{stat}ValueUpDown".format(stat=stat_name.capitalize());
-            statsStatValueUpDown.Size = System.Drawing.Size(54, 20);
+            statsStatValueUpDown.Size = System.Drawing.Size(92, 21);
             statsStatValueUpDown.TabIndex = _tab_index;
             statsStatValueUpDown.Tag = stat_name;
             statsStatValueUpDown.Value = decimal(self.parent.raw['stats'][stat_name]);
