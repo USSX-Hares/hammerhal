@@ -1,5 +1,5 @@
 
-from hammerhal.generator import GeneratorBase
+from hammerhal.generator.generator_base import GeneratorBase
 from hammerhal.compilers import HeroCompiler
 
 

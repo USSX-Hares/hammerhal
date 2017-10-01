@@ -151,6 +151,9 @@ class CompilerModuleBase:
             self.__update_command()
             self.__update_requested = False
 
+    def _on_update(self):
+        pass
+
     def __update_command(self):
         self.__update_on_cooldown = True
         _start = datetime.datetime.now()
@@ -159,6 +162,11 @@ class CompilerModuleBase:
         self.parent.compile_module(self.index)
         _time = datetime.datetime.now()
         self.logger.debug("Module compile from remote time: {0}ms".format((_time - _oldtime).total_seconds() * 1000))
+
+        _oldtime = _time
+        self._on_update()
+        _time = datetime.datetime.now()
+        self.logger.debug("Module update event time: {0}ms".format((_time - _oldtime).total_seconds() * 1000))
 
         _oldtime = _time
         self.parent.update()

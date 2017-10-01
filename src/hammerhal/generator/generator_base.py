@@ -13,8 +13,6 @@ clr.AddReference("System.Windows.Forms")
 import System
 from System.Windows.Forms import Form, Application
 
-from tkinter import *
-
 class GeneratorBase():
     generator_type = None
     attached_class = None

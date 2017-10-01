@@ -77,6 +77,14 @@
                     "positionY": 760,
                     "width": 2115,
                     
+                    "stats":
+                    {
+                        "cost":     "dice",
+                        "range":    [ "combat", "missile", "area" ],
+                        "hit":      "dice",
+                        "damage":   "string"
+                    },
+                    
                     "headerRow": [ "WEAPON ACTIONS", "Range", "Hit", "Damage" ],
                     "bodyRowTemplate": [ "{name} ({cost}+)", "{range}", "{hit}+", "{damage}" ],
                     "verticalColumns": [ 0, 1080, 1520, 1730, 2115 ],
@@ -217,6 +225,14 @@
                     "positionX": 2170,
                     "positionY": 1720,
                     "width": 2270,
+                    
+                    "stats":
+                    {
+                        "dices":    "string",
+                        "range":    [ "combat", "missile", "area" ],
+                        "hit":      "dice",
+                        "damage":   "string"
+                    },
                     
                     "headerRow": [ "WEAPON ACTIONS", "Dice", "Range", "Hit", "Damage" ],
                     "bodyRowTemplate": [ "{name}", "{dices}", "{range}", "{hit}+", "{damage}" ],
