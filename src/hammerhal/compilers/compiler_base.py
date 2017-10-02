@@ -15,10 +15,14 @@ class CompilerBase():
     modules = None
 
     schema_path = None
+    templates_path = None
     raw_directory = None
     sources_directory = None
     output_directory = None
     output_name = None
+
+    filename = None
+    compiled_filename = None
 
     raw = None
     base = None
@@ -28,6 +32,7 @@ class CompilerBase():
 
     def __init__(self):
         self.schema_path = "{directory}{type}.json".format(directory=ConfigLoader.get_from_config('schemasDirectory', 'compilers'), type=self.compiler_type)
+        self.templates_path = "{directory}{type}.json".format(directory=ConfigLoader.get_from_config('templatesDirectory', 'compilers'), type=self.compiler_type)
         self.raw_directory = "{rawRoot}{rawOffset}".format(rawRoot=ConfigLoader.get_from_config('rawDirectoryRoot'), rawOffset=ConfigLoader.get_from_config('compilerTypeSpecific/{type}/rawDirectory'.format(type=self.compiler_type), 'compilers'))
         self.output_directory = "{rawRoot}{rawOffset}".format(rawRoot=ConfigLoader.get_from_config('outputDirectoryRoot', 'compilers'), rawOffset=ConfigLoader.get_from_config('compilerTypeSpecific/{type}/outputDirectory'.format(type=self.compiler_type), 'compilers'))
         self.sources_directory = ConfigLoader.get_from_config('sourcesDirectory', 'compilers')
@@ -68,19 +73,24 @@ class CompilerBase():
 
         return None
 
+    def create(self):
+        self.open(self.templates_path)
+        self.filename = None
+
     def open(self, name):
-        filename = self.find(name)
-        if (not filename):
+        _filename = self.find(name)
+        self.compiled = None
+        if (not _filename):
             logger.error("Cannot find {type}: '{name}'".format(type=self.compiler_type, name=name))
             return None
-        logger.info("Reading '{filename}'...".format(filename=filename))
-        file = open(filename)
+        logger.info("Reading '{filename}'...".format(filename=_filename))
+        file = open(_filename)
         raw = json.load(file)
         file.close()
 
-        filename = self.schema_path
-        logger.debug("Reading '{filename}'...".format(filename=filename))
-        file = open(filename)
+        _schema_filename = self.schema_path
+        logger.debug("Reading '{filename}'...".format(filename=_schema_filename))
+        file = open(_schema_filename)
         schema = json.load(file)
         file.close()
 
@@ -94,6 +104,7 @@ class CompilerBase():
             logger.debug("Raw file is valid")
             self.raw = raw
 
+        self.filename = _filename
         return self.raw
 
     def prepare_base(self) -> Image:
@@ -115,6 +126,7 @@ class CompilerBase():
         return base
 
     def compile(self):
+        self.compiled = None
         self.init_modules()
 
         self.base = self.prepare_base()
@@ -202,8 +214,37 @@ class CompilerBase():
             _module.insert(base)
         return True
 
+    def save_raw(self):
+        _schema_filename = self.schema_path
+        logger.debug("Reading '{filename}'...".format(filename=_schema_filename))
+        file = open(_schema_filename)
+        schema = json.load(file)
+        file.close()
 
-    def save(self, forced_width=None):
+        try:
+            logger.debug("Validating {name}...".format(name=self.raw.get('name')))
+            validate(self.raw, schema)
+        except jsonschema.exceptions.ValidationError as e:
+            logger.error("Opened raw is not valid: {msg}".format(msg=e.message))
+            return None
+
+        _filename = self.filename
+        if not (_filename):
+            _name = self.raw.get('name').lower() \
+                .replace(' ', '-') \
+                .replace('\'', '') \
+
+            _filename = "{dir}{name}.json".format(dir=self.raw_directory, name=_name)
+
+        logger.debug("Raw file is valid")
+        logger.debug("Saving raw into '{filename}'...".format(filename=_filename))
+        file = open(_filename, 'w')
+        json.dump(self.raw, file, indent=4, sort_keys=True)
+        self.filename = _filename
+        return _filename
+
+
+    def save_compiled(self, forced_width=None):
         if (not self.compiled):
             logger.error("Could not save not compiled result")
             return None
@@ -221,15 +262,16 @@ class CompilerBase():
             _actual_height = _image.height
             _image = _image.resize((int(_estimated_width), int(_estimated_width / _actual_width * _actual_height)), Image.ANTIALIAS)
 
-        filename = "{directory}{name}.png".format(directory=self.output_directory, name=name)
+        _filename = self.compiled_filename or "{directory}{name}.png".format(directory=self.output_directory, name=name)
         try:
-            logger.info("Saving compiled file: '{filename}'".format(filename=filename))
-            _image.save(filename)
+            logger.info("Saving compiled file: '{filename}'".format(filename=_filename))
+            _image.save(_filename)
         except:
-            logger.exception("Error while saving file '{filename}'".format(filename=filename))
+            logger.exception("Error while saving file '{filename}'".format(filename=_filename))
             return None
         else:
-            return filename
+            self.compiled_filename = _filename
+            return _filename
 
     def insert_table \
     (

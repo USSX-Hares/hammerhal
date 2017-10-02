@@ -1,6 +1,5 @@
 TODO: diff tool
 TODO: rules compiler
-TODO: graphical editor
 TODO: rules schema
 
 Release 0.2:
@@ -10,17 +9,27 @@ Done: Compile each block on a separate image
 Done: Catch errors during compilation
 Done: Small Caps bug
 
-Release 0.3:
-TODO: Add scale to the config
-TODO: Cache enums
-TODO: Cache get_from_module_config
+Release 0.3 - Hero Generator GUI:
 Done: Preload function for the font finder
+Done: Text module GUI
+TODO: Image module GUI
+TODO: Dice space GUI
+Done: Stats module GUI
+Done: Weapons module GUI
+TODO: Hero Rules module GUI
+Done: Menus
+TODO: Hero base with 1 weapon; Hero base with 4 weapons
+TODO: Adversary base with 1 weapon; Adversary base with 2 weapons; Adversary base with 4 weapons; Adversary base with 5 weapons
+TODO: Error handling during compilation
+
+Release 0.4: - Optimization
 TODO: Minion card type
 TODO: Add paging to the text drawer
 TODO: Advanced adversary rules positioning
 TODO: Two-paged adversaries
-
-Release 0.4:
+TODO: Add scale to the config
+TODO: Cache enums
+TODO: Cache get_from_module_config
 TODO: Font finder - support local fonts
 TODO: Add fonts to the repo
 TODO: Text drawer to the separate repo

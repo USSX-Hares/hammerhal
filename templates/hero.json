@@ -1,0 +1,44 @@
+{
+    "name": "New Hero",
+    "subtitle": null,
+    "image": null,
+    
+    "stats":
+    {
+        "move": 3,
+        "save": 5,
+        "agility": 5
+    },
+    
+    "weapons":
+    [
+        {
+            "name": "Basic Weapon",
+            "cost": 1,
+            "range": "combat",
+            "hit": 4,
+            "damage": "1"
+        }
+        ,
+        {
+            "name": "Advanced Weapon",
+            "cost": 4,
+            "range": "missile",
+            "hit": 4,
+            "damage": "2"
+        }
+    ],
+    
+    "abilities":
+    [
+        {
+            "name": "Heroic Ability",
+            "cost": null,
+            "diceSpace": false,
+            "description": "This is my first Hero."
+        }
+    ],
+    
+    "traits": [ "celestial", "holy" ],
+    "renown": "If you slay an enemy during your turn, gain 1 additional renown."
+}

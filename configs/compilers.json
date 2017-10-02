@@ -1,5 +1,6 @@
 {
     "schemasDirectory": "schemas/",
+    "templatesDirectory": "templates/",
     "sourcesDirectory": "compiler_images/",
     "outputDirectoryRoot": "output/",
     
@@ -238,7 +239,7 @@
                     "bodyRowTemplate": [ "{name}", "{dices}", "{range}", "{hit}+", "{damage}" ],
                     "verticalColumns": [ 0, 970, 1280, 1660, 1930, 2270 ],
                     "headerRowInterval": 70,
-                    "rowIntervalByCount": [ null, 80, 60, 40, null ],
+                    "rowIntervalByCount": [ null, 80, 60, 40, 20 ],
                     "cellHeight": 117,
                     
                     "font":

@@ -1,0 +1,94 @@
+{
+    "name": "New Adversary",
+    "description": "This my first Adversary. Please, be pleasant with them.",
+    "image": null,
+
+    "stats":
+    {
+        "move": 3,
+        "vigour": 3,
+        "agility": 5
+    },
+    
+    "weapons":
+    [
+        {
+            "name": "Blade",
+            "dices": "2",
+            "range": "combat",
+            "hit": 4,
+            "damage": "1"
+        }
+        ,
+        {
+            "name": "Axe",
+            "dices": "1",
+            "range": "combat",
+            "hit": 4,
+            "damage": "D3"
+        }
+        ,
+        {
+            "name": "Bow",
+            "dices": "1",
+            "range": "missile",
+            "hit": 5,
+            "damage": "1"
+        }
+    ],
+    
+    "abilities":
+    [
+        {
+            "name": "Adversary with bow",
+            "description": "Adversary with bow can attack with either bow or blade."
+        }
+        ,
+        {
+            "name": "Adversary with shield",
+            "description": "Adversary with shield has a Vigour of 4 rather than 3."
+        }
+        ,
+        {
+            "name": "Adversary with axe and blade",
+            "description": "Adversary with axe and blade can attack with both blade and axe at the same time."
+        }
+        ,
+        {
+            "name": "Warchief",
+            "description": "Adversary Warchief doubles the amount of dices for their Attack Roll."
+        }
+    ],
+    
+    "difficultyBonuses":
+    [
+        {
+            "name": "+2",
+            "description": "Instead of +1 to Vigour, adversaries gain +1 to their Move & Agility characteristics."
+        }
+    ],
+    
+    "behaviourTable":
+    {
+        "table":
+        [
+            {
+                "roll": "1-2",
+                "name": "Move & Attack",
+                "description": "Each adversary moves towards the nearest Hero, and attacks them with whichever weapon is in range."
+            }
+            ,
+            {
+                "roll": "3-5",
+                "name": "Attack & Move",
+                "description": "Each adversary attacks Heroes with whichever weapon is in range. Then, each adversary can move in any direction."
+            }
+            ,
+            {
+                "roll": 6,
+                "name": "Panic",
+                "description": "Each adversary moves as far away as possible from Heroes."
+            }
+        ]
+    }
+}

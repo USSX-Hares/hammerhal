@@ -1,35 +1,16 @@
-import json
-import logging
-import logging.config
-import os, sys
+from logging import getLogger
+import sys
 
-from hammerhal.compilers import HeroCompiler, AdversaryCompiler
+from hammerhal.preloads import setup_logging, preload_fonts
 from hammerhal import ConfigLoader
-
-def setup_logging(
-    default_path='configs/logging.json',
-    default_level=logging.INFO,
-    env_key='LOG_CFG'
-):
-    """Setup logging configuration
-
-    """
-    path = default_path
-    value = os.getenv(env_key, None)
-    if value:
-        path = value
-    if os.path.exists(path):
-        with open(path, 'rt') as f:
-            config = json.load(f)
-        logging.config.dictConfig(config)
-    else:
-        logging.basicConfig(level=default_level)
+from hammerhal.compilers import HeroCompiler, AdversaryCompiler
 
 
 def start(argv=sys.argv):
     # Configure logger
     setup_logging()
-    logger = logging.getLogger('hammerhal')
+    preload_fonts()
+    logger = getLogger('hammerhal')
     logger.info("Logger started")
     ConfigLoader.load_configs()
 
@@ -85,7 +66,7 @@ def compile_hero(logger, hero, compiler=None):
     if (not compiler):
         compiler = HeroCompiler()
 
-    result = compiler.open(hero) and compiler.compile() and compiler.save(forced_width=720)
+    result = compiler.open(hero) and compiler.compile() and compiler.save_compiled(forced_width=720)
     if (result):
         logger.info("Success! File saved to '{filename}'".format(filename=result))
         return 0
@@ -108,7 +89,7 @@ def compile_adversary(logger, adversary, compiler=None):
     if (not compiler):
         compiler = AdversaryCompiler()
 
-    result = compiler.open(adversary) and compiler.compile() and compiler.save(forced_width=1080)
+    result = compiler.open(adversary) and compiler.compile() and compiler.save_compiled(forced_width=1080)
     if (result):
         logger.info("Success! File saved to '{filename}'".format(filename=result))
         return 0

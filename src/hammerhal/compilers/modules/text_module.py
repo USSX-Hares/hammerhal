@@ -131,7 +131,7 @@ class TextModule(CompilerModuleBase):
         self.textScalebar.BackColor = System.Drawing.SystemColors.ControlLightLight;
         self.textScalebar.LargeChange = 10;
         self.textScalebar.Location = System.Drawing.Point(3, _y + _top);
-        self.textScalebar.Maximum = 500;
+        self.textScalebar.Maximum = 200;
         self.textScalebar.Name = "nameScalebar";
         self.textScalebar.Size = System.Drawing.Size(147, 20);
         self.textScalebar.SmallChange = 1;
@@ -152,7 +152,7 @@ class TextModule(CompilerModuleBase):
         self.textScaleUpDown.DecimalPlaces = 2;
         self.textScaleUpDown.Increment = decimal(5);
         self.textScaleUpDown.Location = System.Drawing.Point(156, _y + _top);
-        self.textScaleUpDown.Maximum = decimal(500);
+        self.textScaleUpDown.Maximum = decimal(200);
         self.textScaleUpDown.Name = "{type}ScaleUpDown".format(type=self.module_name);
         self.textScaleUpDown.Size = System.Drawing.Size(60, 20);
         self.textScaleUpDown.TabIndex = 5;
