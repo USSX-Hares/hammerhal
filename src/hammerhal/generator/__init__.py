@@ -22,4 +22,5 @@ from hammerhal.generator.generator_error import GeneratorError, GeneratorNotSupp
 if (generator_supported):
     from hammerhal.generator.input_control import InputControl
     from hammerhal.generator.generator_base import GeneratorBase
+    from hammerhal.generator.adversary_generator import AdversaryGenerator
     from hammerhal.generator.hero_generator import HeroGenerator
