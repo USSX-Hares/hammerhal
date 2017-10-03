@@ -105,6 +105,7 @@ class CompilerBase():
             self.raw = raw
 
         self.filename = _filename
+        self.compiled_filename = None
         return self.raw
 
     def prepare_base(self) -> Image:
