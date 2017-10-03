@@ -12,7 +12,7 @@ class TextModule(CompilerModuleBase):
     raw_font_size_scale_field = None
     multiline = None
 
-    def initialize(self, name:str, field:str=None, scale_field:str=None, multiline:bool=False, **kwargs):
+    def initialize(self, name:str, field:str=None, scale_field:str=None, multiline:bool=False):
         self.module_name = name
         self.raw_field = field or name
         self.multiline = multiline

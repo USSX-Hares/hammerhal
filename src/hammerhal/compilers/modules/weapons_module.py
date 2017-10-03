@@ -12,7 +12,7 @@ class WeaponsModule(CompilerModuleBase):
     module_name = "weapons"
 
     weapon_stats = None
-    def initialize(self, **kwargs):
+    def initialize(self):
         self.weapon_stats = self.get_from_module_config("stats")
         self.__last_weapons_count = len(self.parent.raw['weapons'])
 

@@ -15,7 +15,7 @@ class AdversaryCompiler(CompilerBase):
     [
         ImageModule,
         (TextModule, { 'name': "name", 'scale_field': "titleFontSizeScale" } ),
-        (TextModule, { 'name': "description" } ),
+        (TextModule, { 'name': "description", 'scale_field': "descriptionFontSizeScale", 'multiline': True } ),
         StatsModule,
         WeaponsModule,
         BehaviourTableModule,

@@ -53,11 +53,12 @@
     
     "properties":
     {
-        "name":                 { "type": "string" },
-        "titleFontSizeScale":   { "type": "number" },
-        "rulesSeparatorHeight": { "type": "integer" },
-        "description":          { "type": "string" },
-        "image":                { "type": [ "string", "null" ] },
+        "name":                     { "type": "string" },
+        "titleFontSizeScale":       { "type": "number" },
+        "rulesSeparatorHeight":     { "type": "integer" },
+        "description":              { "type": "string" },
+        "descriptionFontSizeScale": { "type": "number" },
+        "image":                    { "type": [ "string", "null" ] },
         
         "stats":
         {

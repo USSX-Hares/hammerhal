@@ -7,7 +7,7 @@ class ImageModule(CompilerModuleBase):
     module_name = "image"
     image_path = None
 
-    def initialize(self, **kwargs):
+    def initialize(self):
         self.image_path = None
 
     def _compile(self, base):
