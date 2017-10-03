@@ -6,7 +6,7 @@
         { "format": "%(levelname)s: %(message)s"}
         ,
         "simple_log":
-        { "format": "%(asctime)-15s \t [ %(name)-55s -> %(module)-20s -> %(funcName)-30s ] [ %(levelname)-8s ] \t | %(message)s" }
+        { "format": "%(asctime)-15s \t [ %(name)-60s -> %(module)-25s -> %(funcName)-30s ] [ %(levelname)-8s ] \t | %(message)s" }
 
     },
 
@@ -16,9 +16,32 @@
             "level": "INFO",
             "formatter": "simple_console",
             "stream": "ext://sys.stdout"
-        },
-
-        "info_file_handler": {
+        }
+        ,
+        "text_drawer_handler":
+        {
+            "class": "logging.handlers.RotatingFileHandler",
+            "level": "DEBUG",
+            "formatter": "simple_log",
+            "filename": "logs/text-drawer.log",
+            "maxBytes": 5242880,
+            "backupCount": 20,
+            "encoding": "utf8"
+        }
+        ,
+        "hammerhal_handler":
+        {
+            "class": "logging.handlers.RotatingFileHandler",
+            "level": "DEBUG",
+            "formatter": "simple_log",
+            "filename": "logs/hammerhal.log",
+            "maxBytes": 5242880,
+            "backupCount": 20,
+            "encoding": "utf8"
+        }
+        ,
+        "info_handler":
+        {
             "class": "logging.handlers.RotatingFileHandler",
             "level": "INFO",
             "formatter": "simple_log",
@@ -26,19 +49,10 @@
             "maxBytes": 5242880,
             "backupCount": 20,
             "encoding": "utf8"
-        },
-
-        "debug_file_handler": {
-            "class": "logging.handlers.RotatingFileHandler",
-            "level": "DEBUG",
-            "formatter": "simple_log",
-            "filename": "logs/debug.log",
-            "maxBytes": 5242880,
-            "backupCount": 20,
-            "encoding": "utf8"
-        },
-
-        "error_file_handler": {
+        }
+        ,
+        "error_handler":
+        {
             "class": "logging.handlers.RotatingFileHandler",
             "level": "ERROR",
             "formatter": "simple_log",
@@ -49,16 +63,26 @@
         }
     },
 
-    "loggers": {
-        "hammerhal": {
+    "loggers":
+    {
+        "hammerhal":
+        {
             "level": "DEBUG",
-            "handlers": [ "debug_file_handler", "error_file_handler" ],
+            "handlers": [ "hammerhal_handler" ],
+            "propagate": "no"
+        }
+        ,
+        "text_drawer":
+        {
+            "level": "DEBUG",
+            "handlers": [ "text_drawer_handler" ],
             "propagate": "no"
         }
     },
 
-    "root": {
+    "root":
+    {
         "level": "INFO",
-        "handlers": ["console", "info_file_handler", "error_file_handler"]
+        "handlers": ["console", "info_handler", "error_handler"]
     }
 }
