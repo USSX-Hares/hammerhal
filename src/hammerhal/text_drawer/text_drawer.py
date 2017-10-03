@@ -41,6 +41,11 @@ class TextDrawer:
         Bottom = 3
         Justify = 4
 
+    class __PrintModes(Enum):
+        NormalPrint = 0
+        GetTextSize = 1
+        SplitLines = 2
+
     __drawer = None
     __font_finder = None
 
@@ -173,7 +178,7 @@ class TextDrawer:
     def print_line(self, position, text:str):
         _now = datetime.datetime.now()
         logger.debug("Printing text line: '{text}'".format(text=text))
-        self.__print(position, text, real_print=True)
+        self.__print(position, text, print_mode=TextDrawer.__PrintModes.NormalPrint)
         logger.debug("Text line printed. Time spent: {0}ms".format((datetime.datetime.now() - _now).total_seconds() * 1000))
 
     def print_in_region(self, region, text:str, offset_borders:bool=True):
@@ -199,78 +204,68 @@ class TextDrawer:
             h = y2 - y
 
         max_width = 0
-        space_width, _ = self.__print(None, ' ', real_print=False)
-        _, line_height = self.__print(None, 'LINE HEIGHT', real_print=False)
+        space_width, _ = self.__print(None, ' ', print_mode=TextDrawer.__PrintModes.GetTextSize)
+        _, line_height = self.__print(None, 'LINE HEIGHT', print_mode=TextDrawer.__PrintModes.GetTextSize)
         paragraphs = []
-        for paragraph in text.split('\n'):
+        for paragraph_text in text.split('\n'):
             _horizontal_alignment = self.__current_text_horizontal_alignment
-            paragraph_words = []
-            paragraph_lines_width = 0
-            words = paragraph.split()
-            lines = []
-            line = { 'words': [], 'width': 0, 'horizontal_alignment': _horizontal_alignment }
-            for word in words:
+            words = paragraph_text.split()
+            paragraph_obj = { "lines": [], "horizontal_alignment": _horizontal_alignment }
+            i = 0
+            while (i < len (words)):
+                word = words[i]
                 if (word.startswith('$$')):
-                    if (word == '$$HA_L'):
-                        _horizontal_alignment = TextDrawer.TextAlignment.Left
-                        line['horizontal_alignment'] = _horizontal_alignment
-                        continue
-                    if (word == '$$HA_C'):
-                        _horizontal_alignment = TextDrawer.TextAlignment.Center
-                        line['horizontal_alignment'] = _horizontal_alignment
-                        continue
-                    if (word == '$$HA_R'):
-                        _horizontal_alignment = TextDrawer.TextAlignment.Right
-                        line['horizontal_alignment'] = _horizontal_alignment
-                        continue
-                    if (word == '$$HA_J'):
-                        _horizontal_alignment = TextDrawer.TextAlignment.Justify
-                        line['horizontal_alignment'] = _horizontal_alignment
-                        continue
-                    raise KeyError("Unsupported operand: {word}".format(word=word))
+                    if (False):
+                        pass
+                    elif (word == '$$HA_L'):
+                        paragraph_obj['horizontal_alignment'] = TextDrawer.TextAlignment.Left
+                    elif (word == '$$HA_C'):
+                        paragraph_obj['horizontal_alignment'] = TextDrawer.TextAlignment.Center
+                    elif (word == '$$HA_R'):
+                        paragraph_obj['horizontal_alignment'] = TextDrawer.TextAlignment.Right
+                    elif (word == '$$HA_J'):
+                        paragraph_obj['horizontal_alignment'] = TextDrawer.TextAlignment.Justify
+                    else:
+                        raise KeyError("Unsupported operand: {word}".format(word=word))
 
-                paragraph_words.append(word)
-                paragraph_total_width, _ = self.__print(None, ' '.join(paragraph_words), real_print=False)
-                paragraph_total_width -= len(lines) * space_width
-                test_width = paragraph_total_width - paragraph_lines_width
+                    del words[i]
 
-                if (not w or test_width <= w):
-                    line['width'] = test_width
-                    line['words'].append(word)
                 else:
-                    lines.append(line)
-                    word_width, _ = self.__print(None, word, real_print=False)
-                    paragraph_lines_width = paragraph_total_width - word_width - space_width
-                    line = { 'words': [ word ], 'width': word_width, 'horizontal_alignment': _horizontal_alignment }
+                    i += 1
 
-                if (max_width < line['width']):
-                    max_width = line['width']
+            _lines = self.__print(None, ' '.join(words), print_mode=TextDrawer.__PrintModes.SplitLines, line_width=w)
+            logger.debug("Splitting paragraph to lines: '{0}' -> '{1}'".format(paragraph_text, _lines))
+            for line_text, line_width in _lines:
+                paragraph_obj['lines'].append( { 'words': line_text.split(), 'width': line_width } )
+                if (max_width < line_width):
+                    max_width = line_width
 
-            lines.append(line)
-            paragraphs.append(lines)
+            paragraphs.append(paragraph_obj)
 
-        num_lines = sum(len(paragraph) for paragraph in paragraphs)
+        num_lines = sum(len(paragraph_obj['lines']) for paragraph_obj in paragraphs)
         total_height = int(num_lines * (1 + self.text_vertical_space_scale) * line_height + self.text_paragraph_vertical_space * (len(paragraphs) - 1))
 
         if (real_print):
             if (self.__current_text_vertical_alignment == TextDrawer.TextAlignment.Bottom):
                 _y = y + h - total_height
+
             elif (self.__current_text_vertical_alignment == TextDrawer.TextAlignment.Center):
                 _y = y + (h - total_height) // 2
             else:
                 _y = y
 
-            for paragraph in paragraphs:
-                for i in range(len(paragraph)):
-                    line = paragraph[i]
-                    last_line = (i + 1 == len(paragraph))
+            for paragraph_obj in paragraphs:
+                paragraph_lines = paragraph_obj['lines']
+                for i in range(len(paragraph_lines)):
+                    line = paragraph_lines[i]
+                    last_line = (i + 1 == len(paragraph_lines))
 
                     new_space_width = space_width
-                    if (line['horizontal_alignment'] == TextDrawer.TextAlignment.Right):
+                    if (paragraph_obj['horizontal_alignment'] == TextDrawer.TextAlignment.Right):
                         _x = x + w - line['width']
-                    elif (line['horizontal_alignment'] == TextDrawer.TextAlignment.Center):
+                    elif (paragraph_obj['horizontal_alignment'] == TextDrawer.TextAlignment.Center):
                         _x = x + (w - line['width']) // 2
-                    elif (line['horizontal_alignment'] == TextDrawer.TextAlignment.Justify and not last_line and len(line['words']) > 0):
+                    elif (paragraph_obj['horizontal_alignment'] == TextDrawer.TextAlignment.Justify and not last_line and len(line['words']) > 0):
                         _x = x
                         num_spaces = len(line['words']) - 1
                         if (num_spaces > 0):
@@ -278,18 +273,16 @@ class TextDrawer:
                     else:
                         _x = x
 
-                    self.__print((_x, _y), ' '.join(line['words']), real_print=True, restricted_space_width=new_space_width)
+                    self.__print((_x, _y), ' '.join(line['words']), print_mode=TextDrawer.__PrintModes.NormalPrint, restricted_space_width=new_space_width)
                     _y += (1 + self.text_vertical_space_scale) * self.__current_font_size
                 _y += self.text_paragraph_vertical_space
 
         return max_width, total_height
 
 
-    def __print(self, position, text: str, real_print:bool, restricted_space_width=None, debug_console_print:bool=False):
+    def __print(self, position, text: str, print_mode, restricted_space_width=None, debug_console_print: bool = False, **kwargs):
         x, y = position or (0, 0)
         max_height = 0
-
-
 
         _text = text
         if (self.__current_text_capitalization == TextDrawer.CapitalizationModes.UpperCase):
@@ -298,6 +291,20 @@ class TextDrawer:
             _text = _text.lower()
         elif (self.__current_text_capitalization == TextDrawer.CapitalizationModes.Capitalize):
             _text = ' '.join(_word.capitalize() for _word in _text.split(' '))
+
+        if (print_mode == TextDrawer.__PrintModes.SplitLines):
+            _line_splits = list()
+            _line_start = 0
+            _line_start_x = 0
+            _line_width = kwargs.get('line_width', None)
+            x = 0
+            _word_start = 0
+            _word_start_x = 0
+            _last_word_end = 0
+            _last_word_end_x = 0
+            _text += ' '
+            if (_line_width is None):
+                raise ValueError("'line_width' argument is required for the SplitLines mode")
 
         original_bold = self.__bold
         original_italic = self.__italic
@@ -333,7 +340,7 @@ class TextDrawer:
 
                 continue
             if (i + 2 <= len(_text)):
-                if(_text[i:i+2] == '__'):
+                if (_text[i:i + 2] == '__'):
                     self.set_font(italic=not self.__italic)
                     _continue = True
                     continue
@@ -342,22 +349,38 @@ class TextDrawer:
                     _continue = True
                     continue
 
-            _char = _text[i]; _x = int(x); _y = int(y); _font = self.__font_base
+            _char = _text[i];
+            _x = int(x);
+            _y = int(y);
+            _font = self.__font_base
 
             if (self.__current_text_capitalization == TextDrawer.CapitalizationModes.SmallCaps and _char != _char.upper()):
                 _char = _char.upper()
                 _y += _small_caps_dy
                 _font = _small_caps_font
             w, h = self.__drawer.textsize(_char, font=_font)
-            if (real_print):
+            if (print_mode == TextDrawer.__PrintModes.NormalPrint):
                 if (debug_console_print):
                     print(text[i], end='')
                 self.__drawer.text((_x, _y), _char, self.color, font=_font)
             if (_char == ' '):
+                if (print_mode == TextDrawer.__PrintModes.SplitLines):
+                    if ((x - _line_start_x) > _line_width):
+                        _line_splits.append((text[_line_start:_last_word_end], _last_word_end_x - _line_start_x))
+                        _line_start = _word_start
+                        _line_start_x = _word_start_x
+                    elif (i > 1 and _text[i - 1] != ' '):
+                        _last_word_end = i
+                        _last_word_end_x = x
+
                 if (restricted_space_width):
                     x += restricted_space_width
                 else:
                     x += w * self.text_space_scale
+
+                _word_start = i + 1
+                _word_start_x = x
+
             else:
                 x += w + self.text_character_separator_scale * self.__current_font_size
             if (max_height < h):
@@ -367,4 +390,9 @@ class TextDrawer:
         if (debug_console_print):
             print('', end='\n')
         self.set_font(bold=original_bold, italic=original_italic)
-        return (x - initial_x, max_height)
+
+        if (print_mode == TextDrawer.__PrintModes.SplitLines):
+            _line_splits.append((text[_line_start:], x))
+            return _line_splits
+        else:
+            return (x - initial_x, max_height)

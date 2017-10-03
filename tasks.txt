@@ -21,6 +21,7 @@ Done: Menus
 TODO: Hero base with 1 weapon; Hero base with 4 weapons
 TODO: Adversary base with 1 weapon; Adversary base with 2 weapons; Adversary base with 4 weapons; Adversary base with 5 weapons
 TODO: Error handling during compilation
+Done: Region printer optimisation
 
 Release 0.4: - Optimization
 TODO: Minion card type
