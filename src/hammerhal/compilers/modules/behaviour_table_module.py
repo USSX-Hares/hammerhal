@@ -24,7 +24,7 @@ class BehaviourTableModule(CompilerModuleBase):
             cell_height = 0,
             data = self.parent.raw['behaviourTable']['table'],
 
-            body_row_template = [ "$$HA_C **{roll}", "**{name}:** {description}" ],
+            body_row_template = [ "$$HA_C **{roll}**", "**{name}:** {description}" ],
             body_text_drawer = td,
             body_row_interval = self.get_from_module_config("tableBodyRowInterval"),
 
