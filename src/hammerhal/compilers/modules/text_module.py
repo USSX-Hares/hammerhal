@@ -36,7 +36,7 @@ class TextModule(CompilerModuleBase):
             (
                 module=self,
                 field=self.raw_field,
-                required_sise=(self.width, self.height),
+                required_size=(self.width, self.height),
                 actual_size=(w, h),
                 comment="Please, reduce either text length or font size."
             )
