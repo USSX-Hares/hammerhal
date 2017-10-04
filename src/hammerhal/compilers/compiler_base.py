@@ -370,7 +370,7 @@ class CompilerBase():
 
         return max_h
 
-    def insert_image_scaled(self, base_image, region, image_path, offset_borders=True):
+    def insert_image_scaled(self, base_image, region, image_path, offset_borders=True, scale_func=max):
         if (offset_borders):
             x, y, w, h = region
         else:
@@ -378,8 +378,12 @@ class CompilerBase():
             w = x2 - x
             h = y2 - y
 
-        logger.debug("Inserting image '{path}' to position {region} with scaling and reversed mask".format(path=image_path, region=region))
-        image = Image.open(image_path)
+        if (isinstance(image_path, Image.Image)):
+            logger.debug("Inserting image to position {region} with scaling and reversed mask".format(region=region))
+            image = image_path
+        else:
+            logger.debug("Inserting image '{path}' to position {region} with scaling and reversed mask".format(path=image_path, region=region))
+            image = Image.open(image_path)
 
         _estimated_width = w
         _estimated_height = h
@@ -390,7 +394,7 @@ class CompilerBase():
         _width_scale = _estimated_width / _actual_width
         _height_scale = _estimated_height / _actual_height
 
-        _new_scale = max(_width_scale, _height_scale)
+        _new_scale = scale_func(_width_scale, _height_scale)
         _image = image.resize((int(_new_scale * _actual_width), int(_new_scale * _actual_height)), Image.ANTIALIAS)
 
         _im_copy = base_image.copy()
