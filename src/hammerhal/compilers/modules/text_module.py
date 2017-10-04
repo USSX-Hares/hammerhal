@@ -48,11 +48,12 @@ class TextModule(CompilerModuleBase):
         _tab_index = 0
 
         self.textPanel = System.Windows.Forms.Panel();
-        self.textScaleUpDown = System.Windows.Forms.NumericUpDown();
-        self.textScalebar = System.Windows.Forms.TrackBar();
         self.textFieldTextbox = System.Windows.Forms.TextBox();
         self.textFieldLabel = System.Windows.Forms.Label();
-        self.textScaleLabel = System.Windows.Forms.Label();
+        if (self.raw_font_size_scale_field):
+            self.textScaleUpDown = System.Windows.Forms.NumericUpDown();
+            self.textScalebar = System.Windows.Forms.TrackBar();
+            self.textScaleLabel = System.Windows.Forms.Label();
 
         #
         # namePanel
@@ -106,60 +107,61 @@ class TextModule(CompilerModuleBase):
         _y += self.textFieldTextbox.Height + _top
         _tab_index += 1
 
-        #
-        # nameScaleLabel
-        #
-        _top = 21
-        self.textScaleLabel.AutoSize = True;
-        self.textScaleLabel.Location = System.Drawing.Point(6, _y + _top);
-        self.textScaleLabel.Name = "nameScaleLabel";
-        self.textScaleLabel.Size = System.Drawing.Size(84, 13);
-        self.textScaleLabel.TabIndex = 3;
-        self.textScaleLabel.Text = "Font Size Scale:";
-        _y += self.textScaleLabel.Height + _top
-        _tab_index += 1
+        if (self.raw_font_size_scale_field):
+            #
+            # nameScaleLabel
+            #
+            _top = 21
+            self.textScaleLabel.AutoSize = True;
+            self.textScaleLabel.Location = System.Drawing.Point(6, _y + _top);
+            self.textScaleLabel.Name = "nameScaleLabel";
+            self.textScaleLabel.Size = System.Drawing.Size(84, 13);
+            self.textScaleLabel.TabIndex = 3;
+            self.textScaleLabel.Text = "Font Size Scale:";
+            _y += self.textScaleLabel.Height + _top
+            _tab_index += 1
 
-        #
-        # nameScalebar
-        #
-        _top = 3
-        self.textScalebar.Anchor = \
-            System.Windows.Forms.AnchorStyles.Left \
-            | System.Windows.Forms.AnchorStyles.Right \
-            | System.Windows.Forms.AnchorStyles.Top;
-        self.textScalebar.AutoSize = False;
-        self.textScalebar.BackColor = System.Drawing.SystemColors.ControlLightLight;
-        self.textScalebar.LargeChange = 10;
-        self.textScalebar.Location = System.Drawing.Point(3, _y + _top);
-        self.textScalebar.Maximum = 200;
-        self.textScalebar.Name = "nameScalebar";
-        self.textScalebar.Size = System.Drawing.Size(147, 20);
-        self.textScalebar.SmallChange = 1;
-        self.textScalebar.TabIndex = 4;
-        self.textScalebar.TickStyle = System.Enum.Parse(System.Windows.Forms.TickStyle, "None");
-        self.textScalebar.Value = int(self.parent.raw.get(self.raw_font_size_scale_field, 1.0) * 100);
-        self.textScalebar.Scroll += System.EventHandler(self.textScalebar_Scroll);
-        # _y += self.textScalebar.Height + _top
-        _tab_index += 1
+            #
+            # nameScalebar
+            #
+            _top = 3
+            self.textScalebar.Anchor = \
+                System.Windows.Forms.AnchorStyles.Left \
+                | System.Windows.Forms.AnchorStyles.Right \
+                | System.Windows.Forms.AnchorStyles.Top;
+            self.textScalebar.AutoSize = False;
+            self.textScalebar.BackColor = System.Drawing.SystemColors.ControlLightLight;
+            self.textScalebar.LargeChange = 10;
+            self.textScalebar.Location = System.Drawing.Point(3, _y + _top);
+            self.textScalebar.Maximum = 200;
+            self.textScalebar.Name = "nameScalebar";
+            self.textScalebar.Size = System.Drawing.Size(147, 20);
+            self.textScalebar.SmallChange = 1;
+            self.textScalebar.TabIndex = 4;
+            self.textScalebar.TickStyle = System.Enum.Parse(System.Windows.Forms.TickStyle, "None");
+            self.textScalebar.Value = int(self.parent.raw.get(self.raw_font_size_scale_field, 1.0) * 100);
+            self.textScalebar.Scroll += System.EventHandler(self.textScalebar_Scroll);
+            # _y += self.textScalebar.Height + _top
+            _tab_index += 1
 
-        #
-        # nameScaleUpDown
-        #
-        _top = 3
-        self.textScaleUpDown.Anchor = \
-            System.Windows.Forms.AnchorStyles.Right \
-            | System.Windows.Forms.AnchorStyles.Bottom;
-        self.textScaleUpDown.DecimalPlaces = 2;
-        self.textScaleUpDown.Increment = decimal(5);
-        self.textScaleUpDown.Location = System.Drawing.Point(156, _y + _top);
-        self.textScaleUpDown.Maximum = decimal(200);
-        self.textScaleUpDown.Name = "{type}ScaleUpDown".format(type=self.module_name);
-        self.textScaleUpDown.Size = System.Drawing.Size(60, 20);
-        self.textScaleUpDown.TabIndex = 5;
-        self.textScaleUpDown.Value = decimal(self.parent.raw.get(self.raw_font_size_scale_field, 1.0) * 100);
-        self.textScaleUpDown.ValueChanged += System.EventHandler(self.textScaleUpDown_ValueChanged);
-        _y += self.textScaleUpDown.Height + _top
-        _tab_index += 1
+            #
+            # nameScaleUpDown
+            #
+            _top = 3
+            self.textScaleUpDown.Anchor = \
+                System.Windows.Forms.AnchorStyles.Right \
+                | System.Windows.Forms.AnchorStyles.Bottom;
+            self.textScaleUpDown.DecimalPlaces = 2;
+            self.textScaleUpDown.Increment = decimal(5);
+            self.textScaleUpDown.Location = System.Drawing.Point(156, _y + _top);
+            self.textScaleUpDown.Maximum = decimal(200);
+            self.textScaleUpDown.Name = "{type}ScaleUpDown".format(type=self.module_name);
+            self.textScaleUpDown.Size = System.Drawing.Size(60, 20);
+            self.textScaleUpDown.TabIndex = 5;
+            self.textScaleUpDown.Value = decimal(self.parent.raw.get(self.raw_font_size_scale_field, 1.0) * 100);
+            self.textScaleUpDown.ValueChanged += System.EventHandler(self.textScaleUpDown_ValueChanged);
+            _y += self.textScaleUpDown.Height + _top
+            _tab_index += 1
 
         return self.textPanel;
 
