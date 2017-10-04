@@ -1,10 +1,10 @@
 from PIL import Image
 from logging import getLogger
 from camel_case_switcher import dict_keys_camel_case_to_underscope
+import threading
 
 from hammerhal import generator
 if (generator.generator_supported):
-    import threading
     import datetime
     import time
 
@@ -13,7 +13,7 @@ if (generator.generator_supported):
 
 from hammerhal.config_loader import ConfigLoader
 from hammerhal.text_drawer import TextDrawer
-from hammerhal.compilers.compiler_error import CompilerError
+from hammerhal.compilers.compiler_error import CompilerError, CompilerWarning
 from hammerhal.compilers.compiler_base import CompilerBase
 
 class CompilerModuleBase:
@@ -24,6 +24,7 @@ class CompilerModuleBase:
     # These ones CAN be overwritten
     human_readable_name = None
     update_timeout = 0
+    update_delay = 0
 
     # These ones MUST NOT be overwritten
     index = None
@@ -109,9 +110,18 @@ class CompilerModuleBase:
     def compile(self):
         _now = datetime.datetime.now()
         base = self.prepare()
-        self._compile(base)
+        try:
+            self._compile(base)
+        except CompilerWarning as warn:
+            self.logger.debug("Module {name} compiled with warnings. Time spent: {dt}ms".format(name=self.module_name, dt=(datetime.datetime.now() - _now).total_seconds() * 1000))
+            self.logger.warning(warn)
+            thr = threading.Thread(target=self._on_warn, args=(warn,), kwargs={ })
+            thr.start()
+
+        else:
+            self.logger.debug("Module {name} compiled. Time spent: {dt}ms".format(name=self.module_name, dt=(datetime.datetime.now() - _now).total_seconds() * 1000))
+
         self.compiled = base
-        self.logger.debug("Module {name} compiled. Time spent: {dt}ms".format(name=self.module_name, dt=(datetime.datetime.now() - _now).total_seconds() * 1000))
         return base
     def _compile(self, base:Image):
         raise NotImplementedError
@@ -136,7 +146,7 @@ class CompilerModuleBase:
                 self.logger.debug("Update already scheduled")
 
         else:
-            thr = threading.Thread(target=self.__update_command, args=(), kwargs={ })
+            thr = threading.Thread(target=self.__delayed_update, args=(), kwargs={ })
             thr.start()
 
 
@@ -144,14 +154,22 @@ class CompilerModuleBase:
     #     self.update()
 
     def __delayed_update(self):
-        time.sleep(self.update_timeout)
+        self.__update_on_cooldown = True
+        if (self.update_delay):
+            time.sleep(self.update_delay)
+        self.__update_command()
+        if (self.update_timeout):
+            time.sleep(self.update_timeout)
 
         self.__update_on_cooldown = False
         if (self.__update_requested):
-            self.__update_command()
             self.__update_requested = False
+            self.__update_command()
 
     def _on_update(self):
+        pass
+
+    def _on_warn(self, warning):
         pass
 
     def __update_command(self):
@@ -181,8 +199,9 @@ class CompilerModuleBase:
         _oldtime = _start
         self.logger.debug("Total update time: {0}ms".format((_time - _oldtime).total_seconds() * 1000))
 
-        thr = threading.Thread(target=self.__delayed_update, args=(), kwargs={ })
-        thr.start()
+        if (self.__update_requested):
+            thr = threading.Thread(target=self.__delayed_update, args=(), kwargs={ })
+            thr.start()
 
     def create_generator_tab(self, update_function):
         if not (generator.generator_supported):

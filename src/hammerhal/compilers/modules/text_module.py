@@ -1,4 +1,5 @@
 from hammerhal.compilers.compiler_module_base import CompilerModuleBase
+from hammerhal.compilers.compiler_error import TextNotFitInAreaWarning
 from hammerhal.text_drawer import TextDrawer
 
 from hammerhal import generator
@@ -27,8 +28,20 @@ class TextModule(CompilerModuleBase):
                 td_font = td.get_font()
                 td.set_font(font_size=td_font['font_size'] * _scale)
 
-        td.print_in_region((0, 0, self.width, self.height), self.parent.raw[self.raw_field], offset_borders=True)
+        w, h = td.print_in_region((0, 0, self.width, self.height), self.parent.raw[self.raw_field], offset_borders=True)
         self.logger.info("{type} printed".format(type=self.module_name.capitalize()))
+        if (w > self.width or h > self.height):
+            self.setErrorState(True)
+            raise TextNotFitInAreaWarning\
+            (
+                module=self,
+                field=self.raw_field,
+                required_sise=(self.width, self.height),
+                actual_size=(w, h),
+                comment="Please, reduce either text length or font size."
+            )
+        elif (self.__error_state):
+            self.setErrorState(False)
 
 
     ### =======================================
@@ -42,6 +55,15 @@ class TextModule(CompilerModuleBase):
     textScaleUpDown = None
     textScaleLabel = None
 
+    __error_state = False
+
+    def _on_warn(self, warning):
+        if (isinstance(warning, TextNotFitInAreaWarning)):
+            if (warning.module == self):
+                if (not self.textPanel):
+                    self.logger.debug("Warning ignored, as long as there is no GUI attached.")
+                    return
+                pass # Nothing to do :)
 
     def _create_generator_tab_content(self):
         _y = 0
@@ -192,3 +214,24 @@ class TextModule(CompilerModuleBase):
     def setText(self, value):
         self.parent.raw[self.raw_field] = value
         self.update()
+
+
+    def setErrorState(self, is_error=True):
+        if (not self.textPanel):
+            return
+        if (self.__error_state == is_error):
+            return
+
+        if (is_error):
+            self.logger.debug("Setting input color to red due to warning on compilation.")
+            self.__error_state = True
+            self.textFieldTextbox.ForeColor = System.Drawing.Color.Red;
+            if (self.raw_font_size_scale_field):
+                self.textScaleUpDown.ForeColor = System.Drawing.Color.Red;
+
+        else:
+            self.logger.debug("Warnings fixed, returning color to its normal state.")
+            self.__error_state = False
+            self.textFieldTextbox.ForeColor = System.Drawing.SystemColors.WindowText;
+            if (self.raw_font_size_scale_field):
+                self.textScaleUpDown.ForeColor = System.Drawing.SystemColors.WindowText;
