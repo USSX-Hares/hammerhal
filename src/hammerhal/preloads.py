@@ -27,6 +27,8 @@ def preload_fonts():
     default_finder = TextDrawer.get_default_text_finder()
     default_finder.preload_font('times.ttf', 'Times New Roman')
     default_finder.preload_font('timesbd.ttf', 'Times New Roman', bold=True)
+    default_finder.preload_font('timesi.ttf', 'Times New Roman', italic=True)
+    default_finder.preload_font('timesbi.ttf', 'Times New Roman', italic=True, bold=True)
     default_finder.preload_font('BOD_R.TTF', 'Bodoni MT')
     default_finder.preload_font('BOD_B.TTF', 'Bodoni MT', bold=True)
     default_finder.preload_font('BOD_CR.TTF', 'Bodoni MT Condensed')
