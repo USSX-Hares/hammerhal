@@ -36,7 +36,7 @@ class InputControl:
 
 
     @classmethod
-    def create_input_control_of_value_type(cls, name_prefix, value_type, callback):
+    def create_input_control_of_value_type(cls, name_prefix, value_type, value=None, callback=None):
 
         if (isinstance(value_type, list)):
             result = System.Windows.Forms.ComboBox();
@@ -46,7 +46,8 @@ class InputControl:
             result.FormattingEnabled = True;
             for _stat_value in value_type:
                 result.Items.Add(_stat_value);
-            result.SelectedIndexChanged += System.EventHandler(lambda sender, event_args: callback(sender.Tag, sender.SelectedItem));
+            if (callback):
+                result.SelectedIndexChanged += System.EventHandler(lambda sender, event_args: callback(sender.Tag, sender.SelectedItem));
 
         elif (value_type == "integer"):
             result = System.Windows.Forms.NumericUpDown();
@@ -55,8 +56,12 @@ class InputControl:
             result.Increment = decimal(1);
             result.Minimum = decimal(0);
             result.Maximum = decimal(100);
-            result.Value = decimal(InputControl.__defaults[value_type])
-            result.ValueChanged += System.EventHandler(lambda sender, event_args: callback(sender.Tag, System.Convert.ToInt32(sender.Value)));
+            if (value):
+                result.Value = decimal(value)
+            else:
+                result.Value = decimal(InputControl.__defaults[value_type])
+            if (callback):
+                result.ValueChanged += System.EventHandler(lambda sender, event_args: callback(sender.Tag, System.Convert.ToInt32(sender.Value)));
 
         elif (value_type == "dice"):
             result = System.Windows.Forms.NumericUpDown();
@@ -65,15 +70,23 @@ class InputControl:
             result.Increment = decimal(1);
             result.Minimum = decimal(1);
             result.Maximum = decimal(6);
-            result.Value = decimal(InputControl.__defaults[value_type])
-            result.ValueChanged += System.EventHandler(lambda sender, event_args: callback(sender.Tag, System.Convert.ToInt32(sender.Value)));
+            if (value):
+                result.Value = decimal(value)
+            else:
+                result.Value = decimal(InputControl.__defaults[value_type])
+            if (callback):
+                result.ValueChanged += System.EventHandler(lambda sender, event_args: callback(sender.Tag, System.Convert.ToInt32(sender.Value)));
 
         elif (value_type == "string"):
             result = System.Windows.Forms.TextBox();
 
             result.Name = name_prefix + "TextBox";
-            result.Text = InputControl.__defaults[value_type]
-            result.TextChanged += System.EventHandler(lambda sender, event_args: callback(sender.Tag, sender.Text));
+            if (value):
+                result.Text = value
+            else:
+                result.Text = InputControl.__defaults[value_type]
+            if (callback):
+                result.TextChanged += System.EventHandler(lambda sender, event_args: callback(sender.Tag, sender.Text));
 
         else:
             raise TypeError("Value type {type} not implemented for input control".format(type=value_type))

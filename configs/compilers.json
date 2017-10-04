@@ -47,9 +47,9 @@
                     
                     "stats":
                     {
-                        "move": { "x": 310, "y": 150, "+": false },
-                        "save": { "x": 190, "y": 350, "+": true },
-                        "agility": { "x": 390, "y": 350, "+": true }
+                        "move": { "type": "integer", "x": 310, "y": 150 },
+                        "save": { "type": "dice", "x": 190, "y": 350 },
+                        "agility": { "type": "dice", "x": 390, "y": 350 }
                     },
                     
                     "font":
@@ -188,9 +188,9 @@
                     
                     "stats":
                     {
-                        "move": { "x": 300, "y": 180, "+": false },
-                        "vigour": { "x": 175, "y": 380, "+": false },
-                        "agility": { "x": 379, "y": 380, "+": true }
+                        "move": { "type": "integer", "x": 300, "y": 180 },
+                        "vigour": { "type": "integer", "x": 175, "y": 380 },
+                        "agility": { "type": "dice", "x": 379, "y": 380 }
                     },
                     
                     "font":
