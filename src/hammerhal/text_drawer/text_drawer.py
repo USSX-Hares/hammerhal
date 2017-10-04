@@ -392,7 +392,7 @@ class TextDrawer:
         self.set_font(bold=original_bold, italic=original_italic)
 
         if (print_mode == TextDrawer.__PrintModes.SplitLines):
-            _line_splits.append((text[_line_start:], x))
+            _line_splits.append((text[_line_start:], x - _line_start_x))
             return _line_splits
         else:
             return (x - initial_x, max_height)
