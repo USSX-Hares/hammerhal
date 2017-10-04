@@ -63,6 +63,9 @@ def compile_heroes(logger):
     return e_code
 
 def compile_hero(logger, hero, compiler=None):
+    if (hero == "all"):
+        return compile_heroes(logger)
+
     if (not compiler):
         compiler = HeroCompiler()
 
@@ -86,6 +89,9 @@ def compile_adversaries(logger):
     return e_code
 
 def compile_adversary(logger, adversary, compiler=None):
+    if (adversary == "all"):
+        return compile_adversaries(logger)
+
     if (not compiler):
         compiler = AdversaryCompiler()
 
@@ -118,8 +124,8 @@ Usage:
 
 Available commands (case-insensitive):
   all           Compiles all heroes and adversaries.
-  hero          Compiles a specific hero (argument required).
-  adversary     Compiles a specific adversary (argument required).
+  hero          Compiles a specific hero (argument required; "all" for compiling all adversaries).
+  adversary     Compiles a specific adversary (argument required; "all" for compiling all heroes).
   
   interactive   Launches compiler in the interactive mode.
   exit          Exits the interactive mode.
