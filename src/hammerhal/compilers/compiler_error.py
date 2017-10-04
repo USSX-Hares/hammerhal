@@ -43,20 +43,18 @@ class TextNotFitInAreaWarning(CompilerWarning):
         if (self.field_name):
             _text += " of field '{field}'".format(field=self.field_name)
         if (self.field_text):
-            _text += " ('{text}')".format(field=self.field_name, text=self.field_text)
+            _text += " ('{text}')".format(text=self.field_text if (len(self.field_text) <= 25) else (self.field_text[:25] + '...'))
 
         _area = "area"
         self.actual_size = kwargs.get('actual_size', None)
         self.required_size = kwargs.get('required_size', None)
         if (self.actual_size or self.required_size):
-            _append = " ("
+            _append = list()
             if (self.required_size):
-                _append += " (required: {required_size})".format(required_size=self.required_size)
+                _append.append("required: {required_size}".format(required_size=self.required_size))
             if (self.actual_size):
-                _append += " (actual: {actual_size})".format(actual_size=self.actual_size)
-            _append += ")"
-
-            _area += _append
+                _append.append("actual: {actual_size}".format(actual_size=self.actual_size))
+            _area += " ({0})".format(", ".join(_append))
 
         _comment = ''
         if ('comment' in kwargs):
