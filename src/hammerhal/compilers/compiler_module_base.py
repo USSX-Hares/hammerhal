@@ -2,12 +2,11 @@ from PIL import Image
 from logging import getLogger
 from camel_case_switcher import dict_keys_camel_case_to_underscope
 import threading
+import datetime
 
 from hammerhal import generator
 if (generator.generator_supported):
-    import datetime
     import time
-
     import System
     from System import Decimal as decimal
 
