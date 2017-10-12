@@ -341,5 +341,12 @@
             "outputDirectory": "adversaries/",
             "rawDirectory": "adversaries/"
         }
+        ,
+        "card":
+        {
+            "baseNameTemplate": null,
+            "outputDirectory": "{type}s/{set}/",
+            "rawDirectory": "cards/"
+        }
     }
 }
