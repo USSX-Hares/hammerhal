@@ -37,8 +37,12 @@ class CompilerBase():
         self.output_directory = "{rawRoot}{rawOffset}".format(rawRoot=ConfigLoader.get_from_config('outputDirectoryRoot', 'compilers'), rawOffset=ConfigLoader.get_from_config('compilerTypeSpecific/{type}/outputDirectory'.format(type=self.compiler_type), 'compilers'))
         self.sources_directory = ConfigLoader.get_from_config('sourcesDirectory', 'compilers')
 
-    def search(self):
-        return glob.glob(self.raw_directory + "*.json")
+    def search(self, ignore_dummies=True):
+        all_entries = glob.glob(self.raw_directory + "**/*.json", recursive=True)
+        dummies = ignore_dummies and glob.glob(self.raw_directory + "**/*.dummy.json", recursive=True) or [ ]
+        diff = set(all_entries) - set(dummies)
+        formatted = [ filename.replace('\\', '/') for filename in sorted(list(diff)) ]
+        return formatted
 
     def find(self, name):
         filename = name

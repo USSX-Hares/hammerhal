@@ -1,0 +1,96 @@
+{
+    "title": "skill",
+    "type": "object",
+    
+    "definitions":
+    {
+        "positiveInteger": { "type": "integer", "minimum": 1 },
+        "dice": { "type": "integer", "minimum": 1, "maximum": 6 },
+        "range": { "type": "string", "enum": [ "combat", "missile", "area" ] },
+        
+        "heroicWeapon":
+        {
+            "title": "heroicWeapon",
+            "type": "object",
+            "properties":
+            {
+                "name":     { "type": "string" },
+                "cost":     { "$ref": "#/definitions/dice" },
+                "range":    { "$ref": "#/definitions/range" },
+                "hit":      { "$ref": "#/definitions/dice" },
+                "damage":   { "type": "string" }
+            },
+            "additionalProperties": false,
+            "required": [ "name", "cost", "range", "hit", "damage" ]
+        },
+        "heroicAbility":
+        {
+            "title": "heroicAbility",
+            "type": "object",
+            "properties":
+            {
+                "name":         { "type": "string" },
+                "cost":         { "oneOf" : [ { "$ref": "#/definitions/dice" }, { "type": "null" } ] },
+                "diceSpace":    { "type": "boolean" },
+                "description":  { "type": "string" }
+            },
+            "additionalProperties": false,
+            "required": [ "name", "cost", "diceSpace", "description" ]
+        }
+    }
+    ,
+    
+    "properties":
+    {
+        "name":                 { "type": "string" },
+        "description":          { "type": "string" },
+        "effect":               { "type": [ "string", "null" ] },
+        
+        "weapons":
+        {
+            "type": "array",
+            "items": { "$ref": "#/definitions/heroicWeapon" }
+        },
+        
+        "actions":
+        {
+            "type": "array",
+            "items": { "$ref": "#/definitions/heroicAbility" }
+        },
+        
+        "affects":
+        {
+            "oneOf":
+            [
+                { "type": "null" },
+                {
+                    "type": "array",
+                    "items": [ { "type": "string" } ],
+                    "minItems": 1,
+                    "uniqueItems": true
+                }
+            ]
+        },
+        "additionalEffect": { "type": [ "string", "null" ] },
+
+        "set": { "type": "string" },
+        "type": { "type": "string" },
+        "copies": { "$ref": "#/definitions/positiveInteger" },
+        "itemType": { "type": [ "string", "null" ] },
+        "categories":
+        {
+            "oneOf":
+            [
+                { "type": "null" },
+                {
+                    "type": "array",
+                    "items": [ { "type": "string" } ],
+                    "minItems": 1,
+                    "uniqueItems": true
+                }
+            ]
+        }
+    },
+    "additionalProperties": false,
+    "required": [ "name", "description", "effect", "type", "set" ]
+}

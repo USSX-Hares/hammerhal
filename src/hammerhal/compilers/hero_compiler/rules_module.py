@@ -3,6 +3,10 @@ from PIL import Image, ImageDraw, ImageColor
 from hammerhal import get_color
 from hammerhal.compilers import CompilerModuleBase, InvalidConfigError
 
+from hammerhal import generator
+if (generator.generator_supported):
+    import System
+    from System import Decimal as decimal
 
 class HeroRulesModule(CompilerModuleBase):
     module_name = "rules"
