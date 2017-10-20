@@ -21,3 +21,7 @@ class AdversaryCompiler(CompilerBase):
         BehaviourTableModule,
         AdversaryRulesModule,
     ]
+
+    def _get_base_filename(self):
+        return super()._get_base_filename() \
+            .replace('{weaponsCount}', str(len(self.raw['weapons'])))

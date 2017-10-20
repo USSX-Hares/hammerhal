@@ -55,3 +55,5 @@ class BehaviourTableModule(CompilerModuleBase):
         self.logger.info("Behaviour table printed")
         if (hasattr(self.parent, 'behaviour_table_height')):
             self.parent.behaviour_table_height = behaviour_table_height
+
+        return behaviour_table_height

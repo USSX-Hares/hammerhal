@@ -45,6 +45,7 @@ class AdversaryRulesModule(CompilerModuleBase):
         else:
             self.logger.info("Rules printed")
 
+        return y
 
     class OutOfSpaceException(CompilerError):
         pass

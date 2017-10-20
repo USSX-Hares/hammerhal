@@ -52,7 +52,7 @@
             "items": { "$ref": "#/definitions/heroicWeapon" }
         },
         
-        "actions":
+        "abilities":
         {
             "type": "array",
             "items": { "$ref": "#/definitions/heroicAbility" }
@@ -89,7 +89,12 @@
                     "uniqueItems": true
                 }
             ]
-        }
+        },
+        
+        "descriptionFontSizeScale": { "type": "number" },
+        "categoriesFontSizeScale": { "type": "number" },
+        "separatorScale": { "type": "number" }
+
     },
     "additionalProperties": false,
     "required": [ "name", "description", "effect", "type", "set" ]

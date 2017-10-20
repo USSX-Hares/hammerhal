@@ -29,6 +29,7 @@ class CompilerBase():
     compiled = None
     compiled_modules = None
     initialized_modules = None
+    continuous_print = None
 
     def __init__(self):
         self.schema_path = "{directory}{type}.json".format(directory=ConfigLoader.get_from_config('schemasDirectory', 'compilers'), type=self.compiler_type)
@@ -36,6 +37,7 @@ class CompilerBase():
         self.raw_directory = "{rawRoot}{rawOffset}".format(rawRoot=ConfigLoader.get_from_config('rawDirectoryRoot'), rawOffset=ConfigLoader.get_from_config('compilerTypeSpecific/{type}/rawDirectory'.format(type=self.compiler_type), 'compilers'))
         self.output_directory = "{rawRoot}{rawOffset}".format(rawRoot=ConfigLoader.get_from_config('outputDirectoryRoot', 'compilers'), rawOffset=ConfigLoader.get_from_config('compilerTypeSpecific/{type}/outputDirectory'.format(type=self.compiler_type), 'compilers'))
         self.sources_directory = ConfigLoader.get_from_config('sourcesDirectory', 'compilers')
+        self.continuous_print = dict()
 
     def search(self, ignore_dummies=True):
         all_entries = glob.glob(self.raw_directory + "**/*.json", recursive=True)
@@ -44,7 +46,7 @@ class CompilerBase():
         formatted = [ filename.replace('\\', '/') for filename in sorted(list(diff)) ]
         return formatted
 
-    def find(self, name):
+    def find(self, name, **kwargs):
         filename = name
         if (os.path.isfile(filename)):
             return filename
@@ -53,7 +55,7 @@ class CompilerBase():
         if (os.path.isfile(filename)):
             return filename
 
-        for filename in self.search():
+        for filename in self.search(**kwargs):
             try:
                 _file = open(filename)
                 _json = json.load(_file)
@@ -81,8 +83,8 @@ class CompilerBase():
         self.open(self.templates_path)
         self.filename = None
 
-    def open(self, name):
-        _filename = self.find(name)
+    def open(self, name, **kwargs):
+        _filename = self.find(name, **kwargs)
         self.compiled = None
         if (not _filename):
             logger.error("Cannot find {type}: '{name}'".format(type=self.compiler_type, name=name))
@@ -112,18 +114,15 @@ class CompilerBase():
         self.compiled_filename = None
         return self.raw
 
+    def _get_base_filename(self):
+        return ConfigLoader.get_from_config('compilerTypeSpecific/{type}/baseNameTemplate'.format(type=self.compiler_type), 'compilers')
+
     def prepare_base(self) -> Image:
-        name_template = ConfigLoader.get_from_config('compilerTypeSpecific/{type}/baseNameTemplate'.format(type=self.compiler_type), 'compilers')
-        name = name_template
-        if ("{weaponsCount}" in name):
-            name = name.replace('{weaponsCount}', str(len(self.raw['weapons'])))
+        name = self._get_base_filename()
 
         filepath = "{directory}{name}".format(directory=self.sources_directory, name=name)
         if (not os.path.isfile(filepath)):
-            additional = ""
-            if ("{weaponsCount}" in name_template):
-                additional += " with proper number of weapons - {weaponsCount}".format(weaponsCount=len(self.raw['weapons']))
-            logger.error("Cannot load {type} card template{additional}: '{filepath}'".format(type=self.compiler_type, filepath=filepath, additional=additional))
+            logger.error("Cannot load {type} card template: '{filepath}'".format(type=self.compiler_type, filepath=filepath))
             return None
 
         base = Image.open(filepath)
@@ -248,13 +247,17 @@ class CompilerBase():
         self.filename = _filename
         return _filename
 
+    def get_output_name(self):
+        return self.output_name or self.raw.get('name', None)
+    def get_output_directory(self):
+        return self.output_directory.format(**self.raw)
 
     def save_compiled(self, forced_width=None):
         if (not self.compiled):
             logger.error("Could not save not compiled result")
             return None
 
-        name = self.output_name or self.raw.get('name', None)
+        name = self.get_output_name()
         if (not name):
             logger.error("Could find proper name")
             return None
@@ -267,7 +270,14 @@ class CompilerBase():
             _actual_height = _image.height
             _image = _image.resize((int(_estimated_width), int(_estimated_width / _actual_width * _actual_height)), Image.ANTIALIAS)
 
-        _filename = self.compiled_filename or "{directory}{name}.png".format(directory=self.output_directory, name=name)
+        _filename = self.compiled_filename or "{directory}{name}.png".format(directory=self.get_output_directory(), name=name)
+        if (not os.path.exists(os.path.dirname(_filename))):
+            try:
+                os.makedirs(os.path.dirname(_filename))
+            except OSError as exc:  # Guard against race condition
+                import errno
+                if exc.errno != errno.EEXIST:
+                    raise
         try:
             logger.info("Saving compiled file: '{filename}'".format(filename=_filename))
             _image.save(_filename)

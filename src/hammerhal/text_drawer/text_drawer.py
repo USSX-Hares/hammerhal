@@ -1,5 +1,6 @@
 from PIL import Image, ImageDraw, ImageFont
 from hammerhal.text_drawer import FontFinder
+from hammerhal import get_color
 import inspect
 from logging import getLogger
 logger = getLogger("text_drawer")
@@ -150,7 +151,8 @@ class TextDrawer:
         else:
             self.character_width_scale = self.character_width_scale or 1.0
 
-        self.color = color or self.color or 'white'
+        if (color or not self.color):
+            self.color = get_color(color or self.color or 'white')
 
         logger.debug("Current font: {0}".format(self.get_font()))
 
@@ -181,21 +183,21 @@ class TextDrawer:
         self.__print(position, text, print_mode=TextDrawer.__PrintModes.NormalPrint)
         logger.debug("Text line printed. Time spent: {0}ms".format((datetime.datetime.now() - _now).total_seconds() * 1000))
 
-    def print_in_region(self, region, text:str, offset_borders:bool=True):
+    def print_in_region(self, region, text:str, offset_borders:bool=True, obstacles=None):
         _now = datetime.datetime.now()
         logger.debug("Printing text region: '{text}'".format(text=text))
-        result = self.__print_in_region(region, text, offset_borders, real_print=True)
+        result = self.__print_in_region(region, text, offset_borders, real_print=True, obstacles=obstacles)
         logger.debug("Text region printed. Time spent: {0}ms".format((datetime.datetime.now() - _now).total_seconds() * 1000))
         return result
 
-    def get_text_size(self, region, text:str, offset_borders:bool=True):
+    def get_text_size(self, region, text:str, offset_borders:bool=True, obstacles=None):
         _now = datetime.datetime.now()
         logger.debug("Requested region text size: '{text}'".format(text=text))
-        result = self.__print_in_region(region, text, offset_borders, real_print=False)
+        result = self.__print_in_region(region, text, offset_borders, real_print=False, obstacles=obstacles)
         logger.debug("Text region size responded. Time spent: {0}ms".format((datetime.datetime.now() - _now).total_seconds() * 1000))
         return result
 
-    def __print_in_region(self, region, text:str, offset_borders, real_print):
+    def __print_in_region(self, region, text:str, offset_borders, real_print, obstacles):
         if (offset_borders):
             x, y, w, h = region
         else:
@@ -205,7 +207,9 @@ class TextDrawer:
 
         max_width = 0
         space_width, _ = self.__print(None, ' ', print_mode=TextDrawer.__PrintModes.GetTextSize)
+        # _, line_height = self.__print(None, 'LINE HEIGHT (gyq,)', print_mode=TextDrawer.__PrintModes.GetTextSize)
         _, line_height = self.__print(None, 'LINE HEIGHT', print_mode=TextDrawer.__PrintModes.GetTextSize)
+
         paragraphs = []
         for paragraph_text in text.split('\n'):
             _horizontal_alignment = self.__current_text_horizontal_alignment
@@ -233,7 +237,7 @@ class TextDrawer:
                 else:
                     i += 1
 
-            _lines = self.__print(None, ' '.join(words), print_mode=TextDrawer.__PrintModes.SplitLines, line_width=w)
+            _lines = self.__print(None, ' '.join(words), print_mode=TextDrawer.__PrintModes.SplitLines, line_width=w, obstacles=obstacles)
             logger.debug("Splitting paragraph to lines: '{0}' -> '{1}'".format(paragraph_text, _lines))
             for line_text, line_width in _lines:
                 paragraph_obj['lines'].append( { 'words': line_text.split(), 'width': line_width } )
@@ -246,6 +250,10 @@ class TextDrawer:
         total_height = int(num_lines * (1 + self.text_vertical_space_scale) * line_height + self.text_paragraph_vertical_space * (len(paragraphs) - 1))
 
         if (real_print):
+
+            if (obstacles):
+                _current_obstacle = 0
+
             if (self.__current_text_vertical_alignment == TextDrawer.TextAlignment.Bottom):
                 _y = y + h - total_height
 
@@ -260,16 +268,32 @@ class TextDrawer:
                     line = paragraph_lines[i]
                     last_line = (i + 1 == len(paragraph_lines))
 
+                    _local_w = w
+                    _obstacle = None
+                    if (obstacles):
+                        _obstacle = obstacles[_current_obstacle]
+                        while (y >= obstacles[_current_obstacle]['y2']):
+                            _current_obstacle += 1
+                            if (_current_obstacle >= len(obstacles)):
+                                obstacles = None
+                                _obstacle = None
+                                break
+                            _obstacle = obstacles[_current_obstacle]
+
+                    if (_obstacle):
+                        if ((_y <= _obstacle['y1'] <= y + h) or (_obstacle['y1'] <= _y <= _obstacle['y2'])):
+                            _local_w = _obstacle['x']
+
                     new_space_width = space_width
                     if (paragraph_obj['horizontal_alignment'] == TextDrawer.TextAlignment.Right):
-                        _x = x + w - line['width']
+                        _x = x + _local_w - line['width']
                     elif (paragraph_obj['horizontal_alignment'] == TextDrawer.TextAlignment.Center):
-                        _x = x + (w - line['width']) // 2
+                        _x = x + (_local_w - line['width']) // 2
                     elif (paragraph_obj['horizontal_alignment'] == TextDrawer.TextAlignment.Justify and not last_line and len(line['words']) > 0):
                         _x = x
                         num_spaces = len(line['words']) - 1
                         if (num_spaces > 0):
-                            new_space_width = space_width + (w - line['width']) / num_spaces
+                            new_space_width = space_width + (_local_w - line['width']) / num_spaces
                     else:
                         _x = x
 
@@ -305,6 +329,9 @@ class TextDrawer:
             _text += ' '
             if (_line_width is None):
                 raise ValueError("'line_width' argument is required for the SplitLines mode")
+
+            _obstacles = kwargs.get('obstacles', None)
+            _current_obstacle = 0
 
         original_bold = self.__bold
         original_italic = self.__italic
@@ -365,10 +392,29 @@ class TextDrawer:
                 self.__drawer.text((_x, _y), _char, self.color, font=_font)
             if (_char == ' '):
                 if (print_mode == TextDrawer.__PrintModes.SplitLines):
-                    if ((x - _line_start_x) > _line_width):
+
+                    _local_line_witdh = _line_width
+                    _obstacle = None
+                    if (_obstacles):
+                        _obstacle = _obstacles[_current_obstacle]
+                        while (y >= _obstacles[_current_obstacle]['y2']):
+                            _current_obstacle += 1
+                            if (_current_obstacle >= len(_obstacles)):
+                                _obstacles = None
+                                _obstacle = None
+                                break
+                            _obstacle = _obstacles[_current_obstacle]
+
+                    if (_obstacle):
+                        if ((y <= _obstacle['y1'] <= y + h) or (_obstacle['y1'] <= y <= _obstacle['y2'])):
+                            _local_line_witdh = _obstacle['x']
+
+                    if ((x - _line_start_x) > _local_line_witdh):
                         _line_splits.append((text[_line_start:_last_word_end], _last_word_end_x - _line_start_x))
                         _line_start = _word_start
                         _line_start_x = _word_start_x
+                        y += max_height
+                        max_height = 0
                     elif (i > 1 and _text[i - 1] != ' '):
                         _last_word_end = i
                         _last_word_end_x = x

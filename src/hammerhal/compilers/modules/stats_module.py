@@ -22,6 +22,7 @@ class StatsModule(CompilerModuleBase):
             td.print_line((_x, _y), _text)
 
         self.logger.info("Stats printed")
+        return 0
 
     ### =======================================
     ###   WinForms module generator

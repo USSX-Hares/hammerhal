@@ -13,14 +13,20 @@ class TextModule(CompilerModuleBase):
     raw_font_size_scale_field = None
     multiline = None
 
-    def initialize(self, name:str, field:str=None, scale_field:str=None, multiline:bool=False):
+    def initialize(self, name:str, field:str=None, scale_field:str=None, multiline:bool=False, **kwargs):
         self.module_name = name
         self.raw_field = field or name
         self.multiline = multiline
         if (scale_field):
             self.raw_font_size_scale_field = scale_field
+        super().initialize(**kwargs)
 
     def _compile(self, base):
+        text = self.parent.raw.get(self.raw_field)
+        if (text):
+            return self._print(base, self.parent.raw[self.raw_field])
+        return 0
+    def _print(self, base, text):
         td = self.get_text_drawer(base)
         if (self.raw_font_size_scale_field):
             _scale = self.parent.raw.get(self.raw_font_size_scale_field, 1.0)
@@ -28,7 +34,7 @@ class TextModule(CompilerModuleBase):
                 td_font = td.get_font()
                 td.set_font(font_size=td_font['font_size'] * _scale)
 
-        w, h = td.print_in_region((0, 0, self.width, self.height), self.parent.raw[self.raw_field], offset_borders=True)
+        w, h = td.print_in_region((0, 0, self.width, self.height), text, offset_borders=True)
         self.logger.info("{type} printed".format(type=self.module_name.capitalize()))
         if (w > self.width or h > self.height):
             self.setErrorState(True)
@@ -43,6 +49,7 @@ class TextModule(CompilerModuleBase):
         elif (self.__error_state):
             self.setErrorState(False)
 
+        return h
 
     ### =======================================
     ###   WinForms module generator
@@ -70,8 +77,11 @@ class TextModule(CompilerModuleBase):
         _tab_index = 0
 
         self.textPanel = System.Windows.Forms.Panel();
-        self.textFieldTextbox = System.Windows.Forms.TextBox();
         self.textFieldLabel = System.Windows.Forms.Label();
+        if (self.multiline):
+            self.textFieldTextbox = System.Windows.Forms.RichTextBox();
+        else:
+            self.textFieldTextbox = System.Windows.Forms.TextBox();
         if (self.raw_font_size_scale_field):
             self.textScaleUpDown = System.Windows.Forms.NumericUpDown();
             self.textScalebar = System.Windows.Forms.TrackBar();

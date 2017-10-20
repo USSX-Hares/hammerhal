@@ -44,6 +44,7 @@ class GeneratorBase():
     saveAsToolStripMenuItem = None;
     closeToolStripMenuItem = None;
     compileToolStripMenu = None;
+    refreshToolStripMenuItem = None;
     compileToolStripMenuItem = None;
     compileAsToolStripMenuItem = None;
 
@@ -251,6 +252,7 @@ class GeneratorBase():
     def __add_menu_compile(this):
 
         this.compileToolStripMenu = System.Windows.Forms.ToolStripMenuItem();
+        this.refreshToolStripMenuItem = System.Windows.Forms.ToolStripMenuItem();
         this.compileToolStripMenuItem = System.Windows.Forms.ToolStripMenuItem();
         this.compileAsToolStripMenuItem = System.Windows.Forms.ToolStripMenuItem();
 
@@ -259,12 +261,22 @@ class GeneratorBase():
         #
         this.compileToolStripMenu.DropDownItems.AddRange(System.Array[System.Windows.Forms.ToolStripItem](
         [
+            this.refreshToolStripMenuItem,
             this.compileToolStripMenuItem,
             this.compileAsToolStripMenuItem,
         ]));
         this.compileToolStripMenu.Name = "compileToolStripMenu";
         this.compileToolStripMenu.Size = System.Drawing.Size(64, 20);
         this.compileToolStripMenu.Text = "Compile";
+
+        #
+        # compileToolStripMenuItem
+        #
+        this.refreshToolStripMenuItem.Name = "refreshToolStripMenuItem";
+        this.refreshToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F5;
+        this.refreshToolStripMenuItem.Size = System.Drawing.Size(159, 22);
+        this.refreshToolStripMenuItem.Text = "Refresh";
+        this.refreshToolStripMenuItem.Click += System.EventHandler(this.refreshToolStripMenuItem_Click);
 
         #
         # compileToolStripMenuItem
@@ -389,6 +401,8 @@ class GeneratorBase():
     def closeToolStripMenuItem_Click(self, sender, e):
         self.close();
 
+    def refreshToolStripMenuItem_Click(self, sender, e):
+        self.refresh()
     def compileToolStripMenuItem_Click(self, sender, e):
         self.compile()
     def compileAsToolStripMenuItem_Click(self, sender, e):
@@ -411,6 +425,7 @@ class GeneratorBase():
     # ==================================
 
     def show(self):
+        Application.EnableVisualStyles();
         Application.Run(self.form)
 
     def new(self):
@@ -438,10 +453,8 @@ class GeneratorBase():
         self.form.Close();
 
     def compile(self, file=None):
+        self.refresh()
         self.logger.info("Saving image...")
-        if (not self.compiler.compile()):
-            self.logger.error("Cannot compile image!")
-            return
 
         self.compiler.compiled_filename = file or self.compiler.compiled_filename
         if (not self.compiler.save_compiled(forced_width=1080)):
@@ -450,3 +463,10 @@ class GeneratorBase():
 
         self.logger.info("Saved.")
         self.update_preview()
+    def refresh(self):
+        self.logger.info("Compiling image...")
+        if (not self.compiler.compile()):
+            self.logger.error("Cannot compile image!")
+            return
+        else:
+            self.update_preview()

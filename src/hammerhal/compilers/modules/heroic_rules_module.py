@@ -11,12 +11,18 @@ if (generator.generator_supported):
 class HeroRulesModule(CompilerModuleBase):
     module_name = "rules"
 
+    obstacles = None
+
+    def initialize(self, obstacles=False, *args, **kwargs):
+        self.obstacles = obstacles
+        super().initialize(*args, **kwargs)
+
     def _compile(self, base):
         td = self.get_text_drawer(base)
-        y = 0; light = not(len(self.parent.raw['abilities']) & 1)
+        y = 0; light = not(len(self.parent.raw.get('abilities', '')) & 1)
         gradient_base = self.__get_gradient_image()
 
-        for ability in self.parent.raw['abilities']:
+        for ability in self.parent.raw.get('abilities', []):
             if (ability.get('cost', None)):
                 text = "**{name} ({cost}+):** {description}".format(**ability)
             else:
@@ -26,13 +32,15 @@ class HeroRulesModule(CompilerModuleBase):
             y += _h
             light = not light
 
-        text_traits = "**TRAITS:** The {name} is **{trait_1}** and **{trait_2}**.".format(name=self.parent.raw['name'], trait_1=self.parent.raw['traits'][0].capitalize(), trait_2=self.parent.raw['traits'][1].capitalize())
-        text_renown = "**RENOWN:** {description}".format(description=self.parent.raw['renown'])
-        text = text_traits + '\n' + text_renown
-        _h = self.__print_rules_block(base, td, y, text, light, gradient_base)
-        y += _h
-        light = not light
+        if ('traits' in self.parent.raw):
+            text_traits = "**TRAITS:** The {name} is **{trait_1}** and **{trait_2}**.".format(name=self.parent.raw['name'], trait_1=self.parent.raw['traits'][0].capitalize(), trait_2=self.parent.raw['traits'][1].capitalize())
+            text_renown = "**RENOWN:** {description}".format(description=self.parent.raw['renown'])
+            text = text_traits + '\n' + text_renown
+            _h = self.__print_rules_block(base, td, y, text, light, gradient_base)
+            y += _h
+            light = not light
         self.logger.info("Rules printed")
+        return y - self.parent.raw.get('rulesSeparatorHeight', self.get_from_module_config("defaultRulesSeparatorHeight"))
 
     def __get_gradient_image(self):
 
@@ -67,10 +75,16 @@ class HeroRulesModule(CompilerModuleBase):
         x1 = self.get_from_module_config('textLeft'); x2 = self.get_from_module_config('textWidthWithDice') if dice_space else self.get_from_module_config('textWidthNoDice')
         dy = self.parent.raw.get('rulesSeparatorHeight', self.get_from_module_config("defaultRulesSeparatorHeight"))
 
-        _, _h = text_drawer.get_text_size((x1, y, x2, 0), text, offset_borders=False)
-
+        _obstacles = None
         if (dice_space):
             _, _h2 = self.parent.get_image_size(self.parent.sources_directory + "dice.png")
+            if (self.obstacles):
+                _obstacles = [ { 'y1': 0, 'y2': _h2, 'x': x2 } ]
+                x2 = self.get_from_module_config('textWidthNoDice')
+
+        _, _h = text_drawer.get_text_size((x1, y, x2, 0), text, offset_borders=False, obstacles=_obstacles)
+
+        if (dice_space):
             _h = max(_h, _h2)
         _h += dy
 
@@ -82,9 +96,10 @@ class HeroRulesModule(CompilerModuleBase):
             base.paste(_gradient, (0, y), gradient)
 
         if (dice_space):
-            _x = self.get_from_module_config("dicePosition"); _y = y + _h // 2
+            _x = self.get_from_module_config("dicePosition"); _y = y + (_h2 if self.obstacles else _h) // 2
+
             self.parent.insert_image_centered(base, (_x, _y), self.parent.sources_directory + self.get_from_module_config("diceImage"))
 
         # -5 because of not correct intuitive of text while on print
-        text_drawer.print_in_region((x1, y - 5, x2, y - 5 + _h), text, offset_borders=False)
+        _, _h3 = text_drawer.print_in_region((x1, y - 5, x2, y - 5 + _h), text, offset_borders=False, obstacles=_obstacles)
         return _h

@@ -15,8 +15,13 @@ class HeroDiceSpaceModule(CompilerModuleBase):
         x1 = dice_width // 2; x2 = self.width - dice_width // 2
         _x = x1; _y = self.height // 2
         _dx = (x2 - x1) // (total_dices_count - 1)
+
+        _h_max = 0
         for _dice_type in dice_section:
             for i in range(_dice_type['count']):
-                self.parent.insert_image_centered(base_image=base, position=(_x, _y), image_path=self.parent.sources_directory + _dice_type['image'])
+                _, _, _, _h =self.parent.insert_image_centered(base_image=base, position=(_x, _y), image_path=self.parent.sources_directory + _dice_type['image'])
+                if (_h > _h_max):
+                    _h_max = _h
                 _x += _dx
         self.logger.info("Dice space printed")
+        return 0

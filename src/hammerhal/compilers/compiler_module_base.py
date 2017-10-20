@@ -12,7 +12,7 @@ if (generator.generator_supported):
 
 from hammerhal.config_loader import ConfigLoader
 from hammerhal.text_drawer import TextDrawer
-from hammerhal.compilers.compiler_error import CompilerError, CompilerWarning
+from hammerhal.compilers.compiler_error import CompilerError, CompilerWarning, TextNotFitInAreaWarning
 from hammerhal.compilers.compiler_base import CompilerBase
 
 class CompilerModuleBase:
@@ -33,7 +33,9 @@ class CompilerModuleBase:
 
     width = None
     height = None
+    top_offset = None
     compiled = None
+    after_cont = None
 
     update_function = None
     __update_requested = False
@@ -43,6 +45,7 @@ class CompilerModuleBase:
         self.parent = parent
         self.parent_type = parent.compiler_type
         self.index = index
+        self.top_offset = 0
         self.initialize(**kwargs)
 
         self.human_readable_name = self.human_readable_name or self.module_name.replace('_', ' ').capitalize()
@@ -70,8 +73,8 @@ class CompilerModuleBase:
             raise CompilerError(message)
 
 
-    def initialize(self, **kwargs):
-        pass
+    def initialize(self, after=None):
+        self.after_cont = after
 
     def get_from_module_config(self, key):
         path = 'compilerTypeSpecific/{parentType}/modules/{moduleName}/{key}'.format \
@@ -89,15 +92,58 @@ class CompilerModuleBase:
         td.set_font(**font)
         return td
 
+    def parse_offset(self, x):
+        _top_offset = 0
+
+        skip_kwd = False
+        if (isinstance(x, str)):
+            if (x.startswith('skip:')):
+                _top_offset = int(x[5:])
+                skip_kwd = True
+        else:
+            _top_offset = x
+
+
+        return _top_offset, skip_kwd
+
+    def get_top_offset(self):
+        _top_offset = 0
+        if (self.get_from_module_config('continuous')):
+            if (self.after_cont):
+                _top_offset, skip_kwd = self.parse_offset(self.parent.continuous_print[self.after_cont])
+                if (not skip_kwd):
+                    _top_offset += int(self.get_from_module_config('offset') * self.parent.raw.get('separatorScale', 1.0))
+
+        self.top_offset = _top_offset
+        return _top_offset
 
     def get_size(self):
         _width = self.get_from_module_config('width')
         _height = self.get_from_module_config('height')
+
+        _height -= self.get_top_offset()
+
+
         size = (_width, _height)
+        if (_height < 0 or _width < 0):
+            raise CompilerError("Module '{0}': cannot initialize size {1}".format(self.human_readable_name, size))
         return size
 
     def get_position(self):
-        position = (self.get_from_module_config('positionX'), self.get_from_module_config('positionY'))
+        positionX = self.get_from_module_config('positionX')
+        positionY = self.get_from_module_config('positionY')
+
+        old_offset = self.top_offset
+        positionY += self.get_top_offset()
+        if (old_offset != self.top_offset):
+            x, skip = self.parse_offset(self.parent.continuous_print[self.module_name])
+            x += self.top_offset - old_offset
+            if (skip):
+                self.parent.continuous_print[self.module_name] = "skip:{0}".format(x)
+            else:
+                self.parent.continuous_print[self.module_name] = x
+
+        position = (positionX, positionY)
         return position
 
     def prepare(self):
@@ -109,17 +155,24 @@ class CompilerModuleBase:
     def compile(self):
         _now = datetime.datetime.now()
         base = self.prepare()
+        actual_height = "skip:0"
         try:
-            self._compile(base)
+            self.get_top_offset()
+            actual_height = self._compile(base)
+            if (actual_height == 0):
+                actual_height = "skip:{0}".format(self.top_offset)
+            else:
+                actual_height += self.top_offset
+
         except CompilerWarning as warn:
             self.logger.debug("Module {name} compiled with warnings. Time spent: {dt}ms".format(name=self.module_name, dt=(datetime.datetime.now() - _now).total_seconds() * 1000))
             self.logger.warning(warn)
             thr = threading.Thread(target=self._on_warn, args=(warn,), kwargs={ })
             thr.start()
-
         else:
             self.logger.debug("Module {name} compiled. Time spent: {dt}ms".format(name=self.module_name, dt=(datetime.datetime.now() - _now).total_seconds() * 1000))
 
+        self.parent.continuous_print[self.module_name] = actual_height
         self.compiled = base
         return base
     def _compile(self, base:Image):

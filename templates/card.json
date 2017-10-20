@@ -1,0 +1,13 @@
+{
+    "name": "Living Fortress",
+    
+    "description": "So resilient and determined are you that you shrug off even the mightiest blows.",
+    
+    "effect": "Roll a dice each time your hero suffers a wound. On a 6, they are stunned instead.",
+    "affects": [ "unrelenting" ],
+    "additionalEffect": "add 1 to the result of this roll for each wound marker on your hero card.",
+    
+    "categories": [ "armour" ],
+    "set": "twilight-god",
+    "type": "skill"
+}

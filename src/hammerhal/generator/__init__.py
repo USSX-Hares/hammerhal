@@ -24,3 +24,4 @@ if (generator_supported):
     from hammerhal.generator.generator_base import GeneratorBase
     from hammerhal.generator.adversary_generator import AdversaryGenerator
     from hammerhal.generator.hero_generator import HeroGenerator
+    from hammerhal.generator.card_generator import CardGenerator

@@ -16,13 +16,14 @@ class ImageModule(CompilerModuleBase):
     module_name = "image"
     image_path = None
 
-    def initialize(self):
+    def initialize(self, **kwargs):
         self.image_path = None
+        super().initialize(**kwargs)
 
     def _compile(self, base):
         if (not self.parent.raw.get('image')):
             self.image_path = None
-            return
+            return 0
 
         filename = self.parent.raw['image']
         if (not os.path.isfile(filename)):
@@ -34,10 +35,11 @@ class ImageModule(CompilerModuleBase):
             if (not os.path.isfile(filename)):
                 self.logger.error("Cannot load {type} image by path: '{path}' - no such file".format(type=self.parent.compiler_type, path=self.parent.raw['image']))
                 self.image_path = None
-                return
+                return 0
 
         self.image_path = filename
         self.logger.info("Image verified")
+        return 0
 
     def insert(self, parent_base):
         if (not self.image_path):

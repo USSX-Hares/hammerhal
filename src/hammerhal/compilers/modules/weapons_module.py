@@ -12,16 +12,17 @@ class WeaponsModule(CompilerModuleBase):
     module_name = "weapons"
 
     weapon_stats = None
-    def initialize(self):
+    def initialize(self, **kwargs):
         self.weapon_stats = self.get_from_module_config("stats")
-        self.__last_weapons_count = len(self.parent.raw['weapons'])
+        self.__last_weapons_count = len(self.parent.raw.get('weapons', ''))
+        super().initialize(**kwargs)
 
     def get_size(self):
         width = self.get_from_module_config("width")
 
         _cell_height = self.get_from_module_config("cellHeight")
-        _weapons_count = len(self.parent.raw["weapons"])
-        _body_row_interval = self.get_from_module_config("rowIntervalByCount")[len(self.parent.raw['weapons'])]
+        _weapons_count = len(self.parent.raw.get("weapons", ''))
+        _body_row_interval = self.get_from_module_config("rowIntervalByCount")[_weapons_count]
         _header_row_interval = self.get_from_module_config("headerRowInterval")
         height = _cell_height * (_weapons_count + 1) + _header_row_interval + _body_row_interval * (_weapons_count - 1)
 
@@ -30,12 +31,15 @@ class WeaponsModule(CompilerModuleBase):
     def _compile(self, base):
         td = self.get_text_drawer(base)
 
-        self.parent.insert_table \
+        if (not self.parent.raw.get('weapons')):
+            return 0
+
+        total_height = self.parent.insert_table \
         (
             vertical_columns = self.get_from_module_config("verticalColumns"),
             top = 0,
             cell_height = self.get_from_module_config("cellHeight"),
-            data = self.parent.raw['weapons'],
+            data = self.parent.raw.get('weapons'),
 
             body_row_template = self.get_from_module_config("bodyRowTemplate"),
             body_text_drawer = td,
@@ -48,6 +52,8 @@ class WeaponsModule(CompilerModuleBase):
             header_capitalization = TextDrawer.CapitalizationModes.Normal,
         )
         self.logger.info("Weapon table printed")
+
+        return total_height
 
     ### =======================================
     ###   WinForms module generator
@@ -217,7 +223,7 @@ class WeaponsModule(CompilerModuleBase):
         _group_tab_index += 1
         _group_y += self.weaponsSelectedNameTextBox.Height + _top
 
-        _weapons = self.parent.raw.get('weapons')
+        _weapons = self.parent.raw.get('weapons', [])
         for weapon in _weapons:
             self.weaponsListListbox.Items.Add(weapon['name']);
 
@@ -311,6 +317,7 @@ class WeaponsModule(CompilerModuleBase):
             new_weapon[stat_name] = InputControl.get_default_value_of_type(stat_type)
 
         index = self.weaponsListListbox.Items.Add(new_weapon['name']);
+        self.parent.raw['weapons'] = self.parent.raw.get('weapons', list())
         self.parent.raw['weapons'].append(new_weapon)
         self.update();
         return index
