@@ -1,6 +1,7 @@
 TODO: diff tool
 TODO: rules compiler
 TODO: rules schema
+TODO: repo for joiner
 
 Release 0.2:
 Done: Move all numbers (coordinates, spaces, font size etc.) to the config

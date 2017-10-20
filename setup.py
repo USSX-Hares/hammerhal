@@ -5,8 +5,6 @@ _dirs = \
 [
     'logs',
     'output',
-    'output/heroes',
-    'output/adversaries',
 ]
 
 for _dir in _dirs:

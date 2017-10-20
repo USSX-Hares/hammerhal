@@ -3,7 +3,7 @@ import sys
 
 from hammerhal.preloads import setup_logging, preload_fonts
 from hammerhal import ConfigLoader
-from hammerhal.compilers import HeroCompiler, AdversaryCompiler
+from hammerhal.compilers import HeroCompiler, AdversaryCompiler, CardCompiler
 
 
 def start(argv=sys.argv):
@@ -49,6 +49,7 @@ def compile_all(logger, *args):
     e_code = 0
     e_code += compile_heroes(logger)
     e_code += compile_adversaries(logger)
+    e_code += compile_cards(logger)
 
     return 1 if e_code else 0
 
@@ -103,6 +104,50 @@ def compile_adversary(logger, adversary, compiler=None):
         logger.error("Cannot compile {adversary}".format(adversary=adversary))
         return 1
 
+
+def compile_cards(logger, type=None, set=None):
+    compiler = CardCompiler()
+    cards = compiler.search(type=type, set=set)
+    e_code = 0
+    logger.info("Gonna to compile cards. There are {n} to deal with.".format(n=len(cards)))
+    for card in cards:
+        e_code += compile_card(logger, card, compiler)
+
+    return e_code
+
+def compile_card(logger, card, compiler=None):
+    keywords = card.split()
+    type = None
+    set = None
+    compile_all_cards = False
+    for i in range(len(keywords)):
+        keyword = keywords[i].strip()
+        if (keyword == "all"):
+            compile_all_cards = True
+        elif (keyword.startswith("type:")):
+            type = keyword[5:]
+        elif (keyword.startswith("set:")):
+            set = keyword[4:]
+        else:
+            break
+
+    if (compile_all_cards):
+        return compile_cards(logger, type=type, set=set)
+
+    card = ' '.join(keywords[i:])
+
+    if (not compiler):
+        compiler = CardCompiler()
+
+    result = compiler.open(card, set=set, type=type) and compiler.compile() and compiler.save_compiled(forced_width=1080)
+    if (result):
+        logger.info("Success! File saved to '{filename}'".format(filename=result))
+        return 0
+    else:
+        logger.error("Cannot compile {card}".format(card=card))
+        return 1
+
+
 def run_interactive(logger, *args):
 
     while True:
@@ -140,6 +185,7 @@ commands = \
     'all': compile_all,
     'hero': compile_hero,
     'adversary': compile_adversary,
+    'card': compile_card,
     'interactive': run_interactive,
     'help': print_help,
     '?': print_help
