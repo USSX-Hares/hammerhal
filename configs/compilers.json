@@ -238,8 +238,8 @@
                     "headerRow": [ "WEAPON ACTIONS", "Dice", "Range", "Hit", "Damage" ],
                     "bodyRowTemplate": [ "{name}", "{dices}", "{range}", "{hit}+", "{damage}" ],
                     "verticalColumns": [ 0, 970, 1280, 1660, 1930, 2270 ],
-                    "headerRowInterval": 70,
-                    "rowIntervalByCount": [ null, 40, 40, 40, 30 ],
+                    "headerRowInterval": 50,
+                    "rowIntervalByCount": [ null, 0, 60, 45, 36 ],
                     "cellHeight": 117,
                     
                     "font":
