@@ -55,6 +55,7 @@
     {
         "name":                     { "type": "string" },
         "titleFontSizeScale":       { "type": "number" },
+        "rulesFontSizeScale":       { "type": "number" },
         "rulesSeparatorHeight":     { "type": "integer" },
         "description":              { "type": "string" },
         "descriptionFontSizeScale": { "type": "number" },

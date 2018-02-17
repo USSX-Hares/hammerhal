@@ -92,8 +92,9 @@
         },
         
         "descriptionFontSizeScale": { "type": "number" },
-        "categoriesFontSizeScale": { "type": "number" },
-        "separatorScale": { "type": "number" }
+        "categoriesFontSizeScale":  { "type": "number" },
+        "rulesFontSizeScale":       { "type": "number" },
+        "separatorScale":           { "type": "number" }
 
     },
     "additionalProperties": false,

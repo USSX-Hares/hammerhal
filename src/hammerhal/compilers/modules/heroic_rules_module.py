@@ -10,6 +10,7 @@ if (generator.generator_supported):
 
 class HeroRulesModule(CompilerModuleBase):
     module_name = "rules"
+    raw_font_size_scale_field = "rulesFontSizeScale"
 
     obstacles = None
 
@@ -19,6 +20,11 @@ class HeroRulesModule(CompilerModuleBase):
 
     def _compile(self, base):
         td = self.get_text_drawer(base)
+        _scale = self.parent.raw.get(self.raw_font_size_scale_field, 1.0)
+        if (_scale != 1.0):
+            td_font = td.get_font()
+            td.set_font(font_size=td_font['font_size'] * _scale)
+
         y = 0; light = not(len(self.parent.raw.get('abilities', '')) & 1)
         gradient_base = self.__get_gradient_image()
 
