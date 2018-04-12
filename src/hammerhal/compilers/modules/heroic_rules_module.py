@@ -83,7 +83,7 @@ class HeroRulesModule(CompilerModuleBase):
 
         _obstacles = None
         if (dice_space):
-            _, _h2 = self.parent.get_image_size(self.parent.sources_directory + "dice.png")
+            _, _h2 = self.parent.get_image_size(self.parent.sources_directory + "tokens/dice_gray.png")
             if (self.obstacles):
                 _obstacles = [ { 'y1': 0, 'y2': _h2, 'x': x2 } ]
                 x2 = self.get_from_module_config('textWidthNoDice')

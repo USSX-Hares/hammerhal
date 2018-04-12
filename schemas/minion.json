@@ -1,0 +1,123 @@
+{
+    "title": "hero",
+    "type": "object",
+    
+    "definitions":
+    {
+        "positiveInteger": { "type": "integer", "minimum": 1 },
+        "dice": { "type": "integer", "minimum": 1, "maximum": 6 },
+        "range": { "type": "string", "enum": [ "combat", "missile", "area" ] },
+        
+        "adversaryWeapon":
+        {
+            "title": "adversaryWeapon",
+            "type": "object",
+            "properties":
+            {
+                "name":     { "type": "string" },
+                "dices":    { "type": "string" },
+                "range":    { "$ref": "#/definitions/range" },
+                "hit":      { "$ref": "#/definitions/dice" },
+                "damage":   { "type": "string" }
+            },
+            "additionalProperties": false,
+            "required": [ "name", "dices", "range", "hit", "damage" ]
+        },
+        "heroicAbility":
+        {
+            "title": "heroicAbility",
+            "type": "object",
+            "properties":
+            {
+                "name":         { "type": "string" },
+                "cost":         { "oneOf" : [ { "$ref": "#/definitions/dice" }, { "type": "null" } ] },
+                "diceSpace":    { "type": "boolean" },
+                "description":  { "type": "string" }
+            },
+            "additionalProperties": false,
+            "required": [ "name", "cost", "diceSpace", "description" ]
+        },
+        "behaviour":
+        {
+            "title": "behaviour",
+            "type": "object",
+            "properties":
+            {
+                "name":         { "type": "string" },
+                "roll":         { "type": [ "string", "integer" ] },
+                "description":  { "type": "string" }
+            },
+            "additionalProperties": false,
+            "required": [ "name", "roll", "description" ]
+        }
+    },
+    
+    "properties":
+    {
+        "name":                 { "type": "string" },
+        "titleFontSizeScale":   { "type": "number" },
+        "rulesFontSizeScale":   { "type": "number" },
+        "rulesSeparatorHeight": { "type": "integer" },
+        "subtitle":             { "type": [ "string", "null" ] },
+        "image":                { "type": [ "string", "null" ] },
+        
+        "stats":
+        {
+            "type": "object",
+            "properties":
+            {
+                "move":     { "$ref": "#/definitions/positiveInteger" },
+                "save":     { "type": [ "string", "integer" ] },
+                "agility":  { "$ref": "#/definitions/dice" }
+            },
+            "additionalProperties": false,
+            "required": [ "move", "save", "agility" ]
+        },
+        
+        "diceSpace":
+        {
+            "type": [ "array", "string" ],
+            "items":
+            {
+                "type": "object",
+                "properties":
+                {
+                    "count": { "$ref": "#/definitions/positiveInteger" },
+                    "image": { "type": "string" }
+                }
+            }
+        },
+        
+        "weapons":
+        {
+            "type": "array",
+            "items": { "$ref": "#/definitions/adversaryWeapon" }
+        },
+        
+        "abilities":
+        {
+            "type": "array",
+            "items": { "$ref": "#/definitions/heroicAbility" }
+        },
+        
+        "behaviourTable":
+        {
+            "type": "object",
+            "properties":
+            {
+                "dices": { "type": "string" },
+                "table":
+                {
+                    "type": "array",
+                    "items": { "$ref": "#/definitions/behaviour" },
+                    "minItems": 1,
+                    "uniqueItems": true
+                }
+            },
+            "additionalProperties": false,
+            "required": [ "table" ]
+        }
+    },
+    "additionalProperties": false,
+    "required": [ "name", "stats", "weapons", "behaviourTable" ]
+}

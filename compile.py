@@ -3,7 +3,7 @@ import sys
 
 from hammerhal.preloads import setup_logging, preload_fonts
 from hammerhal import ConfigLoader
-from hammerhal.compilers import HeroCompiler, AdversaryCompiler, CardCompiler
+from hammerhal.compilers import HeroCompiler, AdversaryCompiler, CardCompiler, MinionCompiler
 
 
 def start(argv=sys.argv):
@@ -96,12 +96,38 @@ def compile_adversary(logger, adversary, compiler=None):
     if (not compiler):
         compiler = AdversaryCompiler()
 
-    result = compiler.open(adversary) and compiler.compile() and compiler.save_compiled(forced_width=1080)
+    result = compiler.open(adversary) and compiler.compile() and compiler.save_compiled(forced_width=1600)
     if (result):
         logger.info("Success! File saved to '{filename}'".format(filename=result))
         return 0
     else:
         logger.error("Cannot compile {adversary}".format(adversary=adversary))
+        return 1
+
+
+def compile_minions(logger):
+    compiler = MinionCompiler()
+    minions = compiler.search()
+    e_code = 0
+    logger.info("Gonna to compile minions. There are {n} to deal with.".format(n=len(minions)))
+    for minion in minions:
+        e_code += compile_minion(logger, minion, compiler)
+
+    return e_code
+
+def compile_minion(logger, minion, compiler=None):
+    if (minion == "all"):
+        return compile_minions(logger)
+
+    if (not compiler):
+        compiler = MinionCompiler()
+
+    result = compiler.open(minion) and compiler.compile() and compiler.save_compiled(forced_width=720)
+    if (result):
+        logger.info("Success! File saved to '{filename}'".format(filename=result))
+        return 0
+    else:
+        logger.error("Cannot compile {minion}".format(minion=minion))
         return 1
 
 
@@ -139,7 +165,7 @@ def compile_card(logger, card, compiler=None):
     if (not compiler):
         compiler = CardCompiler()
 
-    result = compiler.open(card, set=set, type=type) and compiler.compile() and compiler.save_compiled(forced_width=1080)
+    result = compiler.open(card, set=set, type=type) and compiler.compile() and compiler.save_compiled(forced_width=640)
     if (result):
         logger.info("Success! File saved to '{filename}'".format(filename=result))
         return 0
@@ -171,6 +197,8 @@ Available commands (case-insensitive):
   all           Compiles all heroes and adversaries.
   hero          Compiles a specific hero (argument required; "all" for compiling all adversaries).
   adversary     Compiles a specific adversary (argument required; "all" for compiling all heroes).
+  card          Compiles a specific card (argument required; "all" for compiling all cards; may specify set {SET} by passing argument 'set:{SET}' and card type {TYPE} py passing 'type:{TYPE}').
+  minion        Compiles a specific minion (argument required; "all" for compiling all minions).
   
   interactive   Launches compiler in the interactive mode.
   exit          Exits the interactive mode.
@@ -186,6 +214,7 @@ commands = \
     'hero': compile_hero,
     'adversary': compile_adversary,
     'card': compile_card,
+    'minion': compile_minion,
     'interactive': run_interactive,
     'help': print_help,
     '?': print_help

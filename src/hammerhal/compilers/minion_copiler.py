@@ -1,11 +1,10 @@
 from logging import getLogger
 
 from hammerhal.compilers import CompilerBase
-from hammerhal.compilers.hero_compiler.dice_space_module import HeroDiceSpaceModule
-from hammerhal.compilers.modules import ImageModule, TextModule, StatsModule, WeaponsModule, HeroRulesModule
-logger = getLogger('hammerhal.compilers.hero_compiler')
+from hammerhal.compilers.modules import HeroDiceSpaceModule, ImageModule, TextModule, StatsModule, WeaponsModule, HeroRulesModule, BehaviourTableModule
+logger = getLogger('hammerhal.compilers.minion_compiler')
 
-class HeroCompiler(CompilerBase):
+class MinionCompiler(CompilerBase):
     modules = \
     [
         ImageModule,
@@ -15,8 +14,9 @@ class HeroCompiler(CompilerBase):
 
         HeroDiceSpaceModule,
         HeroRulesModule,
+        BehaviourTableModule,
     ]
-    compiler_type = "hero"
+    compiler_type = "minion"
 
     def _get_base_filename(self):
         return super()._get_base_filename() \

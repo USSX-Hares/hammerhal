@@ -44,7 +44,7 @@ class WeaponsModule(CompilerModuleBase):
             body_row_template = self.get_from_module_config("bodyRowTemplate"),
             body_text_drawer = td,
             body_row_interval = self.get_from_module_config("rowIntervalByCount")[len(self.parent.raw['weapons'])],
-            body_capitalization = TextDrawer.CapitalizationModes.Capitalize,
+            body_capitalization = TextDrawer.CapitalizationModes.CapitalizeFirst,
 
             header_row = self.get_from_module_config("headerRow"),
             header_text_drawer = td,

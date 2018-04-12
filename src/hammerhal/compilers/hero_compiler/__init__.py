@@ -1,1 +1,0 @@
-from hammerhal.compilers.hero_compiler.hero_compiler import HeroCompiler

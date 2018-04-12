@@ -4,3 +4,4 @@ from hammerhal.compilers.modules.stats_module import StatsModule
 from hammerhal.compilers.modules.weapons_module import WeaponsModule
 from hammerhal.compilers.modules.behaviour_table_module import BehaviourTableModule
 from hammerhal.compilers.modules.heroic_rules_module import HeroRulesModule
+from hammerhal.compilers.modules.dice_space_module import HeroDiceSpaceModule
