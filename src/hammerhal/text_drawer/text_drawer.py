@@ -1,3 +1,5 @@
+from enum import unique, auto
+
 from PIL import Image, ImageDraw, ImageFont
 from hammerhal.text_drawer import FontFinder
 from hammerhal import get_color
@@ -26,13 +28,14 @@ class Enum:
 class TextDrawer:
 
     class CapitalizationModes(Enum):
-        Normal = 1
-        UpperCase = 2
-        AllCaps = 2
-        LowerCase = 3
-        NoCaps = 3
-        Capitalize = 4
-        SmallCaps = 5
+        Normal = auto()
+        UpperCase = auto()
+        AllCaps = auto()
+        LowerCase = auto()
+        NoCaps = auto()
+        Capitalize = auto()
+        CapitalizeFirst = auto()
+        SmallCaps = auto()
 
     class TextAlignment(Enum):
         Left = 1
@@ -315,6 +318,9 @@ class TextDrawer:
             _text = _text.lower()
         elif (self.__current_text_capitalization == TextDrawer.CapitalizationModes.Capitalize):
             _text = ' '.join(_word.capitalize() for _word in _text.split(' '))
+        elif (self.__current_text_capitalization == TextDrawer.CapitalizationModes.CapitalizeFirst):
+            if (len(_text) > 0):
+                _text = _text[0].upper() + _text[1:]
 
         if (print_mode == TextDrawer.__PrintModes.SplitLines):
             _line_splits = list()
