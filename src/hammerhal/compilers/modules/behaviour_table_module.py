@@ -6,6 +6,8 @@ from hammerhal import get_color
 
 class BehaviourTableModule(CompilerModuleBase):
     module_name = "behaviour"
+    raw_body_font_size_scale_field = "behaviourBodyFontSizeScale"
+    raw_header_font_size_scale_field = "behaviourHeaderFontSizeScale"
 
     def get_size(self):
         _width = self.get_from_module_config('width')
@@ -15,7 +17,16 @@ class BehaviourTableModule(CompilerModuleBase):
 
     def _compile(self, base):
         td = self.get_text_drawer(base, font_prefix='fonts/tableBody')
+        _scale = self.parent.raw.get(self.raw_body_font_size_scale_field, 1.0)
+        if (_scale != 1.0):
+            td_font = td.get_font()
+            td.set_font(font_size=td_font['font_size'] * _scale)
+        
         th = self.get_text_drawer(base, font_prefix='fonts/tableHeader')
+        _scale = self.parent.raw.get(self.raw_header_font_size_scale_field, 1.0)
+        if (_scale != 1.0):
+            th_font = th.get_font()
+            th.set_font(font_size=th_font['font_size'] * _scale)
 
         behaviour_table_height = self.parent.insert_table \
         (

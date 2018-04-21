@@ -53,13 +53,15 @@
     
     "properties":
     {
-        "name":                     { "type": "string" },
-        "titleFontSizeScale":       { "type": "number" },
-        "rulesFontSizeScale":       { "type": "number" },
-        "rulesSeparatorHeight":     { "type": "integer" },
-        "description":              { "type": "string" },
-        "descriptionFontSizeScale": { "type": "number" },
-        "image":                    { "type": [ "string", "null" ] },
+        "name":                         { "type": "string" },
+        "titleFontSizeScale":           { "type": "number" },
+        "rulesFontSizeScale":           { "type": "number" },
+        "rulesSeparatorHeight":         { "type": "integer" },
+        "behaviourBodyFontSizeScale":   { "type": "number" } ,
+        "behaviourHeaderFontSizeScale": { "type": "number" } ,
+        "description":                  { "type": "string" },
+        "descriptionFontSizeScale":     { "type": "number" },
+        "image":                        { "type": [ "string", "null" ] },
         
         "stats":
         {
