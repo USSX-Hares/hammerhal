@@ -5,6 +5,8 @@ from hammerhal.text_drawer import FontFinder
 from hammerhal import get_color
 import inspect
 from logging import getLogger
+
+from hammerhal.text_drawer.text_funcs import capitalize_first
 logger = getLogger("text_drawer")
 import datetime
 
@@ -319,8 +321,7 @@ class TextDrawer:
         elif (self.__current_text_capitalization == TextDrawer.CapitalizationModes.Capitalize):
             _text = ' '.join(_word.capitalize() for _word in _text.split(' '))
         elif (self.__current_text_capitalization == TextDrawer.CapitalizationModes.CapitalizeFirst):
-            if (len(_text) > 0):
-                _text = _text[0].upper() + _text[1:]
+            _text = capitalize_first(_text)
 
         if (print_mode == TextDrawer.__PrintModes.SplitLines):
             _line_splits = list()

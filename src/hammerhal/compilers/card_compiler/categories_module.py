@@ -1,4 +1,5 @@
 from hammerhal.compilers.modules import TextModule
+from hammerhal.text_drawer.text_funcs import capitalize_first
 from joiner.join_list import join_list
 
 
@@ -19,7 +20,7 @@ class CategoriesModule(TextModule):
 
         # categories_str = join_list(categories, last_separator=' and ', formatter=lambda s: "**{0}**".format(s.capitalize()))
         # text = "{name} is {categories}.".format(name=name, categories=categories_str)
-        text = join_list(categories, formatter=lambda s: "**{0}**".format(s.capitalize()))
+        text = join_list(categories, formatter=lambda s: "**{0}**".format(capitalize_first(s)))
         return self._print(base, text)
 
     def _create_generator_tab_content(self):
