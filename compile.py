@@ -174,6 +174,46 @@ def compile_card(logger, card, compiler=None):
         return 1
 
 
+def compile_artifacts(logger, type=None, set=None):
+    compiler = CardCompiler()
+    artifacts = compiler.search(type=type, set=set)
+    e_code = 0
+    logger.info("Gonna to compile artifacts. There are {n} to deal with.".format(n=len(artifacts)))
+    for artifact in artifacts:
+        e_code += compile_artifact(logger, artifact, compiler)
+
+    return e_code
+
+def compile_artifact(logger, artifact, compiler=None):
+    keywords = artifact.split()
+    set = None
+    compile_all_artifacts = False
+    for i in range(len(keywords)):
+        keyword = keywords[i].strip()
+        if (keyword == "all"):
+            compile_all_artifacts = True
+        elif (keyword.startswith("set:")):
+            set = keyword[4:]
+        else:
+            break
+
+    if (compile_all_artifacts):
+        return compile_artifacts(logger, type=type, set=set)
+
+    artifact = ' '.join(keywords[i:])
+
+    if (not compiler):
+        compiler = CardCompiler()
+
+    result = compiler.open(artifact, set=set, type=type) and compiler.compile() and compiler.save_compiled(forced_width=640)
+    if (result):
+        logger.info("Success! File saved to '{filename}'".format(filename=result))
+        return 0
+    else:
+        logger.error("Cannot compile {artifact}".format(artifact=artifact))
+        return 1
+
+
 def run_interactive(logger, *args):
 
     while True:
@@ -198,13 +238,14 @@ Available commands (case-insensitive):
   hero          Compiles a specific hero (argument required; "all" for compiling all adversaries).
   adversary     Compiles a specific adversary (argument required; "all" for compiling all heroes).
   card          Compiles a specific card (argument required; "all" for compiling all cards; may specify set {SET} by passing argument 'set:{SET}' and card type {TYPE} py passing 'type:{TYPE}').
+  artifact      Compiles a specific artifact (argument required; "all" for compiling all artifacts; may specify set {SET} by passing argument 'set:{SET}').
   minion        Compiles a specific minion (argument required; "all" for compiling all minions).
   
   interactive   Launches compiler in the interactive mode.
   exit          Exits the interactive mode.
   help, ?       Prints this message.
   
-(c) 2017, USSX Hares, MIT License""")
+(c) 2017-2018, USSX Hares, MIT License""")
 
     return 0
 
@@ -214,6 +255,7 @@ commands = \
     'hero': compile_hero,
     'adversary': compile_adversary,
     'card': compile_card,
+    'artifact': compile_artifact,
     'minion': compile_minion,
     'interactive': run_interactive,
     'help': print_help,
