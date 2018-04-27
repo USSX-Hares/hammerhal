@@ -2,26 +2,27 @@
     "title": "adversary",
     "type": "object",
     
+    "not":
+    {
+        "comment": "This is preload of 'grandchild' dependencies. It is required due to the jsonschema lib issues.",
+        "anyOf":
+        [
+            { "$ref": "file:schemas/definitions/dice.json" },
+            { "$ref": "file:schemas/definitions/range.json" },
+            { "$ref": "file:schemas/definitions/positive_integer.json" }
+        ]
+    },
+    
     "definitions":
     {
-        "positiveInteger": { "type": "integer", "minimum": 1 },
-        "dice": { "type": "integer", "minimum": 1, "maximum": 6 },
-        "range": { "type": "string", "enum": [ "combat", "missile", "area" ] },
-        
-        "adversaryWeapon":
+        "preloads":
         {
-            "title": "adversaryWeapon",
             "type": "object",
-            "properties":
-            {
-                "name":     { "type": "string" },
-                "dices":    { "type": "string" },
-                "range":    { "$ref": "#/definitions/range" },
-                "hit":      { "$ref": "#/definitions/dice" },
-                "damage":   { "type": "string" }
-            },
-            "additionalProperties": false,
-            "required": [ "name", "dices", "range", "hit", "damage" ]
+            "properties": {
+                "dice": { "$ref": "file:schemas/definitions/dice.json" },
+                "range": { "$ref": "file:schemas/definitions/range.json" },
+                "positiveInteger": { "$ref": "file:schemas/definitions/positive_integer.json" }
+            }
         },
         "adversaryAbility":
         {
@@ -35,19 +36,6 @@
             },
             "additionalProperties": false,
             "required": [ "name", "description" ]
-        },
-        "behaviour":
-        {
-            "title": "behaviour",
-            "type": "object",
-            "properties":
-            {
-                "name":         { "type": "string" },
-                "roll":         { "type": [ "string", "integer" ] },
-                "description":  { "type": "string" }
-            },
-            "additionalProperties": false,
-            "required": [ "name", "roll", "description" ]
         }
     },
     
@@ -68,9 +56,9 @@
             "type": "object",
             "properties":
             {
-                "move":     { "$ref": "#/definitions/positiveInteger" },
-                "vigour":   { "$ref": "#/definitions/positiveInteger" },
-                "agility":  { "$ref": "#/definitions/dice" }
+                "move":     { "$ref": "file:schemas/definitions/positive_integer.json" },
+                "vigour":   { "$ref": "file:schemas/definitions/positive_integer.json" },
+                "agility":  { "$ref": "file:schemas/definitions/dice.json" }
             },
             "additionalProperties": false,
             "required": [ "move", "vigour", "agility" ]
@@ -79,7 +67,7 @@
         "weapons":
         {
             "type": "array",
-            "items": { "$ref": "#/definitions/adversaryWeapon" }
+            "items": { "$ref": "file:schemas/definitions/adversary_weapon.json" }
         },
         
         "abilities":
@@ -103,7 +91,7 @@
                 "table":
                 {
                     "type": "array",
-                    "items": { "$ref": "#/definitions/behaviour" },
+                    "items": { "#ref": "file:schemas/definitions/behaviour.json" },
                     "minItems": 1,
                     "uniqueItems": true
                 }

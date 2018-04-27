@@ -1,0 +1,13 @@
+{
+    "title": "heroicAbility",
+    "type": "object",
+    "properties":
+    {
+        "name":         { "type": "string" },
+        "cost":         { "oneOf" : [ { "$ref": "file:dice.json" }, { "type": "null" } ] },
+        "diceSpace":    { "type": "boolean" },
+        "description":  { "type": "string" }
+    },
+    "additionalProperties": false,
+    "required": [ "name", "cost", "diceSpace", "description" ]
+}

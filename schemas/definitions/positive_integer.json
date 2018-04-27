@@ -1,0 +1,5 @@
+{
+    "title": "positiveInteger",
+    "type": "integer",
+    "minimum": 1
+}

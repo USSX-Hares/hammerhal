@@ -1,5 +1,5 @@
 {
-    "title": "card",
+    "title": "artifact",
     "type": "object",
     
     "not":
@@ -31,23 +31,8 @@
             "items": { "$ref": "file:schemas/definitions/heroic_ability.json" }
         },
         
-        "affects":
-        {
-            "oneOf":
-            [
-                { "type": "null" },
-                {
-                    "type": "array",
-                    "items": [ { "type": "string" } ],
-                    "minItems": 1,
-                    "uniqueItems": true
-                }
-            ]
-        },
-        "additionalEffect": { "type": [ "string", "null" ] },
-
         "set": { "type": "string" },
-        "type": { "type": "string" },
+        "type": { "type": "string", "value": "artifact" },
         "copies": { "$ref": "file:schemas/definitions/positive_integer.json" },
         "itemType": { "type": [ "string", "null" ] },
         "categories":

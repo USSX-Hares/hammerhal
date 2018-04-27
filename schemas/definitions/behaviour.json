@@ -1,0 +1,12 @@
+{
+    "title": "behaviour",
+    "type": "object",
+    "properties":
+    {
+        "name":         { "type": "string" },
+        "roll":         { "type": [ "string", "integer" ] },
+        "description":  { "type": "string" }
+    },
+    "additionalProperties": false,
+    "required": [ "name", "roll", "description" ]
+}

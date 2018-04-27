@@ -1,0 +1,14 @@
+{
+    "title": "adversaryWeapon",
+    "type": "object",
+    "properties":
+    {
+        "name":     { "type": "string" },
+        "dices":    { "type": "string" },
+        "range":    { "$ref": "file:range.json" },
+        "hit":      { "$ref": "file:dice.json" },
+        "damage":   { "type": "string" }
+    },
+    "additionalProperties": true,
+    "required": [ "name", "dices", "range", "hit", "damage" ]
+}

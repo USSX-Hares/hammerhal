@@ -1,0 +1,5 @@
+{
+    "title": "range",
+    "type": "string",
+    "enum": [ "combat", "missile", "area" ]
+}

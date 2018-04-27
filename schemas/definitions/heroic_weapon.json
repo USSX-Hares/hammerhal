@@ -1,0 +1,14 @@
+{
+    "title": "heroicWeapon",
+    "type": "object",
+    "properties":
+    {
+        "name":     { "type": "string" },
+        "cost":     { "$ref": "file:dice.json" },
+        "range":    { "$ref": "file:range.json" },
+        "hit":      { "$ref": "file:dice.json" },
+        "damage":   { "type": "string" }
+    },
+    "additionalProperties": false,
+    "required": [ "name", "cost", "range", "hit", "damage" ]
+}
