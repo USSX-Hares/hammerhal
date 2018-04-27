@@ -1,0 +1,193 @@
+{
+    "modules":
+    {
+        "image":
+        {
+            "positionX": 204,
+            "positionY": 871,
+            "width": 1480,
+            "height": 1480
+        }
+        ,
+        "name":
+        {
+            "positionX": 1596,
+            "positionY": 810,
+            "width": 2655,
+            "height": 350,
+            
+            "font":
+            {
+                "fontFamily": "Bodoni MT",
+                "fontSize": 285,
+                "bold": true,
+                "color": "white",
+                
+                "capitalization": "SmallCaps",
+                "horizontalAlignment": "Center",
+                "verticalAlignment": "Center"
+            }
+        }
+        ,
+        "stats":
+        {
+            "positionX": 1400,
+            "positionY": 1650,
+            "width": 700,
+            "height": 700,
+            
+            "stats":
+            {
+                "move": { "type": "integer", "x": 300, "y": 180 },
+                "vigour": { "type": "integer", "x": 175, "y": 380 },
+                "agility": { "type": "dice", "x": 379, "y": 380 }
+            },
+            
+            "font":
+            {
+                "fontSize": 110,
+                "fontFamily": "Constantia",
+                "color": "white",
+                "bold": true
+            }
+        }
+        ,
+        "description":
+        {
+            "positionX": 1930,
+            "positionY": 1175,
+            "width": 2470,
+            "height": 475,
+            
+            "font":
+            {
+                "fontFamily": "Times New Roman",
+                "fontSize": 104,
+                "bold": true,
+                "color": "black",
+                
+                "horizontalAlignment": "Justify",
+                "verticalAlignment": "Center"
+            }
+        }
+        ,
+        "weapons":
+        {
+            "positionX": 2170,
+            "positionY": 1720,
+            "width": 2270,
+            
+            "stats":
+            {
+                "dices":    "string",
+                "range":    [ "combat", "missile", "area" ],
+                "hit":      "dice",
+                "damage":   "string"
+            },
+            
+            "headerRow": [ "WEAPON ACTIONS", "Dice", "Range", "Hit", "Damage" ],
+            "bodyRowTemplate": [ "{name}", "{dices}", "{range}", "{hit}+", "{damage}" ],
+            "verticalColumns": [ 0, 970, 1280, 1660, 1930, 2270 ],
+            "headerRowInterval": 50,
+            "rowIntervalByCount": [ null, 0, 60, 45, 36 ],
+            "cellHeight": 117,
+            
+            "font":
+            {
+                "fontSize": 80,
+                "fontFamily": "Times New Roman",
+                "color": "black",
+                "bold": true,
+                "horizontalAlignment": "Center",
+                "verticalAlignment": "Center"
+            }
+        }
+        ,
+        "rules":
+        {
+            "positionX": 500,
+            "positionY": 2500,
+            "width": 4000,
+            "heightMax": 3290,
+            
+            "textLeft": 80,
+            "columnsCount": 2,
+            "columnsWidth": 1820,
+            "columnsSeparatorWidth": 180,
+            "defaultRulesSeparatorHeight": 200,
+            
+            "font":
+            {
+                "fontSize": 90,
+                "fontFamily": "Times New Roman",
+                "color": "black",
+                
+                "paragraphVerticalSpace": 50,
+                "verticalSpaceScale": 0.1666,
+                "horizontalAlignment": "Justify",
+                "verticalAlignment": "Center"
+            }
+        }
+        ,
+        "behaviour":
+        {
+            "positionX": 500,
+            "positionY": -722,
+            "width": 4000,
+            "heightMax": 3500,
+            
+            "tableBottomOffset": -115,
+            "tableBodyRowInterval": 45,
+            "tableVerticalColumns": [ 100, 450, 3920 ],
+            
+            "titleHeight": 240,
+            
+            "borderColor": "0xff9795ab",
+            "borderWidth": 8,
+            "borderLeft": 80,
+            "borderTopOffset": -185,
+            "borderRight": 3970,
+            "borderBottom": -100,
+            
+            "fonts":
+            {
+                "title":
+                {
+                    "fontSize": 125,
+                    "fontFamily": "Times New Roman",
+                    "color": "black",
+                    "bold": true,
+                    
+                    "horizontalAlignment": "Center",
+                    "verticalAlignment": "Center",
+                    "capitalization": "AllCaps"
+                }
+                ,
+                "tableHeader":
+                {
+                    "fontSize": 105,
+                    "fontFamily": "Times New Roman",
+                    "color": "black",
+                    
+                    "horizontalAlignment": "Left",
+                    "verticalAlignment": "Center"
+                }
+                ,
+                "tableBody":
+                {
+                    "fontSize": 80,
+                    "fontFamily": "Times New Roman",
+                    "color": "black",
+                    
+                    "verticalSpaceScale": 0.2875,
+                    "horizontalAlignment": "Justify",
+                    "verticalAlignment": "Top"
+                }
+            }
+        }
+    },
+    
+    "baseNameTemplate": "adversary_templates/adversary_sheet_base_{weaponsCount}_weapons.png",
+    "outputDirectory": "adversaries/",
+    "rawDirectory": "adversaries/"
+}

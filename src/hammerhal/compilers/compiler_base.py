@@ -34,8 +34,8 @@ class CompilerBase():
     def __init__(self):
         self.schema_path = "{directory}{type}.json".format(directory=ConfigLoader.get_from_config('schemasDirectory', 'compilers'), type=self.compiler_type)
         self.templates_path = "{directory}{type}.json".format(directory=ConfigLoader.get_from_config('templatesDirectory', 'compilers'), type=self.compiler_type)
-        self.raw_directory = "{rawRoot}{rawOffset}".format(rawRoot=ConfigLoader.get_from_config('rawDirectoryRoot'), rawOffset=ConfigLoader.get_from_config('compilerTypeSpecific/{type}/rawDirectory'.format(type=self.compiler_type), 'compilers'))
-        self.output_directory = "{rawRoot}{rawOffset}".format(rawRoot=ConfigLoader.get_from_config('outputDirectoryRoot', 'compilers'), rawOffset=ConfigLoader.get_from_config('compilerTypeSpecific/{type}/outputDirectory'.format(type=self.compiler_type), 'compilers'))
+        self.raw_directory = "{rawRoot}{rawOffset}".format(rawRoot=ConfigLoader.get_from_config('rawDirectoryRoot'), rawOffset=self.get_from_compiler_config('rawDirectory'.format(type=self.compiler_type)))
+        self.output_directory = "{rawRoot}{rawOffset}".format(rawRoot=ConfigLoader.get_from_config('outputDirectoryRoot', 'compilers'), rawOffset=self.get_from_compiler_config('outputDirectory'.format(type=self.compiler_type)))
         self.sources_directory = ConfigLoader.get_from_config('sourcesDirectory', 'compilers')
         self.continuous_print = dict()
 
@@ -115,7 +115,7 @@ class CompilerBase():
         return self.raw
 
     def _get_base_filename(self):
-        return ConfigLoader.get_from_config('compilerTypeSpecific/{type}/baseNameTemplate'.format(type=self.compiler_type), 'compilers')
+        return self.get_from_compiler_config('baseNameTemplate')
 
     def prepare_base(self) -> Image:
         name = self._get_base_filename()
@@ -436,3 +436,6 @@ class CompilerBase():
             _image = image.convert(image.mode[:-1])
         base_image.paste(_image, (_x, _y), image)
         return _x, _y, _w, _h
+    
+    def get_from_compiler_config(self, path):
+        return ConfigLoader.get_from_config(path, config_name='compiler:{type}'.format(type=self.compiler_type))

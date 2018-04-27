@@ -1,0 +1,200 @@
+{
+    "modules":
+    {
+        "name":
+        {
+            "positionX": 0,
+            "positionY": 430,
+            "width": 1600,
+            "height": 320,
+            
+            "font":
+            {
+                "fontFamily": "Bodoni MT",
+                "fontSize": 160,
+                "bold": true,
+                "color": "black",
+                
+                "capitalization": "SmallCaps",
+                "horizontalAlignment": "Center",
+                "verticalAlignment": "Center"
+            }
+        }
+        ,
+        "type":
+        {
+            "positionX": 480,
+            "positionY": 2240,
+            "width": 615,
+            "height": 232,
+            
+            "font":
+            {
+                "fontFamily": "Times New Roman",
+                "fontSize": 105,
+                "bold": true,
+                "color": "black",
+                
+                "capitalization": "Capitalize",
+                "horizontalAlignment": "Center",
+                "verticalAlignment": "Center"
+            }
+        }
+        ,
+        "description":
+        {
+            "positionX": 140,
+            "positionY": 770,
+            "width": 1285,
+            "height": 1330,
+            "continuous": true,
+            "offset": 105,
+            
+            "font":
+            {
+                "fontFamily": "Times New Roman",
+                "fontSize": 80,
+                "bold": true,
+                "italic": true,
+                "color": "black",
+                
+                "horizontalAlignment": "Justify",
+                "verticalAlignment": "Top"
+            }
+        }
+        ,
+        "effect":
+        {
+            "positionX": 140,
+            "positionY": 770,
+            "width": 1285,
+            "height": 1330,
+            "continuous": true,
+            "offset": 105,
+            
+            "font":
+            {
+                "fontFamily": "Times New Roman",
+                "fontSize": 80,
+                "bold": false,
+                "color": "black",
+                
+                "horizontalAlignment": "Justify",
+                "verticalAlignment": "Top"
+            }
+        }
+        ,
+        "weapons":
+        {
+            "positionX": 140,
+            "positionY": 770,
+            "width": 1285,
+            "height": 1330,
+            "continuous": true,
+            "offset": 105,
+            
+            "stats":
+            {
+                "cost":     "dice",
+                "range":    [ "combat", "missile", "area" ],
+                "hit":      "dice",
+                "damage":   "string"
+            },
+            
+            "headerRow": [ "WEAPON ACTIONS", "Range", "Hit", "Dmg." ],
+            "bodyRowTemplate": [ "{name} ({cost}+)", "{range}", "{hit}+", "{damage}" ],
+            "verticalColumns": [ 0, 625, 910, 1080, 1285 ],
+            "headerRowInterval": 15,
+            "rowIntervalByCount": [ 25, 25, 25, 25 ],
+            "cellHeight": 150,
+            
+            "font":
+            {
+                "fontSize": 60,
+                "fontFamily": "Times New Roman",
+                "color": "black",
+                "bold": true,
+                "horizontalAlignment": "Center",
+                "verticalAlignment": "Center"
+            }
+        }
+        ,
+        "rules":
+        {
+            "positionX": 140,
+            "positionY": 770,
+            "width": 1285,
+            "height": 1330,
+            "continuous": true,
+            "offset": 105,
+            
+            "gradient":
+            [
+                { "position": 0, "color": "0x00ffffff" },
+                { "position": 1600, "color": "0x00ffffff" }
+            ],
+            
+            "textLeft": 0,
+            "textWidthNoDice": 1285,
+            "textWidthWithDice": 900,
+            "defaultRulesSeparatorHeight": 105,
+            "dicePosition": 1089,
+            "diceImage": "tokens/dice_gray.png",
+            
+            "font":
+            {
+                "fontSize": 80,
+                "fontFamily": "Times New Roman",
+                "color": "black",
+                
+                "paragraphVerticalSpace": 15,
+                "horizontalAlignment": "Justify",
+                "verticalAlignment": "Top"
+            }
+        }
+        ,
+        "affects":
+        {
+            "positionX": 140,
+            "positionY": 770,
+            "width": 1285,
+            "height": 1330,
+            "continuous": true,
+            "offset": 105,
+            
+            "font":
+            {
+                "fontFamily": "Times New Roman",
+                "fontSize": 80,
+                "bold": false,
+                "color": "black",
+                
+                "horizontalAlignment": "Justify",
+                "verticalAlignment": "Top"
+            }
+        }
+        ,
+        "categories":
+        {
+            "positionX": 140,
+            "positionY": -400,
+            "width": 1285,
+            "height": 100,
+            
+            "font":
+            {
+                "fontFamily": "Times New Roman",
+                "fontSize": 80,
+                "bold": false,
+                "color": "0xff303030",
+                
+                "horizontalAlignment": "Center",
+                "verticalAlignment": "Center"
+            }
+        }
+    },
+    
+    "baseNameTemplate": "card_templates/{set}_{type}_base.png",
+    "outputDirectory": "{type}s/{set}/",
+    "rawDirectory": "cards/"
+}

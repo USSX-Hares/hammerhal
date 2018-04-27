@@ -57,12 +57,11 @@ class CompilerModuleBase:
         self.logger = getLogger(_logger_name)
 
         # Try config:
-        path = 'compilerTypeSpecific/{parentType}/modules/{moduleName}'.format \
+        path = 'modules/{moduleName}'.format \
         (
-            parentType = self.parent_type,
             moduleName = self.module_name,
         )
-        if not (ConfigLoader.get_from_config(path, 'compilers')):
+        if not (parent.get_from_compiler_config(path)):
             message = "Module config not found: {parentType}/{moduleName}".format \
             (
                 parentType = self.parent_type,
@@ -77,13 +76,12 @@ class CompilerModuleBase:
         self.after_cont = after
 
     def get_from_module_config(self, key):
-        path = 'compilerTypeSpecific/{parentType}/modules/{moduleName}/{key}'.format \
+        path = 'modules/{moduleName}/{key}'.format \
         (
-            parentType = self.parent_type,
             moduleName = self.module_name,
             key = key,
         )
-        return ConfigLoader.get_from_config(path, 'compilers')
+        return self.parent.get_from_compiler_config(path)
 
     def get_text_drawer(self, base:Image, font_prefix='font') -> TextDrawer:
         td = TextDrawer(base)
