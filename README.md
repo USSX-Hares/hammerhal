@@ -18,13 +18,15 @@ Allows to generate hero cards and adversary datasheets and to compile them into 
 
 ## III. Run compiler
  - Compile ALL available raw. Could take a while:
-`python compile.py all`
+```python compile.py all```
  - Compile specific Hero:
-`python compile.py hero my hero name`
+```python compile.py hero my hero name```
  - Compile specific Adversary:
-`python compile.py hero epic-adversary-group`
+```python compile.py adversary epic-adversary-group```
+ - Compile all skills from the original _Shadow over Hammerhal_ set (requires appropriate template):
+```python compile.py card set:hammerhal type:skill all```
  - Run in interactive mode, where all commands from above can be used from terminal:
-`python compile.py interactive`
+```python compile.py interactive```
 
 Compiled files are stored in the output directory. By default, all output files are scaled to 720px width. You can change this setting in configs/
 
