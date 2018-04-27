@@ -91,13 +91,13 @@ class TextDrawer:
         logger.debug("Requested font style change")
         self.__current_font_size = int(font_size or self.__current_font_size or 10)
 
-        if (not bold is None):
+        if (bold is not None):
             self.__bold = bold
         else:
             self.__bold = self.__bold or False
 
-        if (not italic is None):
-            self.__italic = italic or self.__italic or False
+        if (italic is not None):
+            self.__italic = italic
         else:
             self.__italic = self.__italic or False
 
@@ -374,10 +374,12 @@ class TextDrawer:
                 continue
             if (i + 2 <= len(_text)):
                 if (_text[i:i + 2] == '__'):
+                    logger.debug("Change font style to {}italic".format('non-' * self.__italic))
                     self.set_font(italic=not self.__italic)
                     _continue = True
                     continue
                 if (_text[i:i + 2] == '**'):
+                    logger.debug("Change font style to {}bold".format('non-' * self.__bold))
                     self.set_font(bold=not self.__bold)
                     _continue = True
                     continue
