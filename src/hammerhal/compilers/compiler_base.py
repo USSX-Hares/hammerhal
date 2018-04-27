@@ -364,7 +364,8 @@ class CompilerBase():
         text_drawer.set_font(**_font)
         return y1, y2, total_height
 
-    def __print_table_row(self, y1, y2, text_drawer, vertical_columns, table_row, data_row):
+    @staticmethod
+    def __print_table_row(y1, y2, text_drawer, vertical_columns, table_row, data_row):
         max_h = 0
         for i, _cell in enumerate(table_row):
             x1 = vertical_columns[i]
@@ -384,7 +385,8 @@ class CompilerBase():
 
         return max_h
 
-    def insert_image_scaled(self, base_image, region, image_path, offset_borders=True, scale_func=max):
+    @staticmethod
+    def insert_image_scaled(base_image, region, image_path, offset_borders=True, scale_func=max):
         if (offset_borders):
             x, y, w, h = region
         else:
@@ -416,13 +418,15 @@ class CompilerBase():
         base_image.paste(_im_copy, (0, 0), _im_copy)
         return base_image
 
-    def get_image_size(self, image_path):
+    @staticmethod
+    def get_image_size(image_path):
         image = Image.open(image_path)
         _w = image.width
         _h = image.height
         return _w, _h
 
-    def insert_image_centered(self, base_image, position, image_path, offset_borders=True):
+    @staticmethod
+    def insert_image_centered(base_image, position, image_path, offset_borders=True):
         x, y = position
 
         logger.debug("Inserting image '{path}' to position {position}".format(path=image_path, position=position))
