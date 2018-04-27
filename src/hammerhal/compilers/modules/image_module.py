@@ -309,7 +309,7 @@ class ImageModule(CompilerModuleBase):
         root = Tk()
         root.withdraw()
         extension = "*" + self.image_path[self.image_path.rfind('.'):]
-        filename = self.parent.raw.get('name', '').lower().replace('\'', '').replace(' ', '_')
+        filename = self.parent.raw.get('name', '').lower().replace('\'', '').replace(' ', '-')
         file = filedialog.asksaveasfilename(initialfile=filename, initialdir=self.parent.raw_directory + "../images/", defaultextension=extension, filetypes=(("Image Files", extension), ("All Files", "*.*")))
         if (not file):
             return
