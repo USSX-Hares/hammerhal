@@ -1,4 +1,5 @@
 import json
+import os
 from logging import getLogger
 from functools import reduce
 
@@ -85,6 +86,10 @@ class ConfigLoader:
         ConfigLoader.__load_main_config(main_config_path)
         config_dir = ConfigLoader.get_from_config('configDirectory')
         ConfigLoader.__load_config('compilers', config_dir + ConfigLoader.get_from_config('compilersConfig'))
+        for _filename in os.listdir("{config_dir}/compilers".format(config_dir=config_dir)):
+            compiler_name, _, tail = _filename.rpartition('.json')
+            if (not tail):
+                ConfigLoader.__load_config("compiler:{compiler_name}".format(compiler_name=compiler_name), path="{config_dir}/compilers/{config_filename}".format(config_dir=config_dir, config_filename=_filename))
 
     @staticmethod
     def get_from_config(path: str, config_name: str='main'):
