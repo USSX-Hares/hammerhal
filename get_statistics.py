@@ -1,15 +1,15 @@
 import json
 
-from hammerhal import ConfigLoader
-from hammerhal.preloads import setup_logging
-from hammerhal.compilers import HeroCompiler, CardCompiler
+from hammerdraw import ConfigLoader
+from hammerdraw.preloads import setup_logging
+from hammerdraw.compilers import HeroCompiler, CardCompiler
 
 from typing import List, Tuple
 
 def main():
     from logging import getLogger
     setup_logging()
-    logger = getLogger('hammerhal')
+    logger = getLogger('hammerdraw')
     logger.setLevel('WARNING')
     ConfigLoader.load_configs()
 
@@ -176,7 +176,7 @@ find_heroes = \
 find_sets = \
 [
     # 'silver-tower',
-    # 'hammerhal',
+    # 'hammerdraw',
     'twilight-god',
 ]
 

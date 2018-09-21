@@ -1,16 +1,16 @@
 from logging import getLogger
 import sys
 
-from hammerhal.preloads import setup_logging, preload_fonts
-from hammerhal import ConfigLoader
-from hammerhal.compilers import HeroCompiler, AdversaryCompiler, CardCompiler, MinionCompiler
+from hammerdraw.preloads import setup_logging, preload_fonts
+from hammerdraw import ConfigLoader
+from hammerdraw.compilers import HeroCompiler, AdversaryCompiler, CardCompiler, MinionCompiler
 
 
 def start(argv=sys.argv):
     # Configure logger
     setup_logging()
     preload_fonts()
-    logger = getLogger('hammerhal')
+    logger = getLogger('hammerdraw')
     logger.info("Logger started")
     ConfigLoader.load_configs()
 
@@ -228,7 +228,7 @@ def run_interactive(logger, *args):
 def print_help(logger, *kwargs):
 
     print("""
-Hammerhal datasheet compiler tool v0.1
+hammerdraw datasheet compiler tool v0.1
 
 Usage:
   python compile.py COMMAND [ ARGUMENT ]

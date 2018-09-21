@@ -14,7 +14,7 @@ for _dir in _dirs:
 
 setup \
 (
-    name='hammerhal',
+    name='hammerdraw',
     version='0.3',
     install_requires =
     [
@@ -30,16 +30,16 @@ setup \
     },
     packages =
     [
-        'hammerhal',
-        'hammerhal.diftool',
-        'hammerhal.compilers',
-        'hammerhal.generator',
-        'hammerhal.text_drawer',
+        'hammerdraw',
+        'hammerdraw.diftool',
+        'hammerdraw.compilers',
+        'hammerdraw.generator',
+        'hammerdraw.text_drawer',
     ],
     package_dir={ '': 'src' },
-    url='https://github.com/USSX-Hares/hammerhal',
+    url='https://github.com/USSX-Hares/hammerdraw',
     license='MIT',
     author='USSX Hares / Peter Zaitcev',
     author_email='USSX.Hares@yandex.ru',
-    description='Tools for card generation in Warhammer Quest: Shadow over Hammerhal'
+    description='Tools for card generation in Warhammer Quest: Shadow over hammerdraw'
 )

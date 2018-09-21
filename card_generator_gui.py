@@ -1,9 +1,9 @@
 from logging import getLogger
 import sys
 
-import hammerhal.generator
-from hammerhal import ConfigLoader
-from hammerhal.preloads import setup_logging, preload_fonts
+import hammerdraw.generator
+from hammerdraw import ConfigLoader
+from hammerdraw.preloads import setup_logging, preload_fonts
 
 
 def start(argv=sys.argv):
@@ -11,17 +11,17 @@ def start(argv=sys.argv):
     # Configure logger
     setup_logging()
     preload_fonts()
-    logger = getLogger('hammerhal')
+    logger = getLogger('hammerdraw')
     logger.info("Logger started")
     ConfigLoader.load_configs()
 
-    if (not hammerhal.generator.generator_supported):
+    if (not hammerdraw.generator.generator_supported):
         msg = "Generator feature is not supported on your system"
         logger.critical(msg)
         from tkinter import messagebox
         messagebox.showerror(message=msg)
         return 2
-    from hammerhal.generator import CardGenerator
+    from hammerdraw.generator import CardGenerator
 
     file = None
     if (argv == sys.argv):
