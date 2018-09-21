@@ -1,4 +1,4 @@
-from hammerdraw.compilers.compiler_module_base import CompilerModuleBase
+from hammerdraw.modules.module_base import ModuleBase
 from hammerdraw.text_drawer import TextDrawer
 
 from hammerdraw import generator
@@ -8,7 +8,7 @@ if (generator.generator_supported):
     from hammerdraw.generator import InputControl
 
 
-class WeaponsModule(CompilerModuleBase):
+class WeaponsModule(ModuleBase):
     module_name = "weapons"
 
     weapon_stats = None

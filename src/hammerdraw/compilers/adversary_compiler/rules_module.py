@@ -1,9 +1,10 @@
 from PIL import Image, ImageDraw, ImageColor
 
-from hammerdraw.compilers import CompilerModuleBase, CompilerError
+from hammerdraw.compilers import CompilerError
+from hammerdraw.modules import ModuleBase
 
 
-class AdversaryRulesModule(CompilerModuleBase):
+class AdversaryRulesModule(ModuleBase):
     module_name = "rules"
     behaviour_height = None
 

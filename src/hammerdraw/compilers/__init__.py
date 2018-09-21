@@ -1,6 +1,5 @@
 from hammerdraw.compilers.compiler_error import *
 from hammerdraw.compilers.compiler_base import CompilerBase
-from hammerdraw.compilers.compiler_module_base import CompilerModuleBase
 
 from hammerdraw.compilers.hero_compiler import HeroCompiler
 from hammerdraw.compilers.adversary_compiler import AdversaryCompiler

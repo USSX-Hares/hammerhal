@@ -1,4 +1,4 @@
-from hammerdraw.compilers.compiler_module_base import CompilerModuleBase
+from hammerdraw.modules.module_base import ModuleBase
 from hammerdraw.config_loader import ConfigLoader
 import os
 
@@ -12,7 +12,7 @@ if (generator.generator_supported):
     from tkinter import Tk, filedialog
     from PIL import Image, ImageDraw
 
-class ImageModule(CompilerModuleBase):
+class ImageModule(ModuleBase):
     module_name = "image"
     image_path = None
 

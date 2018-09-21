@@ -2,7 +2,7 @@ import json
 from logging import getLogger
 
 from hammerdraw.compilers import CompilerBase
-from hammerdraw.compilers.modules import TextModule, HeroRulesModule, WeaponsModule
+from hammerdraw.modules import TextModule, HeroRulesModule, WeaponsModule
 logger = getLogger('hammerdraw.compilers.artifact_compiler')
 
 class ArtifactCompiler(CompilerBase):

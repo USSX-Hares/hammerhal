@@ -1,4 +1,4 @@
-from hammerdraw.compilers.compiler_module_base import CompilerModuleBase
+from hammerdraw.modules.module_base import ModuleBase
 from hammerdraw.compilers.compiler_error import TextNotFitInAreaWarning
 from hammerdraw.text_drawer import TextDrawer
 
@@ -7,7 +7,7 @@ if (generator.generator_supported):
     import System
     from System import Decimal as decimal
 
-class TextModule(CompilerModuleBase):
+class TextModule(ModuleBase):
     module_name = None
     raw_field = None
     raw_font_size_scale_field = None

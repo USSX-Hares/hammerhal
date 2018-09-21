@@ -1,10 +1,11 @@
 from PIL import Image, ImageDraw, ImageColor
 
-from hammerdraw.compilers import CompilerModuleBase, CompilerError
+from hammerdraw.compilers import CompilerError
+from hammerdraw.modules import ModuleBase
 from hammerdraw import get_color
 
 
-class BehaviourTableModule(CompilerModuleBase):
+class BehaviourTableModule(ModuleBase):
     module_name = "behaviour"
     raw_body_font_size_scale_field = "behaviourBodyFontSizeScale"
     raw_header_font_size_scale_field = "behaviourHeaderFontSizeScale"

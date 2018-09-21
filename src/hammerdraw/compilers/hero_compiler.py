@@ -1,8 +1,8 @@
 from logging import getLogger
 
 from hammerdraw.compilers import CompilerBase
-from hammerdraw.compilers.modules.dice_space_module import HeroDiceSpaceModule
-from hammerdraw.compilers.modules import ImageModule, TextModule, StatsModule, WeaponsModule, HeroRulesModule
+from hammerdraw.modules.dice_space_module import HeroDiceSpaceModule
+from hammerdraw.modules import ImageModule, TextModule, StatsModule, WeaponsModule, HeroRulesModule
 logger = getLogger('hammerdraw.compilers.hero_compiler')
 
 class HeroCompiler(CompilerBase):

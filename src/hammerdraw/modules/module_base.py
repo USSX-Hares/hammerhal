@@ -15,7 +15,7 @@ from hammerdraw.text_drawer import TextDrawer
 from hammerdraw.compilers.compiler_error import CompilerError, CompilerWarning, TextNotFitInAreaWarning
 from hammerdraw.compilers.compiler_base import CompilerBase
 
-class CompilerModuleBase:
+class ModuleBase:
 
     # These ones MUST be overwritten
     module_name = None

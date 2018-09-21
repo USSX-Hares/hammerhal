@@ -4,7 +4,7 @@ from logging import getLogger
 from hammerdraw.compilers import CompilerBase
 from hammerdraw.compilers.card_compiler.affects_module import AffectsModule
 from hammerdraw.compilers.card_compiler.categories_module import CategoriesModule
-from hammerdraw.compilers.modules import TextModule, HeroRulesModule, WeaponsModule
+from hammerdraw.modules import TextModule, HeroRulesModule, WeaponsModule
 logger = getLogger('hammerdraw.compilers.card_compiler')
 
 class CardCompiler(CompilerBase):

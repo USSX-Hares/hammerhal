@@ -2,7 +2,7 @@ from PIL import ImageDraw
 
 from hammerdraw.text_drawer import TextDrawer
 from hammerdraw.compilers import CompilerBase
-from hammerdraw.compilers.modules import ImageModule, TextModule, StatsModule, BehaviourTableModule, WeaponsModule
+from hammerdraw.modules import ImageModule, TextModule, StatsModule, BehaviourTableModule, WeaponsModule
 from hammerdraw.compilers.adversary_compiler.rules_module import AdversaryRulesModule
 from logging import getLogger
 logger = getLogger('hammerdraw.compilers.adversary_compiler')

@@ -1,4 +1,4 @@
-from hammerdraw.compilers.compiler_module_base import CompilerModuleBase
+from hammerdraw.modules.module_base import ModuleBase
 
 from hammerdraw import generator
 if (generator.generator_supported):
@@ -7,7 +7,7 @@ if (generator.generator_supported):
     from hammerdraw.generator import InputControl
 
 
-class StatsModule(CompilerModuleBase):
+class StatsModule(ModuleBase):
     module_name = "stats"
 
     def _compile(self, base):

@@ -1,14 +1,15 @@
 from PIL import Image, ImageDraw, ImageColor
 
 from hammerdraw import get_color
-from hammerdraw.compilers import CompilerModuleBase, InvalidConfigError
+from hammerdraw.compilers import InvalidConfigError
+from hammerdraw.modules import ModuleBase
 
 from hammerdraw import generator
 if (generator.generator_supported):
     import System
     from System import Decimal as decimal
 
-class HeroRulesModule(CompilerModuleBase):
+class HeroRulesModule(ModuleBase):
     module_name = "rules"
     raw_font_size_scale_field = "rulesFontSizeScale"
 

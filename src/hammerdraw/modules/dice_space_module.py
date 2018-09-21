@@ -1,8 +1,8 @@
-from hammerdraw.compilers.compiler_module_base import CompilerModuleBase
+from hammerdraw.modules.module_base import ModuleBase
 from hammerdraw.text_drawer import TextDrawer
 
 
-class HeroDiceSpaceModule(CompilerModuleBase):
+class HeroDiceSpaceModule(ModuleBase):
     module_name = "dice_space"
 
     def _compile(self, base):

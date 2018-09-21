@@ -1,0 +1,9 @@
+from hammerdraw.modules.module_base import ModuleBase
+
+from hammerdraw.modules.image_module import ImageModule
+from hammerdraw.modules.text_module import TextModule
+from hammerdraw.modules.stats_module import StatsModule
+from hammerdraw.modules.weapons_module import WeaponsModule
+from hammerdraw.modules.behaviour_table_module import BehaviourTableModule
+from hammerdraw.modules.heroic_rules_module import HeroRulesModule
+from hammerdraw.modules.dice_space_module import HeroDiceSpaceModule

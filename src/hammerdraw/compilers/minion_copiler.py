@@ -1,7 +1,7 @@
 from logging import getLogger
 
 from hammerdraw.compilers import CompilerBase
-from hammerdraw.compilers.modules import HeroDiceSpaceModule, ImageModule, TextModule, StatsModule, WeaponsModule, HeroRulesModule, BehaviourTableModule
+from hammerdraw.modules import HeroDiceSpaceModule, ImageModule, TextModule, StatsModule, WeaponsModule, HeroRulesModule, BehaviourTableModule
 logger = getLogger('hammerdraw.compilers.minion_compiler')
 
 class MinionCompiler(CompilerBase):

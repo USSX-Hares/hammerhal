@@ -1,4 +1,4 @@
-from hammerdraw.compilers.modules import TextModule
+from hammerdraw.modules import TextModule
 from hammerdraw.text_drawer.text_funcs import capitalize_first
 from joiner.join_list import join_list
 
