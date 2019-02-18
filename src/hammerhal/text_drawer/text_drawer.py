@@ -292,7 +292,8 @@ class TextDrawer:
                     self.__print((_x, _y), ' '.join(line['words']), print_mode=PrintModes.NormalPrint, restricted_space_width=new_space_width)
                     _y += (1 + self.text_vertical_space_scale) * self.__current_font_size
                 _y += self.text_paragraph_vertical_space
-
+        
+        assert max_width <= w, "Max width exceeded"
         return max_width, total_height
 
 
@@ -435,8 +436,10 @@ class TextDrawer:
             print('', end='\n')
         self.set_font(bold=original_bold, italic=original_italic)
 
-        if (print_mode == TextDrawer.__PrintModes.SplitLines):
-            _line_splits.append((text[_line_start:], x - _line_start_x))
+        if (print_mode == PrintModes.SplitLines):
+            _current_line_width = x - _line_start_x
+            assert _current_line_width <= _line_width, "Last line width exceeded"
+            _line_splits.append((text[_line_start:], _current_line_width))
             return _line_splits
         else:
             return (x - initial_x, max_height)
