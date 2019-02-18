@@ -1,3 +1,5 @@
+from typing import Any, Dict
+
 from PIL import Image
 from logging import getLogger
 from camel_case_switcher import dict_keys_camel_case_to_underscope
@@ -76,17 +78,35 @@ class CompilerModuleBase:
         self.after_cont = after
 
     def get_from_module_config(self, key):
-        path = 'modules/{moduleName}/{key}'.format \
-        (
-            moduleName = self.module_name,
-            key = key,
-        )
+        if (key):
+            path = f'modules/{self.module_name}/{key}'
+        else:
+            path = f'modules/{self.module_name}'
+        
         return self.parent.get_from_compiler_config(path)
-
-    def get_text_drawer(self, base:Image, font_prefix='font') -> TextDrawer:
-        td = TextDrawer(base)
-        font = self.get_from_module_config(font_prefix) or dict()
+    
+    def load_style(self, style_name: str):
+        style = self.parent.get_from_compiler_config(f'styles/{style_name}')
+        if (style is None):
+            raise ValueError(f"Cannot load style '{style_name}'!")
+        return self.load_font(style)
+    
+    def load_font(self, obj: Dict[str, Any], font_prefix=None, style_prefix=None):
+        font_prefix = font_prefix or 'font'
+        style_prefix = style_prefix or 'style'
+        
+        style = obj.get(style_prefix, None)
+        base = self.load_style(style) if (style) else dict()
+        font = obj.get(font_prefix, None) or dict()
         font = dict_keys_camel_case_to_underscope(font)
+        
+        base.update(font)
+        return base
+    
+    def get_text_drawer(self, base:Image, font_prefix: str = None, style_prefix: str = None) -> TextDrawer:
+        td = TextDrawer(base)
+        obj = self.get_from_module_config('')
+        font = self.load_font(obj, font_prefix=font_prefix, style_prefix=style_prefix)
         td.set_font(**font)
         return td
 
