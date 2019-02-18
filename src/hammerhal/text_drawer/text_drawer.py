@@ -189,7 +189,7 @@ class TextDrawer:
         result = self.__print_in_region(region, text, offset_borders, real_print=False, obstacles=obstacles)
         return result
 
-    def __print_in_region(self, region, text:str, offset_borders, real_print, obstacles):
+    def __print_in_region(self, region, text:str, offset_borders, real_print, obstacles: List[Obstacle]) -> Tuple[int, int]:
         if (offset_borders):
             x, y, w, h = region
         else:
@@ -264,7 +264,7 @@ class TextDrawer:
                     _obstacle = None
                     if (obstacles):
                         _obstacle = obstacles[_current_obstacle]
-                        while (y >= obstacles[_current_obstacle]['y2']):
+                        while (y >= obstacles[_current_obstacle].y2):
                             _current_obstacle += 1
                             if (_current_obstacle >= len(obstacles)):
                                 obstacles = None
@@ -273,8 +273,8 @@ class TextDrawer:
                             _obstacle = obstacles[_current_obstacle]
 
                     if (_obstacle):
-                        if ((_y <= _obstacle['y1'] <= y + h) or (_obstacle['y1'] <= _y <= _obstacle['y2'])):
-                            _local_w = _obstacle['x']
+                        if ((_y <= _obstacle.y1 <= y + h) or (_obstacle.y1 <= _y <= _obstacle.y2)):
+                            _local_w = _obstacle.x
 
                     new_space_width = space_width
                     if (paragraph_obj['horizontal_alignment'] == TextAlignment.Right):
@@ -326,7 +326,7 @@ class TextDrawer:
             if (_line_width is None):
                 raise ValueError("'line_width' argument is required for the SplitLines mode")
 
-            _obstacles = kwargs.get('obstacles', None)
+            _obstacles: List[Obstacle] = kwargs.get('obstacles', None)
             _current_obstacle = 0
 
         original_bold = self.__bold
@@ -395,7 +395,7 @@ class TextDrawer:
                     _obstacle = None
                     if (_obstacles):
                         _obstacle = _obstacles[_current_obstacle]
-                        while (y >= _obstacles[_current_obstacle]['y2']):
+                        while (y >= _obstacles[_current_obstacle].y2):
                             _current_obstacle += 1
                             if (_current_obstacle >= len(_obstacles)):
                                 _obstacles = None
@@ -404,8 +404,8 @@ class TextDrawer:
                             _obstacle = _obstacles[_current_obstacle]
 
                     if (_obstacle):
-                        if ((y <= _obstacle['y1'] <= y + h) or (_obstacle['y1'] <= y <= _obstacle['y2'])):
-                            _local_line_witdh = _obstacle['x']
+                        if ((y <= _obstacle.y1 <= y + h) or (_obstacle.y1 <= y <= _obstacle.y2)):
+                            _local_line_width = _obstacle.x
 
                     if ((x - _line_start_x) > _local_line_witdh):
                         _line_splits.append((text[_line_start:_last_word_end], _last_word_end_x - _line_start_x))
