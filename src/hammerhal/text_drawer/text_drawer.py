@@ -1,31 +1,41 @@
 from enum import unique, auto
+from functools import wraps
+from typing import Callable, Any, List, Tuple
 
 from PIL import Image, ImageDraw, ImageFont
 from hammerhal.text_drawer import FontFinder
 from hammerhal import get_color
-import inspect
-from logging import getLogger
+from logging import getLogger, Logger, DEBUG
 
-from hammerhal.text_drawer.text_funcs import capitalize_first
-logger = getLogger("text_drawer")
+from hammerhal.text_drawer.text_funcs import capitalize_first, capitalize, capitalize_smart
+
+_logger = getLogger("text_drawer")
+logger = _logger
 import datetime
 
-class Enum:
-    @classmethod
-    def find_value(cls, key):
-        if (isinstance(key, str)):
-            _members = inspect.getmembers(cls)
-            for _member in _members:
-                if (_member[0] == key):
-                    # print("{0} is {1}!".format(*_member))
-                    return _member[1]
-
-            # print("{0} not found".format(key))
-            return None
-
-        else:
-            # print("{0} is not a string; returning it")
-            return key
+def log_time(func_name: str = None, logger: Logger = None, log_level: str = DEBUG):
+    _func = None
+    if (callable(func_name)):
+        _func, func_name = func_name, _func
+    if (logger is None):
+        logger = _logger
+    
+    def wrapper(func: Callable):
+        _func_name = func_name if (func_name is not None) else func.__name__
+        
+        @wraps(func)
+        def wrapped(*args, **kwargs):
+            _now = datetime.datetime.now()
+            logger.log(log_level, "Calling %s", _func_name)
+            result = func(*args, **kwargs)
+            logger.log(log_level, "%s exit. Time spent: %ims", func_name, (datetime.datetime.now() - _now).total_seconds() * 1000)
+            return result
+        return wrapped
+    
+    if (_func is not None):
+        return wrapper(_func)
+    else:
+        return wrapper
 
 class TextDrawer:
 
@@ -160,24 +170,21 @@ class TextDrawer:
 
         return result_dict
 
+    @log_time("Line print")
     def print_line(self, position, text:str):
-        _now = datetime.datetime.now()
         logger.debug("Printing text line: '{text}'".format(text=text))
-        self.__print(position, text, print_mode=TextDrawer.__PrintModes.NormalPrint)
-        logger.debug("Text line printed. Time spent: {0}ms".format((datetime.datetime.now() - _now).total_seconds() * 1000))
+        self.__print(position, text, print_mode=PrintModes.NormalPrint)
 
-    def print_in_region(self, region, text:str, offset_borders:bool=True, obstacles=None):
-        _now = datetime.datetime.now()
+    @log_time("Text region print")
+    def print_in_region(self, region, text:str, offset_borders:bool=True, obstacles=None) -> Tuple[int, int]:
         logger.debug("Printing text region: '{text}'".format(text=text))
         result = self.__print_in_region(region, text, offset_borders, real_print=True, obstacles=obstacles)
-        logger.debug("Text region printed. Time spent: {0}ms".format((datetime.datetime.now() - _now).total_seconds() * 1000))
         return result
 
-    def get_text_size(self, region, text:str, offset_borders:bool=True, obstacles=None):
-        _now = datetime.datetime.now()
+    @log_time("Text region size")
+    def get_text_size(self, region, text:str, offset_borders:bool=True, obstacles: List[Obstacle]=None) -> Tuple[int, int]:
         logger.debug("Requested region text size: '{text}'".format(text=text))
         result = self.__print_in_region(region, text, offset_borders, real_print=False, obstacles=obstacles)
-        logger.debug("Text region size responded. Time spent: {0}ms".format((datetime.datetime.now() - _now).total_seconds() * 1000))
         return result
 
     def __print_in_region(self, region, text:str, offset_borders, real_print, obstacles):
