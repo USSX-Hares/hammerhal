@@ -95,25 +95,26 @@ class TextDrawer:
 
         if ((not font_family is None) or (not bold is None) or (not italic is None)):
             _test_family = font_family or self.__current_font_family
-            logger.debug("Changing current font file by family name ({font_family}{bold}{italic}) is not installed".format(font_family=_test_family, bold=", Bold" if self.__bold else '', italic=", Italic" if self.__italic else ''))
+            _font_str = _test_family + ", Bold" * self.__bold + ", Italic" * self.__italic
+            logger.debug(f"Changing current font file by family name ({_font_str}) is not installed")
             _test_font = self.__font_finder.find_font_file_by_fontname(family_name=_test_family, bold=self.__bold, italic=self.__italic)
             if (_test_font):
                 self.__current_font_family = _test_family
                 self.__current_font_filepath = _test_font
             else:
-                raise FileNotFoundError("Requested font ({font_family}{bold}{italic}) is not installed".format(font_family=_test_family, bold=", Bold" if self.__bold else '', italic=", Italic" if self.__italic else ''))
+                raise FileNotFoundError(f"Requested font ({_font_str}) is not installed")
 
         elif (not font_file is None):
-            logger.debug("Changing current font file (direct): '{font_file}'".format(font_file=font_file))
+            logger.debug(f"Changing current font file (direct): '{font_file}'")
             _test_font = self.__font_finder.find_font_file_by_filename(font_file)
             if (_test_font):
                 self.__current_font_family = None
                 self.__current_font_filepath = _test_font
             else:
-                raise FileNotFoundError("Requested font ('{font_file}') is not installed".format(font_file=font_file))
+                raise FileNotFoundError(f"Requested font ('{font_file}') is not installed")
 
         else:
-            logger.debug("Font should not be changed: '{font_file}'".format(font_file=self.__current_font_filepath))
+            logger.debug(f"Font should not be changed: '{self.__current_font_filepath}'")
 
         self.__font_base = ImageFont.truetype(font=self.__current_font_filepath, size=self.__current_font_size, encoding='unic')
 
@@ -149,7 +150,7 @@ class TextDrawer:
         if (color or not self.color):
             self.color = get_color(color or self.color or 'white')
 
-        logger.debug("Current font: {0}".format(self.get_font()))
+        logger.debug(f"Current font: {self.get_font()}")
 
     def get_font(self):
         result_dict = \
@@ -174,18 +175,18 @@ class TextDrawer:
 
     @log_time("Line print")
     def print_line(self, position, text:str):
-        logger.debug("Printing text line: '{text}'".format(text=text))
+        logger.debug(f"Printing text line: '{text}'")
         self.__print(position, text, print_mode=PrintModes.NormalPrint)
 
     @log_time("Text region print")
     def print_in_region(self, region, text:str, offset_borders:bool=True, obstacles=None) -> Tuple[int, int]:
-        logger.debug("Printing text region: '{text}'".format(text=text))
+        logger.debug(f"Printing text region: '{text}'")
         result = self.__print_in_region(region, text, offset_borders, real_print=True, obstacles=obstacles)
         return result
 
     @log_time("Text region size")
     def get_text_size(self, region, text:str, offset_borders:bool=True, obstacles: List[Obstacle]=None) -> Tuple[int, int]:
-        logger.debug("Requested region text size: '{text}'".format(text=text))
+        logger.debug(f"Requested region text size: '{text}'")
         result = self.__print_in_region(region, text, offset_borders, real_print=False, obstacles=obstacles)
         return result
 
@@ -368,12 +369,12 @@ class TextDrawer:
                 continue
             if (i + 2 <= _len):
                 if (_text[i:i + 2] == '__'):
-                    logger.debug("Change font style to {}italic".format('non-' * self.__italic))
+                    logger.debug(f"Change font style to { 'non-' * self.__italic }italic")
                     self.set_font(italic=not self.__italic)
                     _continue = True
                     continue
                 if (_text[i:i + 2] == '**'):
-                    logger.debug("Change font style to {}bold".format('non-' * self.__bold))
+                    logger.debug(f"Change font style to { 'non-' * self.__bold }bold")
                     self.set_font(bold=not self.__bold)
                     _continue = True
                     continue
