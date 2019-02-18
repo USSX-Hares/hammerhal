@@ -12,9 +12,17 @@ class Obstacle(DictStruct):
     y1: int
     y2: int
 
+class ParagraphLine(DictStruct):
+    words: List[str]
+    width: int
+
 class ParagraphObject(DictStruct):
-    lines: List[str] = []
+    lines: List[ParagraphLine]
     horizontal_alignment: TextAlignment
+    
+    def __init__(self, *args, **kwargs):
+        self.lines = list()
+        super().__init__(*args, **kwargs)
 
 class Printer:
     drawer: ImageDraw

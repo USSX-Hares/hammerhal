@@ -4,7 +4,7 @@ from typing import Callable, Any, List, Tuple
 
 from PIL import Image, ImageDraw, ImageFont
 
-from hammerhal.text_drawer import FontFinder, Obstacle
+from hammerhal.text_drawer import FontFinder, Obstacle, ParagraphObject, ParagraphLine
 from hammerhal.text_drawer import PrintModes, TextAlignment, CapitalizationModes
 from hammerhal import get_color
 from logging import getLogger, Logger, DEBUG
@@ -202,11 +202,11 @@ class TextDrawer:
         # _, line_height = self.__print(None, 'LINE HEIGHT (gyq,)', print_mode=PrintModes.GetTextSize)
         _, line_height = self.__print(None, 'LINE HEIGHT', print_mode=PrintModes.GetTextSize)
 
-        paragraphs = []
+        paragraphs: List[ParagraphObject] = []
         for paragraph_text in text.split('\n'):
             _horizontal_alignment = self.__current_text_horizontal_alignment
             words = paragraph_text.split()
-            paragraph_obj = { "lines": [], "horizontal_alignment": _horizontal_alignment }
+            paragraph_obj = ParagraphObject(horizontal_alignment=_horizontal_alignment)
             i = 0
             while (i < len (words)):
                 word = words[i]
@@ -219,9 +219,9 @@ class TextDrawer:
                         '$$HA_J': TextAlignment.Justify,
                     }
                     if (text_alignment.get(word, None) is not None):
-                        paragraph_obj['horizontal_alignment'] = text_alignment[word]
+                        paragraph_obj.horizontal_alignment = text_alignment[word]
                     else:
-                        raise KeyError("Unsupported operand: {word}".format(word=word))
+                        raise KeyError(f"Unsupported operand: {word}")
                     
                     del words[i]
 
@@ -229,15 +229,15 @@ class TextDrawer:
                     i += 1
 
             _lines = self.__print(None, ' '.join(words), print_mode=PrintModes.SplitLines, line_width=w, obstacles=obstacles)
-            logger.debug("Splitting paragraph to lines: '{0}' -> '{1}'".format(paragraph_text, _lines))
+            logger.debug(f"Splitting paragraph to lines: '{paragraph_text}' -> '{_lines}'")
             for line_text, line_width in _lines:
-                paragraph_obj['lines'].append( { 'words': line_text.split(), 'width': line_width } )
+                paragraph_obj.lines.append(ParagraphLine(words=line_text.split(), width=line_width))
                 if (max_width < line_width):
                     max_width = line_width
 
             paragraphs.append(paragraph_obj)
 
-        num_lines = sum(len(paragraph_obj['lines']) for paragraph_obj in paragraphs)
+        num_lines = sum(len(paragraph_obj.lines) for paragraph_obj in paragraphs)
         total_height = int(num_lines * (1 + self.text_vertical_space_scale) * line_height + self.text_paragraph_vertical_space * (len(paragraphs) - 1))
 
         if (real_print):
@@ -254,7 +254,7 @@ class TextDrawer:
             _y = y + _y_offset.get(self.__current_text_vertical_alignment, 0)
             
             for paragraph_obj in paragraphs:
-                paragraph_lines = paragraph_obj['lines']
+                paragraph_lines = paragraph_obj.lines
                 for i in range(len(paragraph_lines)):
                     line = paragraph_lines[i]
                     last_line = (i + 1 == len(paragraph_lines))
@@ -278,23 +278,23 @@ class TextDrawer:
                     new_space_width = space_width
                     
                     def _justify():
-                        if (not last_line and len(line['words']) > 0):
-                            num_spaces = len(line['words']) - 1
+                        if (not last_line and len(line.words) > 0):
+                            num_spaces = len(line.words) - 1
                             if (num_spaces > 0):
                                 global new_space_width
-                                new_space_width = space_width + (_local_w - line['width']) / num_spaces
+                                new_space_width = space_width + (_local_w - line.width) / num_spaces
                         
                         return 0
                     
                     _x_offset = \
                     {
-                        TextAlignment.Right: lambda: _local_w - line['width'],
-                        TextAlignment.Center: lambda: (_local_w - line['width']) // 2,
+                        TextAlignment.Right: lambda: _local_w - line.width,
+                        TextAlignment.Center: lambda: (_local_w - line.width) // 2,
                         TextAlignment.Justify: _justify,
                     }
-                    _x = x + _x_offset.get(paragraph_obj['horizontal_alignment'], lambda: 0)()
+                    _x = x + _x_offset.get(paragraph_obj.horizontal_alignment, lambda: 0)()
                     
-                    self.__print((_x, _y), ' '.join(line['words']), print_mode=PrintModes.NormalPrint, restricted_space_width=new_space_width)
+                    self.__print((_x, _y), ' '.join(line.words), print_mode=PrintModes.NormalPrint, restricted_space_width=new_space_width)
                     _y += (1 + self.text_vertical_space_scale) * self.__current_font_size
                 _y += self.text_paragraph_vertical_space
         
