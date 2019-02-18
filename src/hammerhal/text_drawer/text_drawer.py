@@ -1,4 +1,4 @@
-from enum import unique, auto
+import copy
 from functools import wraps
 from typing import Callable, Any, List, Tuple
 
@@ -189,7 +189,7 @@ class TextDrawer:
         result = self.__print_in_region(region, text, offset_borders, real_print=False, obstacles=obstacles)
         return result
 
-    def __print_in_region(self, region, text:str, offset_borders, real_print, obstacles: List[Obstacle]) -> Tuple[int, int]:
+    def __print_in_region(self, region: Tuple[int, int, int, int], text:str, offset_borders, real_print, obstacles: List[Obstacle]) -> Tuple[int, int]:
         if (offset_borders):
             x, y, w, h = region
         else:
@@ -211,19 +211,18 @@ class TextDrawer:
             while (i < len (words)):
                 word = words[i]
                 if (word.startswith('$$')):
-                    if (False):
-                        pass
-                    elif (word == '$$HA_L'):
-                        paragraph_obj['horizontal_alignment'] = TextAlignment.Left
-                    elif (word == '$$HA_C'):
-                        paragraph_obj['horizontal_alignment'] = TextAlignment.Center
-                    elif (word == '$$HA_R'):
-                        paragraph_obj['horizontal_alignment'] = TextAlignment.Right
-                    elif (word == '$$HA_J'):
-                        paragraph_obj['horizontal_alignment'] = TextAlignment.Justify
+                    text_alignment = \
+                    {
+                        '$$HA_L': TextAlignment.Left,
+                        '$$HA_C': TextAlignment.Center,
+                        '$$HA_R': TextAlignment.Right,
+                        '$$HA_J': TextAlignment.Justify,
+                    }
+                    if (text_alignment.get(word, None) is not None):
+                        paragraph_obj['horizontal_alignment'] = text_alignment[word]
                     else:
                         raise KeyError("Unsupported operand: {word}".format(word=word))
-
+                    
                     del words[i]
 
                 else:
@@ -245,15 +244,15 @@ class TextDrawer:
 
             if (obstacles):
                 _current_obstacle = 0
-
-            if (self.__current_text_vertical_alignment == TextAlignment.Bottom):
-                _y = y + h - total_height
-
-            elif (self.__current_text_vertical_alignment == TextAlignment.Center):
-                _y = y + (h - total_height) // 2
-            else:
-                _y = y
-
+            
+            _dh = h - total_height
+            _y_offset = \
+            {
+                TextAlignment.Bottom: _dh,
+                TextAlignment.Center: _dh // 2,
+            }
+            _y = y + _y_offset.get(self.__current_text_vertical_alignment, 0)
+            
             for paragraph_obj in paragraphs:
                 paragraph_lines = paragraph_obj['lines']
                 for i in range(len(paragraph_lines)):
@@ -277,18 +276,24 @@ class TextDrawer:
                             _local_w = _obstacle.x
 
                     new_space_width = space_width
-                    if (paragraph_obj['horizontal_alignment'] == TextAlignment.Right):
-                        _x = x + _local_w - line['width']
-                    elif (paragraph_obj['horizontal_alignment'] == TextAlignment.Center):
-                        _x = x + (_local_w - line['width']) // 2
-                    elif (paragraph_obj['horizontal_alignment'] == TextAlignment.Justify and not last_line and len(line['words']) > 0):
-                        _x = x
-                        num_spaces = len(line['words']) - 1
-                        if (num_spaces > 0):
-                            new_space_width = space_width + (_local_w - line['width']) / num_spaces
-                    else:
-                        _x = x
-
+                    
+                    def _justify():
+                        if (not last_line and len(line['words']) > 0):
+                            num_spaces = len(line['words']) - 1
+                            if (num_spaces > 0):
+                                global new_space_width
+                                new_space_width = space_width + (_local_w - line['width']) / num_spaces
+                        
+                        return 0
+                    
+                    _x_offset = \
+                    {
+                        TextAlignment.Right: lambda: _local_w - line['width'],
+                        TextAlignment.Center: lambda: (_local_w - line['width']) // 2,
+                        TextAlignment.Justify: _justify,
+                    }
+                    _x = x + _x_offset.get(paragraph_obj['horizontal_alignment'], lambda: 0)()
+                    
                     self.__print((_x, _y), ' '.join(line['words']), print_mode=PrintModes.NormalPrint, restricted_space_width=new_space_width)
                     _y += (1 + self.text_vertical_space_scale) * self.__current_font_size
                 _y += self.text_paragraph_vertical_space
@@ -301,18 +306,16 @@ class TextDrawer:
         x, y = position or (0, 0)
         max_height = 0
 
-        _text = text
-        if (self.__current_text_capitalization == CapitalizationModes.UpperCase):
-            _text = _text.upper()
-        elif (self.__current_text_capitalization == CapitalizationModes.LowerCase):
-            _text = _text.lower()
-        elif (self.__current_text_capitalization == CapitalizationModes.Capitalize):
-            _text = capitalize(_text)
-        elif (self.__current_text_capitalization == CapitalizationModes.CapitalizeSmart):
-            _text = capitalize_smart(_text)
-        elif (self.__current_text_capitalization == CapitalizationModes.CapitalizeFirst):
-            _text = capitalize_first(_text)
-
+        capitalize_func = \
+        {
+            CapitalizationModes.UpperCase: str.upper,
+            CapitalizationModes.LowerCase: str.lower,
+            CapitalizationModes.Capitalize: capitalize,
+            CapitalizationModes.CapitalizeSmart: capitalize_smart,
+            CapitalizationModes.CapitalizeFirst: capitalize_first,
+        }
+        _text = capitalize_func.get(self.__current_text_capitalization, copy.copy)(text)
+        
         if (print_mode == PrintModes.SplitLines):
             _line_splits: List[Tuple[str, int]] = list()
             _line_start = 0
