@@ -29,28 +29,6 @@ class Enum:
 
 class TextDrawer:
 
-    class CapitalizationModes(Enum):
-        Normal = auto()
-        UpperCase = auto()
-        AllCaps = auto()
-        LowerCase = auto()
-        NoCaps = auto()
-        Capitalize = auto()
-        CapitalizeFirst = auto()
-        SmallCaps = auto()
-
-    class TextAlignment(Enum):
-        Left = 1
-        Top = 1
-        Center = 2
-        Right = 3
-        Bottom = 3
-        Justify = 4
-
-    class __PrintModes(Enum):
-        NormalPrint = 0
-        GetTextSize = 1
-        SplitLines = 2
 
     __drawer = None
     __font_finder = None
