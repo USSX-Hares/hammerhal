@@ -323,7 +323,6 @@ class TextDrawer:
             _word_start_x = 0
             _last_word_end = 0
             _last_word_end_x = 0
-            _text += ' '
             if (_line_width is None):
                 raise ValueError("'line_width' argument is required for the SplitLines mode")
 
@@ -345,8 +344,9 @@ class TextDrawer:
             _, _y1 = self.__drawer.textsize(_char, font=_small_caps_font)
             _, _y2 = self.__drawer.textsize(_char, font=_font)
             _small_caps_dy = _y2 - _y1
-
-        for i in range(len(_text)):
+        
+        _len = len(text)
+        for i in range(_len):
             if (_continue):
                 _continue = False
 
@@ -363,7 +363,7 @@ class TextDrawer:
                     _small_caps_dy = _y2 - _y1
 
                 continue
-            if (i + 2 <= len(_text)):
+            if (i + 2 <= _len):
                 if (_text[i:i + 2] == '__'):
                     logger.debug("Change font style to {}italic".format('non-' * self.__italic))
                     self.set_font(italic=not self.__italic)
@@ -389,10 +389,12 @@ class TextDrawer:
                 if (debug_console_print):
                     print(text[i], end='')
                 self.__drawer.text((_x, _y), _char, self.color, font=_font)
-            if (_char == ' '):
-                if (print_mode == TextDrawer.__PrintModes.SplitLines):
+            if (_char == ' ' or i == _len - 1):
+                _space_width = restricted_space_width if restricted_space_width else w * self.text_space_scale
+                
+                if (print_mode == PrintModes.SplitLines):
 
-                    _local_line_witdh = _line_width
+                    _local_line_width = _line_width
                     _obstacle = None
                     if (_obstacles):
                         _obstacle = _obstacles[_current_obstacle]
@@ -408,8 +410,13 @@ class TextDrawer:
                         if ((y <= _obstacle.y1 <= y + h) or (_obstacle.y1 <= y <= _obstacle.y2)):
                             _local_line_width = _obstacle.x
 
-                    if ((x - _line_start_x) > _local_line_witdh):
-                        _line_splits.append((text[_line_start:_last_word_end], _last_word_end_x - _line_start_x))
+                    _local_line_width -= _space_width
+                    
+                    if ((x - _line_start_x) > _local_line_width):
+                        _current_line_width = _last_word_end_x - _line_start_x
+                        logger.debug("Line shift required after '%s'", text[_line_start:_last_word_end])
+                        assert _current_line_width <= _local_line_width, "Line width exceeded"
+                        _line_splits.append((text[_line_start:_last_word_end], _current_line_width))
                         _line_start = _word_start
                         _line_start_x = _word_start_x
                         y += max_height
@@ -417,12 +424,8 @@ class TextDrawer:
                     elif (i > 1 and _text[i - 1] != ' '):
                         _last_word_end = i
                         _last_word_end_x = x
-
-                if (restricted_space_width):
-                    x += restricted_space_width
-                else:
-                    x += w * self.text_space_scale
-
+                
+                x += _space_width
                 _word_start = i + 1
                 _word_start_x = x
 
