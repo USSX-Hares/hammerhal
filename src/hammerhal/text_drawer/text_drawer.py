@@ -3,7 +3,9 @@ from functools import wraps
 from typing import Callable, Any, List, Tuple
 
 from PIL import Image, ImageDraw, ImageFont
-from hammerhal.text_drawer import FontFinder
+
+from hammerhal.text_drawer import FontFinder, Obstacle
+from hammerhal.text_drawer import PrintModes, TextAlignment, CapitalizationModes
 from hammerhal import get_color
 from logging import getLogger, Logger, DEBUG
 
@@ -115,9 +117,9 @@ class TextDrawer:
 
         self.__font_base = ImageFont.truetype(font=self.__current_font_filepath, size=self.__current_font_size, encoding='unic')
 
-        self.__current_text_vertical_alignment = TextDrawer.TextAlignment.find_value(vertical_alignment) or self.__current_text_vertical_alignment or TextDrawer.TextAlignment.Top
-        self.__current_text_horizontal_alignment = TextDrawer.TextAlignment.find_value(horizontal_alignment) or self.__current_text_horizontal_alignment or TextDrawer.TextAlignment.Left
-        self.__current_text_capitalization = TextDrawer.CapitalizationModes.find_value(capitalization) or self.__current_text_capitalization or TextDrawer.CapitalizationModes.Normal
+        self.__current_text_vertical_alignment = TextAlignment.find_value(vertical_alignment) or self.__current_text_vertical_alignment or TextAlignment.Top
+        self.__current_text_horizontal_alignment = TextAlignment.find_value(horizontal_alignment) or self.__current_text_horizontal_alignment or TextAlignment.Left
+        self.__current_text_capitalization = CapitalizationModes.find_value(capitalization) or self.__current_text_capitalization or CapitalizationModes.Normal
 
         if (not space_scale is None):
             self.text_space_scale = space_scale
@@ -196,9 +198,9 @@ class TextDrawer:
             h = y2 - y
 
         max_width = 0
-        space_width, _ = self.__print(None, ' ', print_mode=TextDrawer.__PrintModes.GetTextSize)
-        # _, line_height = self.__print(None, 'LINE HEIGHT (gyq,)', print_mode=TextDrawer.__PrintModes.GetTextSize)
-        _, line_height = self.__print(None, 'LINE HEIGHT', print_mode=TextDrawer.__PrintModes.GetTextSize)
+        space_width, _ = self.__print(None, ' ', print_mode=PrintModes.GetTextSize)
+        # _, line_height = self.__print(None, 'LINE HEIGHT (gyq,)', print_mode=PrintModes.GetTextSize)
+        _, line_height = self.__print(None, 'LINE HEIGHT', print_mode=PrintModes.GetTextSize)
 
         paragraphs = []
         for paragraph_text in text.split('\n'):
@@ -212,13 +214,13 @@ class TextDrawer:
                     if (False):
                         pass
                     elif (word == '$$HA_L'):
-                        paragraph_obj['horizontal_alignment'] = TextDrawer.TextAlignment.Left
+                        paragraph_obj['horizontal_alignment'] = TextAlignment.Left
                     elif (word == '$$HA_C'):
-                        paragraph_obj['horizontal_alignment'] = TextDrawer.TextAlignment.Center
+                        paragraph_obj['horizontal_alignment'] = TextAlignment.Center
                     elif (word == '$$HA_R'):
-                        paragraph_obj['horizontal_alignment'] = TextDrawer.TextAlignment.Right
+                        paragraph_obj['horizontal_alignment'] = TextAlignment.Right
                     elif (word == '$$HA_J'):
-                        paragraph_obj['horizontal_alignment'] = TextDrawer.TextAlignment.Justify
+                        paragraph_obj['horizontal_alignment'] = TextAlignment.Justify
                     else:
                         raise KeyError("Unsupported operand: {word}".format(word=word))
 
@@ -227,7 +229,7 @@ class TextDrawer:
                 else:
                     i += 1
 
-            _lines = self.__print(None, ' '.join(words), print_mode=TextDrawer.__PrintModes.SplitLines, line_width=w, obstacles=obstacles)
+            _lines = self.__print(None, ' '.join(words), print_mode=PrintModes.SplitLines, line_width=w, obstacles=obstacles)
             logger.debug("Splitting paragraph to lines: '{0}' -> '{1}'".format(paragraph_text, _lines))
             for line_text, line_width in _lines:
                 paragraph_obj['lines'].append( { 'words': line_text.split(), 'width': line_width } )
@@ -244,10 +246,10 @@ class TextDrawer:
             if (obstacles):
                 _current_obstacle = 0
 
-            if (self.__current_text_vertical_alignment == TextDrawer.TextAlignment.Bottom):
+            if (self.__current_text_vertical_alignment == TextAlignment.Bottom):
                 _y = y + h - total_height
 
-            elif (self.__current_text_vertical_alignment == TextDrawer.TextAlignment.Center):
+            elif (self.__current_text_vertical_alignment == TextAlignment.Center):
                 _y = y + (h - total_height) // 2
             else:
                 _y = y
@@ -275,11 +277,11 @@ class TextDrawer:
                             _local_w = _obstacle['x']
 
                     new_space_width = space_width
-                    if (paragraph_obj['horizontal_alignment'] == TextDrawer.TextAlignment.Right):
+                    if (paragraph_obj['horizontal_alignment'] == TextAlignment.Right):
                         _x = x + _local_w - line['width']
-                    elif (paragraph_obj['horizontal_alignment'] == TextDrawer.TextAlignment.Center):
+                    elif (paragraph_obj['horizontal_alignment'] == TextAlignment.Center):
                         _x = x + (_local_w - line['width']) // 2
-                    elif (paragraph_obj['horizontal_alignment'] == TextDrawer.TextAlignment.Justify and not last_line and len(line['words']) > 0):
+                    elif (paragraph_obj['horizontal_alignment'] == TextAlignment.Justify and not last_line and len(line['words']) > 0):
                         _x = x
                         num_spaces = len(line['words']) - 1
                         if (num_spaces > 0):
@@ -287,7 +289,7 @@ class TextDrawer:
                     else:
                         _x = x
 
-                    self.__print((_x, _y), ' '.join(line['words']), print_mode=TextDrawer.__PrintModes.NormalPrint, restricted_space_width=new_space_width)
+                    self.__print((_x, _y), ' '.join(line['words']), print_mode=PrintModes.NormalPrint, restricted_space_width=new_space_width)
                     _y += (1 + self.text_vertical_space_scale) * self.__current_font_size
                 _y += self.text_paragraph_vertical_space
 
@@ -299,17 +301,19 @@ class TextDrawer:
         max_height = 0
 
         _text = text
-        if (self.__current_text_capitalization == TextDrawer.CapitalizationModes.UpperCase):
+        if (self.__current_text_capitalization == CapitalizationModes.UpperCase):
             _text = _text.upper()
-        elif (self.__current_text_capitalization == TextDrawer.CapitalizationModes.LowerCase):
+        elif (self.__current_text_capitalization == CapitalizationModes.LowerCase):
             _text = _text.lower()
-        elif (self.__current_text_capitalization == TextDrawer.CapitalizationModes.Capitalize):
-            _text = ' '.join(_word.capitalize() for _word in _text.split(' '))
-        elif (self.__current_text_capitalization == TextDrawer.CapitalizationModes.CapitalizeFirst):
+        elif (self.__current_text_capitalization == CapitalizationModes.Capitalize):
+            _text = capitalize(_text)
+        elif (self.__current_text_capitalization == CapitalizationModes.CapitalizeSmart):
+            _text = capitalize_smart(_text)
+        elif (self.__current_text_capitalization == CapitalizationModes.CapitalizeFirst):
             _text = capitalize_first(_text)
 
-        if (print_mode == TextDrawer.__PrintModes.SplitLines):
-            _line_splits = list()
+        if (print_mode == PrintModes.SplitLines):
+            _line_splits: List[Tuple[str, int]] = list()
             _line_start = 0
             _line_start_x = 0
             _line_width = kwargs.get('line_width', None)
@@ -329,7 +333,7 @@ class TextDrawer:
         original_italic = self.__italic
         _continue = False
 
-        if (self.__current_text_capitalization == TextDrawer.CapitalizationModes.SmallCaps):
+        if (self.__current_text_capitalization == CapitalizationModes.SmallCaps):
             # _, _new_size = self._drawer.textsize(_char, font=_font)
             _new_size = int(self.__current_font_size * 0.75)
             _char = 'ixz'
@@ -345,7 +349,7 @@ class TextDrawer:
             if (_continue):
                 _continue = False
 
-                if (self.__current_text_capitalization == TextDrawer.CapitalizationModes.SmallCaps):
+                if (self.__current_text_capitalization == CapitalizationModes.SmallCaps):
                     # _, _new_size = self._drawer.textsize(_char, font=_font)
                     _new_size = int(self.__current_font_size * 0.75)
                     _char = 'ixz'
@@ -375,12 +379,12 @@ class TextDrawer:
             _y = int(y);
             _font = self.__font_base
 
-            if (self.__current_text_capitalization == TextDrawer.CapitalizationModes.SmallCaps and _char != _char.upper()):
+            if (self.__current_text_capitalization == CapitalizationModes.SmallCaps and _char != _char.upper()):
                 _char = _char.upper()
                 _y += _small_caps_dy
                 _font = _small_caps_font
             w, h = self.__drawer.textsize(_char, font=_font)
-            if (print_mode == TextDrawer.__PrintModes.NormalPrint):
+            if (print_mode == PrintModes.NormalPrint):
                 if (debug_console_print):
                     print(text[i], end='')
                 self.__drawer.text((_x, _y), _char, self.color, font=_font)
