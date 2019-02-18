@@ -4,13 +4,17 @@ from PIL import ImageFont
 from PIL.ImageDraw import ImageDraw
 from typing_tools import DictStruct
 
-from hammerhal.text_drawer import CapitalizationModes, PrintModes
+from hammerhal.text_drawer import CapitalizationModes, PrintModes, TextAlignment
 from hammerhal.text_drawer.text_funcs import capitalize_first
 
 class Obstacle(DictStruct):
     x: int
     y1: int
     y2: int
+
+class ParagraphObject(DictStruct):
+    lines: List[str] = []
+    horizontal_alignment: TextAlignment
 
 class Printer:
     drawer: ImageDraw
