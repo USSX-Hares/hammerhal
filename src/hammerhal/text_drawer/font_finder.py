@@ -1,4 +1,6 @@
 import os, glob, sys
+from typing import List
+
 from fontTools import ttLib
 from logging import getLogger
 logger = getLogger('text_drawer.fond_finder')
@@ -59,7 +61,7 @@ class FontFinder:
         return name, family
 
     @staticmethod
-    def get_fonts_directories():
+    def get_fonts_directories() -> List[str]:
         if (os.name == 'nt'):
             return [ os.path.join(os.environ['WINDIR'], 'Fonts') ]
         elif (os.name == 'posix'):
@@ -95,7 +97,7 @@ class FontFinder:
 
     def find_font_file_by_filename(self, filename):
         for font_dir in FontFinder.get_fonts_directories():
-            all_fonts = glob.glob(font_dir + '/**/' + filename, recursive=True)
+            all_fonts: List[str] = glob.glob(font_dir + '/**/' + filename, recursive=True)
             if (len(all_fonts) > 0):
                 return all_fonts[0]
 

@@ -1,9 +1,10 @@
 import inspect
 from enum import Enum, auto
+from typing import Optional
 
 class ExtendedEnum(Enum):
     @classmethod
-    def find_value(cls, key):
+    def find_value(cls, key) -> Optional['ExtendedEnum']:
         if (isinstance(key, str)):
             _members = inspect.getmembers(cls)
             for _member in _members:

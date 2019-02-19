@@ -1,8 +1,10 @@
 import copy
+import math
 from functools import wraps
-from typing import Callable, Any, List, Tuple
+from typing import Callable,  List, Tuple, Union, Iterable, Optional
 
 from PIL import Image, ImageDraw, ImageFont
+from PIL.ImageFont import FreeTypeFont
 
 from hammerhal.text_drawer import FontFinder, Obstacle, ParagraphObject, ParagraphLine
 from hammerhal.text_drawer import PrintModes, TextAlignment, CapitalizationModes
@@ -14,6 +16,9 @@ from hammerhal.text_drawer.text_funcs import capitalize_first, capitalize, capit
 _logger = getLogger("text_drawer")
 logger = _logger
 import datetime
+
+Point = Tuple[int, int]
+Region = Tuple[int, int, int, int]
 
 def log_time(func_name: str = None, logger: Logger = None, log_level: str = DEBUG):
     _func = None
@@ -41,28 +46,27 @@ def log_time(func_name: str = None, logger: Logger = None, log_level: str = DEBU
 
 class TextDrawer:
 
+    __drawer: ImageDraw.ImageDraw = None
+    __font_finder: FontFinder = None
 
-    __drawer = None
-    __font_finder = None
+    __current_font_size: int = None
+    __current_font_family: str = None
+    __current_font_filepath: str = None
+    __bold: bool = None
+    __italic: bool = None
 
-    __current_font_size = None
-    __current_font_family = None
-    __current_font_filepath = None
-    __bold = None
-    __italic = None
+    __current_text_horizontal_alignment: TextAlignment = None
+    __current_text_vertical_alignment: TextAlignment = None
+    __current_text_capitalization: CapitalizationModes = None
+    __font_base: FreeTypeFont = None
 
-    __current_text_horizontal_alignment = None
-    __current_text_vertical_alignment = None
-    __current_text_capitalization = None
-    __font_base = None
+    character_width_scale: float = None
+    text_character_separator_scale: float = None
+    text_vertical_space_scale: float = None
+    text_paragraph_vertical_space: float = None
+    text_space_scale: float = None
 
-    character_width_scale  = None
-    text_character_separator_scale = None
-    text_vertical_space_scale = None
-    text_paragraph_vertical_space = None
-    text_space_scale = None
-
-    color = None
+    color: Tuple[int, ...] = None
 
     def __init__(self, im:Image.Image, font_family='Times New Roman', font_size=None, color=None, bold=None, italic=None, font_finder=None):
         if (font_finder):
@@ -79,7 +83,25 @@ class TextDrawer:
             TextDrawer.__font_finder = FontFinder()
         return TextDrawer.__font_finder
 
-    def set_font(self, font_file=None, font_family=None, font_size=None, color=None, bold=None, italic=None, horizontal_alignment=None, vertical_alignment=None, character_width_scale=None, space_scale=None, vertical_space_scale=None, paragraph_vertical_space=None, character_separator_scale=None, capitalization=None):
+    def set_font \
+    (
+        self,
+        *,
+        font_file: str = None,
+        font_family: str = None,
+        font_size: Union[int, float] = None,
+        color: Union[str, Iterable[int]] = None,
+        bold: bool = None,
+        italic: bool = None,
+        horizontal_alignment: Union[TextAlignment, str] = None,
+        vertical_alignment: Union[TextAlignment, str] = None,
+        character_width_scale: float = None,
+        space_scale: float = None,
+        vertical_space_scale: float = None,
+        paragraph_vertical_space: float = None,
+        character_separator_scale: float = None,
+        capitalization: Union[CapitalizationModes, str] = None,
+    ):
         logger.debug("Requested font style change")
         self.__current_font_size = int(font_size or self.__current_font_size or 10)
 
@@ -174,23 +196,23 @@ class TextDrawer:
         return result_dict
 
     @log_time("Line print")
-    def print_line(self, position, text:str):
+    def print_line(self, position: Point, text: str):
         logger.debug(f"Printing text line: '{text}'")
         self.__print(position, text, print_mode=PrintModes.NormalPrint)
 
     @log_time("Text region print")
-    def print_in_region(self, region, text:str, offset_borders:bool=True, obstacles=None) -> Tuple[int, int]:
+    def print_in_region(self, region: Region, text: str, offset_borders: bool = True, obstacles: List[Obstacle] = None) -> Tuple[int, int]:
         logger.debug(f"Printing text region: '{text}'")
         result = self.__print_in_region(region, text, offset_borders, real_print=True, obstacles=obstacles)
         return result
 
     @log_time("Text region size")
-    def get_text_size(self, region, text:str, offset_borders:bool=True, obstacles: List[Obstacle]=None) -> Tuple[int, int]:
+    def get_text_size(self, region: Region, text: str, offset_borders: bool = True, obstacles: List[Obstacle] = None) -> Tuple[int, int]:
         logger.debug(f"Requested region text size: '{text}'")
         result = self.__print_in_region(region, text, offset_borders, real_print=False, obstacles=obstacles)
         return result
 
-    def __print_in_region(self, region: Tuple[int, int, int, int], text:str, offset_borders, real_print, obstacles: List[Obstacle]) -> Tuple[int, int]:
+    def __print_in_region(self, region: Region, text:str, offset_borders: bool, real_print: bool, obstacles: List[Obstacle]) -> Tuple[int, int]:
         if (offset_borders):
             x, y, w, h = region
         else:
@@ -199,9 +221,9 @@ class TextDrawer:
             h = y2 - y
 
         max_width = 0
-        space_width, _ = self.__print(None, ' ', print_mode=PrintModes.GetTextSize)
+        space_width, _ = self.__print__get_size(None, ' ')
         # _, line_height = self.__print(None, 'LINE HEIGHT (gyq,)', print_mode=PrintModes.GetTextSize)
-        _, line_height = self.__print(None, 'LINE HEIGHT', print_mode=PrintModes.GetTextSize)
+        _, line_height = self.__print__get_size(None, 'LINE HEIGHT')
 
         paragraphs: List[ParagraphObject] = []
         for paragraph_text in text.split('\n'):
@@ -229,7 +251,7 @@ class TextDrawer:
                 else:
                     i += 1
 
-            _lines = self.__print(None, ' '.join(words), print_mode=PrintModes.SplitLines, line_width=w, obstacles=obstacles)
+            _lines = self.__print__get_split(None, ' '.join(words), line_width=w, obstacles=obstacles)
             logger.debug(f"Splitting paragraph to lines: '{paragraph_text}' -> '{_lines}'")
             for line_text, line_width in _lines:
                 paragraph_obj.lines.append(ParagraphLine(words=line_text.split(), width=line_width))
@@ -301,10 +323,22 @@ class TextDrawer:
         
         assert max_width <= w, "Max width exceeded"
         return max_width, total_height
-
-
-    def __print(self, position, text: str, print_mode, restricted_space_width=None, debug_console_print: bool = False, **kwargs):
-        x, y = position or (0, 0)
+    
+    
+    def __print__get_split(self, *args, **kwargs) -> List[Tuple[str, int]]:
+        return self.__print(*args, print_mode=PrintModes.SplitLines, **kwargs)[0]
+    
+    def __print__get_size(self, *args, **kwargs) -> Tuple[int, int]:
+        return self.__print(*args, print_mode=PrintModes.GetTextSize, **kwargs)[1]
+    
+    def __print(self, position: Optional[Point], text: str, print_mode: PrintModes, restricted_space_width: int = None, debug_console_print: bool = False, **kwargs) \
+        -> Tuple \
+        [
+            Optional[List[Tuple[str, int]]],
+            Optional[Tuple[int, int]],
+        ]:
+        
+        x, y = position or (0, 0) # type: float, float
         max_height = 0
 
         capitalize_func = \
@@ -321,7 +355,7 @@ class TextDrawer:
             _line_splits: List[Tuple[str, int]] = list()
             _line_start = 0
             _line_start_x = 0
-            _line_width = kwargs.get('line_width', None)
+            _line_width: Optional[int] = kwargs.get('line_width', None)
             x = 0
             _word_start = 0
             _word_start_x = 0
@@ -330,7 +364,7 @@ class TextDrawer:
             if (_line_width is None):
                 raise ValueError("'line_width' argument is required for the SplitLines mode")
 
-            _obstacles: List[Obstacle] = kwargs.get('obstacles', None)
+            _obstacles: Optional[List[Obstacle]] = kwargs.get('obstacles', None)
             _current_obstacle = 0
 
         original_bold = self.__bold
@@ -338,15 +372,14 @@ class TextDrawer:
         _continue = False
 
         if (self.__current_text_capitalization == CapitalizationModes.SmallCaps):
-            # _, _new_size = self._drawer.textsize(_char, font=_font)
             _new_size = int(self.__current_font_size * 0.75)
             _char = 'ixz'
             _char = _char.upper()
 
             _font = self.__font_base
             _small_caps_font = ImageFont.truetype(font=self.__current_font_filepath, size=_new_size, encoding='unic')
-            _, _y1 = self.__drawer.textsize(_char, font=_small_caps_font)
-            _, _y2 = self.__drawer.textsize(_char, font=_font)
+            _, _y1 = self.__drawer.textsize(_char, font=_small_caps_font) # type: int, int
+            _, _y2 = self.__drawer.textsize(_char, font=_font) # type: int, int
             _small_caps_dy = _y2 - _y1
         
         _len = len(text)
@@ -355,7 +388,6 @@ class TextDrawer:
                 _continue = False
 
                 if (self.__current_text_capitalization == CapitalizationModes.SmallCaps):
-                    # _, _new_size = self._drawer.textsize(_char, font=_font)
                     _new_size = int(self.__current_font_size * 0.75)
                     _char = 'ixz'
                     _char = _char.upper()
@@ -388,13 +420,13 @@ class TextDrawer:
                 _char = _char.upper()
                 _y += _small_caps_dy
                 _font = _small_caps_font
-            w, h = self.__drawer.textsize(_char, font=_font)
+            w, h = self.__drawer.textsize(_char, font=_font) # type: int, int
             if (print_mode == PrintModes.NormalPrint):
                 if (debug_console_print):
                     print(text[i], end='')
                 self.__drawer.text((_x, _y), _char, self.color, font=_font)
             if (_char == ' ' or i == _len - 1):
-                _space_width = restricted_space_width if restricted_space_width else w * self.text_space_scale
+                _space_width: float = restricted_space_width or w * self.text_space_scale
                 
                 if (print_mode == PrintModes.SplitLines):
 
@@ -412,7 +444,7 @@ class TextDrawer:
 
                     if (_obstacle):
                         if ((y <= _obstacle.y1 <= y + h) or (_obstacle.y1 <= y <= _obstacle.y2)):
-                            _local_line_width = _obstacle.x
+                            _local_line_width: int = _obstacle.x
 
                     _local_line_width -= _space_width
                     
@@ -438,7 +470,7 @@ class TextDrawer:
             if (max_height < h):
                 max_height = h
 
-        initial_x, _ = position or (0, 0)
+        initial_x, _ = position or (0, 0) # type: int, int
         if (debug_console_print):
             print('', end='\n')
         self.set_font(bold=original_bold, italic=original_italic)
@@ -446,7 +478,7 @@ class TextDrawer:
         if (print_mode == PrintModes.SplitLines):
             _current_line_width = x - _line_start_x
             assert _current_line_width <= _line_width, "Last line width exceeded"
-            _line_splits.append((text[_line_start:], _current_line_width))
-            return _line_splits
+            _line_splits.append((text[_line_start:], math.ceil(_current_line_width)))
+            return _line_splits, None
         else:
-            return (x - initial_x, max_height)
+            return None, (math.ceil(x - initial_x), max_height)

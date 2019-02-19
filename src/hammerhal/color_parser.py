@@ -1,6 +1,8 @@
+from typing import Tuple
+
 from PIL import ImageColor
 
-def __get_color(color):
+def __get_color(color) -> Tuple[int, ...]:
     _color = color
     if (isinstance(_color, int)):
         _color = "0x" + "{0:8x}".format(_color)
