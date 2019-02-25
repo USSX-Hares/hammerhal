@@ -16,6 +16,7 @@
     "properties":
     {
         "name":                 { "type": "string" },
+        "subtitle":             { "type": [ "string", "null" ] },
         "description":          { "type": "string" },
         "effect":               { "type": [ "string", "null" ] },
         

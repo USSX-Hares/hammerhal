@@ -1,0 +1,160 @@
+{
+    "modules":
+    {
+        "name":
+        {
+            "positionX": 300,
+            "positionY": 100,
+            "width": 1384,
+            "height": 200,
+            
+            "font":
+            {
+                "fontFamily": "Bodoni MT",
+                "fontSize": 160,
+                "bold": true,
+                "color": "black",
+                
+                "capitalization": "SmallCaps",
+                "horizontalAlignment": "Center",
+                "verticalAlignment": "Center"
+            }
+        }
+        ,
+        "type":
+        {
+            "positionX": 700,
+            "positionY": 2530,
+            "width": 600,
+            "height": 200,
+            
+            "font":
+            {
+                "fontFamily": "Times New Roman",
+                "fontSize": 105,
+                "bold": true,
+                "color": "black",
+                
+                "capitalization": "Capitalize",
+                "horizontalAlignment": "Center",
+                "verticalAlignment": "Center"
+            }
+        }
+        ,
+        "description":
+        {
+            "positionX": 175,
+            "positionY": 400,
+            "width": 1634,
+            "height": 1250,
+            "continuous": true,
+            "offset": 80,
+            
+            "font":
+            {
+                "fontFamily": "Times New Roman",
+                "fontSize": 80,
+                "bold": true,
+                "italic": true,
+                "color": "black",
+                
+                "horizontalAlignment": "Justify",
+                "verticalAlignment": "Top"
+            }
+        }
+        ,
+        "effect":
+        {
+            "positionX": 175,
+            "positionY": 400,
+            "width": 1634,
+            "height": 1250,
+            "continuous": true,
+            "offset": 80,
+            
+            "font":
+            {
+                "fontFamily": "Times New Roman",
+                "fontSize": 80,
+                "bold": false,
+                "color": "black",
+                
+                "horizontalAlignment": "Justify",
+                "verticalAlignment": "Top"
+            }
+        }
+        ,
+        "weapons":
+        {
+            "positionX": 175,
+            "positionY": 400,
+            "width": 1634,
+            "height": 1250,
+            "continuous": true,
+            "offset": 80,
+            
+            "stats":
+            {
+                "cost":     "dice",
+                "range":    [ "combat", "missile", "area" ],
+                "hit":      "dice",
+                "damage":   "string"
+            },
+            
+            "headerRow": [ "WEAPON ACTIONS", "Range", "Hit", "Dmg." ],
+            "bodyRowTemplate": [ "{name} ({cost}+)", "{range}", "{hit}+", "{damage}" ],
+            "verticalColumns": [ 0, 625, 910, 1080, 1285 ],
+            "headerRowInterval": 15,
+            "rowIntervalByCount": [ 25, 25, 25, 25 ],
+            "cellHeight": 150,
+            
+            "font":
+            {
+                "fontSize": 60,
+                "fontFamily": "Times New Roman",
+                "color": "black",
+                "bold": true,
+                "horizontalAlignment": "Center",
+                "verticalAlignment": "Center"
+            }
+        }
+        ,
+        "rules":
+        {
+            "positionX": 175,
+            "positionY": 400,
+            "width": 1634,
+            "height": 1250,
+            "continuous": true,
+            "offset": 80,
+            
+            "gradient":
+            [
+                { "position": 0, "color": "0x00ffffff" },
+                { "position": 1600, "color": "0x00ffffff" }
+            ],
+            
+            "textLeft": 0,
+            "textWidthNoDice": 1634,
+            "textWidthWithDice": 1249,
+            "defaultRulesSeparatorHeight": 105,
+            "dicePosition": 1438,
+            "diceImage": "tokens/dice-gray.png",
+            
+            "font":
+            {
+                "fontSize": 80,
+                "fontFamily": "Times New Roman",
+                "color": "black",
+                
+                "paragraphVerticalSpace": 15,
+                "horizontalAlignment": "Justify",
+                "verticalAlignment": "Top"
+            }
+        }
+    },
+    
+    "baseNameTemplate": "artifact_templates/{set}/{name}.png",
+    "outputDirectory": "artifacts/{set}/",
+    "rawDirectory": "artifacts/"
+}

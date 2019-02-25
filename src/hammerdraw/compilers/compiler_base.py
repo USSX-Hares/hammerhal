@@ -30,22 +30,24 @@ class CompilerBase():
     compiled_modules = None
     initialized_modules = None
     continuous_print = None
-
+    
     def __init__(self):
         self.schema_path = "{directory}{type}.json".format(directory=ConfigLoader.get_from_config('schemasDirectory', 'compilers'), type=self.compiler_type)
         self.templates_path = "{directory}{type}.json".format(directory=ConfigLoader.get_from_config('templatesDirectory', 'compilers'), type=self.compiler_type)
         self.raw_directory = "{rawRoot}{rawOffset}".format(rawRoot=ConfigLoader.get_from_config('rawDirectoryRoot'), rawOffset=self.get_from_compiler_config('rawDirectory'.format(type=self.compiler_type)))
-        self.output_directory = "{rawRoot}{rawOffset}".format(rawRoot=ConfigLoader.get_from_config('outputDirectoryRoot', 'compilers'), rawOffset=self.get_from_compiler_config('outputDirectory'.format(type=self.compiler_type)))
+        self.output_directory = "{outRoot}{outOffset}".format(outRoot=ConfigLoader.get_from_config('outputDirectoryRoot', 'compilers'), outOffset=self.get_from_compiler_config('outputDirectory'.format(type=self.compiler_type)))
         self.sources_directory = ConfigLoader.get_from_config('sourcesDirectory', 'compilers')
         self.continuous_print = dict()
-
-    def search(self, ignore_dummies=True):
-        all_entries = glob.glob(self.raw_directory + "**/*.json", recursive=True)
-        dummies = ignore_dummies and glob.glob(self.raw_directory + "**/*.dummy.json", recursive=True) or [ ]
+    
+    def search(self, ignore_dummies=True, extension: str = 'json', directory: str = None):
+        if (directory is None):
+            directory = self.raw_directory
+        all_entries = glob.glob(directory + f'**/*.{extension}', recursive=True)
+        dummies = ignore_dummies and glob.glob(directory + f'**/*.dummy.{extension}', recursive=True) or [ ]
         diff = set(all_entries) - set(dummies)
         formatted = [ filename.replace('\\', '/') for filename in sorted(list(diff)) ]
         return formatted
-
+    
     def find(self, name, **kwargs):
         filename = name
         if (os.path.isfile(filename)):
@@ -83,7 +85,7 @@ class CompilerBase():
         self.open(self.templates_path)
         self.filename = None
 
-    def open(self, name, **kwargs):
+    def open(self, name, *, ignore_schema: bool = False, **kwargs):
         _filename = self.find(name, **kwargs)
         self.compiled = None
         if (not _filename):
@@ -93,23 +95,27 @@ class CompilerBase():
         file = open(_filename)
         raw = json.load(file)
         file.close()
-
-        _schema_filename = self.schema_path
-        logger.debug("Reading '{filename}'...".format(filename=_schema_filename))
-        file = open(_schema_filename)
-        schema = json.load(file)
-        file.close()
-
-        try:
-            logger.debug("Validating {name}...".format(name=name))
-            validate(raw, schema)
-        except jsonschema.exceptions.ValidationError as e:
-            logger.error("Raw file is not valid: {msg}".format(msg=e.message))
-            self.raw = None
+        
+        if (not ignore_schema):
+            _schema_filename = self.schema_path
+            logger.debug("Reading '{filename}'...".format(filename=_schema_filename))
+            file = open(_schema_filename)
+            schema = json.load(file)
+            file.close()
+    
+            try:
+                logger.debug("Validating {name}...".format(name=name))
+                validate(raw, schema)
+            except jsonschema.exceptions.ValidationError as e:
+                logger.error("Raw file is not valid: {msg}".format(msg=e.message))
+                self.raw = None
+            else:
+                logger.debug("Raw file is valid")
+                self.raw = raw
         else:
-            logger.debug("Raw file is valid")
+            logger.debug("Raw file checks were ignored")
             self.raw = raw
-
+        
         self.filename = _filename
         self.compiled_filename = None
         return self.raw

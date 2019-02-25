@@ -88,6 +88,7 @@
             "properties":
             {
                 "dices": { "type": "string" },
+                "title": { "type": "string" },
                 "table":
                 {
                     "type": "array",

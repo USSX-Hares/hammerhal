@@ -1,0 +1,19 @@
+{
+    "modules":
+    {
+        "image_grid":
+        {
+            "rows": 3,
+            "columns": 3,
+            
+            "positionX": 0,
+            "positionY": 0,
+            "width": 4342,
+            "height": 6199
+        }
+    },
+    
+    "baseNameTemplate": "A4 for cards 1080.png",
+    "outputDirectory": "prints/",
+    "rawDirectory": "prints/"
+}

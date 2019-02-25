@@ -1,0 +1,9 @@
+modules/
+       /.gitignore :
+                     *
+                     !.gitignore
+                     !core.*/
+       
+       /{extension}/{module_name}/
+                                  __init__.py
+                                  __

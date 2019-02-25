@@ -2,9 +2,7 @@ import json
 
 from hammerdraw import ConfigLoader
 from hammerdraw.preloads import setup_logging
-from hammerdraw.compilers import HeroCompiler, CardCompiler
-
-from typing import List, Tuple
+from hammerdraw.compilers.warhammer_quest import HeroCompiler, CardCompiler
 
 def main():
     from logging import getLogger

@@ -19,14 +19,15 @@ Done: Stats module GUI
 Done: Weapons module GUI
 TODO: Hero Rules module GUI
 Done: Menus
-TODO: Hero base with 1 weapon; Hero base with 4 weapons
+Done: Hero base with 1 weapon
+TODO: Hero base with 4 weapons
 DONE: Adversary base with 1 weapon; Adversary base with 2 weapons; Adversary base with 4 weapons
 TODO: Adversary base with 5 weapons
 TODO: Error handling during compilation (done for text & image modules)
 Done: Region printer optimisation
 
 Release 0.4: - Optimization
-TODO: Minion card type
+Done: Minion card type
 TODO: Add paging to the text drawer
 TODO: Advanced adversary rules positioning
 TODO: Two-paged adversaries

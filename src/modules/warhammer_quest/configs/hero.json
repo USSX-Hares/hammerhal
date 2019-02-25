@@ -1,0 +1,139 @@
+{
+    "modules":
+    {
+        "image":
+        {
+            "positionX": 0,
+            "positionY": 0,
+            "width": 1080,
+            "height": 1150
+        }
+        ,
+        "name":
+        {
+            "positionX": 1200,
+            "positionY": 15,
+            "width": 2400,
+            "height": 300,
+            
+            "font":
+            {
+                "fontFamily": "Bodoni MT",
+                "fontSize": 285,
+                "bold": true,
+                "color": "white",
+                
+                "capitalization": "SmallCaps",
+                "horizontalAlignment": "Center",
+                "verticalAlignment": "Top"
+            }
+        }
+        ,
+        "stats":
+        {
+            "positionX": 600,
+            "positionY": 600,
+            "width": 700,
+            "height": 700,
+            
+            "stats":
+            {
+                "move": { "type": "integer", "x": 310, "y": 150 },
+                "save": { "type": "dice", "x": 190, "y": 350 },
+                "agility": { "type": "dice", "x": 390, "y": 350 }
+            },
+            
+            "font":
+            {
+                "fontSize": 110,
+                "fontFamily": "Constantia",
+                "color": "white",
+                "bold": true
+            }
+        }
+        ,
+        "dice_space":
+        {
+            "positionX": 1480,
+            "positionY": 383,
+            "width": 1930,
+            "height": 300,
+            
+            "diceMaxWidth": 300,
+            "defaultDiceSpace": [ { "count": 4, "image": "tokens/dice-gray.png" } ]
+        }
+        ,
+        "weapons":
+        {
+            "positionX": 1340,
+            "positionY": 760,
+            "width": 2115,
+            
+            "stats":
+            {
+                "cost":     "dice",
+                "range":    [ "combat", "missile", "area" ],
+                "hit":      "dice",
+                "damage":   "string"
+            },
+            
+            "headerRow": [ "WEAPON ACTIONS", "Range", "Hit", "Damage" ],
+            "bodyRowTemplate": [ "{name} ({cost}+)", "{range}", "{hit}+", "{damage}" ],
+            "verticalColumns": [ 0, 1080, 1520, 1730, 2115 ],
+            "headerRowInterval": 70,
+            "rowIntervalByCount": [ null, null, 60, 40 ],
+            "cellHeight": 110,
+            
+            "font":
+            {
+                "fontSize": 70,
+                "fontFamily": "Times New Roman",
+                "color": "black",
+                "bold": true,
+                "horizontalAlignment": "Center",
+                "verticalAlignment": "Center"
+            }
+        }
+        ,
+        "rules":
+        {
+            "positionX": 0,
+            "positionY": 1330,
+            "width": 3600,
+            "height": 1250,
+            
+            "gradient":
+            [
+                { "position": 0, "color": "0x00ffffff" },
+                { "position": 250, "color": "0x00ffffff" },
+                { "position": 1200, "color": "0x50ffffff" },
+                { "position": 2400, "color": "0x50ffffff" },
+                { "position": 3400, "color": "0x00ffffff" },
+                { "position": 3600, "color": "0x00ffffff" }
+            ],
+            
+            "textLeft": 365,
+            "textWidthNoDice": 3233,
+            "textWidthWithDice": 2933,
+            "defaultRulesSeparatorHeight": 100,
+            "dicePosition": 3260,
+            "diceImage": "tokens/dice-gray.png",
+            
+            "font":
+            {
+                "fontSize": 90,
+                "fontFamily": "Times New Roman",
+                "color": "black",
+                
+                "paragraphVerticalSpace": 50,
+                "verticalSpaceScale": 0.15,
+                "horizontalAlignment": "Justify",
+                "verticalAlignment": "Center"
+            }
+        }
+    },
+    
+    "baseNameTemplate": "hero_templates/hero_card_base_{weaponsCount}_weapons.png",
+    "outputDirectory": "heroes/",
+    "rawDirectory": "heroes/"
+}

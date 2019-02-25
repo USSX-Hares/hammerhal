@@ -46,7 +46,10 @@
                 {
                     "count": { "$ref": "file:schemas/definitions/positive_integer.json" },
                     "image": { "type": "string" }
-                }
+                },
+                
+                "required": [ "count", "image" ],
+                "additionalProperties": false
             }
         },
         
